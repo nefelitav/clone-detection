@@ -1,1 +1,0 @@
-module Algorithms::Type3

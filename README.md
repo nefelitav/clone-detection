@@ -16,7 +16,26 @@
 
 # Literature Conclusions
 
-Type I: exact copy, ignoring whitespace and comments.
-Type II: syntactical copy, changes allowed in variable, type, function identifiers.
-Type III: copy with changed, added, and deleted statements.
-Type IV: functionality is the same, code may be completely different.
+- Type I: exact copy, ignoring whitespace and comments.
+- Type II: syntactical copy, changes allowed in variable, type, function identifiers.
+- Type III: copy with changed, added, and deleted statements.
+- Type IV: functionality is the same, code may be completely different.
+
+## Clone Detection Using Abstract Syntax Trees
+- Basic Algorithm: detect sub-tree clones, categorizing sub-trees with hash values and buckets.
+Eliminate sub-clones. We choose a B of approximately the same order as N; in practice, B=10% N means little additional space at great savings in terms of computation.
+This approach works well when we are finding exact
+clones. 
+we used a hash function that ignores only the identifier names (leaves in the tree). Thus our hashing function puts trees which are similar modulo identifiers into the same hash bins for comparison.
+
+Similarity = 2 x S / (2 x S + L + R)
+where:
+S = number of shared nodes
+L = number of different nodes in sub-tree 1
+R = number of different nodes in sub-tree 2
+
+The mass threshold parameter specifies the minimum subtree mass (number of nodes) value to be considered, so that
+small pieces of code (e.g., expressions) are ignored.
+
+- Sequence Detection Algorithm: detection of variable-size sequences of sub-tree clones, detect statement and declaration sequence clones
+- more complex near-miss clones by attempting to generalize combinations of other clones
