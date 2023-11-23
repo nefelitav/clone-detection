@@ -22,7 +22,7 @@
 - Type IV: functionality is the same, code may be completely different.
 
 ## Clone Detection Using Abstract Syntax Trees
-- Basic Algorithm: detect sub-tree clones, categorizing sub-trees with hash values and buckets.
+1) Basic Algorithm: detect sub-tree clones, categorizing sub-trees with hash values and buckets.
 Eliminate sub-clones. We choose a B of approximately the same order as N; in practice, B=10% N means little additional space at great savings in terms of computation.
 This approach works well when we are finding exact
 clones. 
@@ -37,5 +37,5 @@ R = number of different nodes in sub-tree 2
 The mass threshold parameter specifies the minimum subtree mass (number of nodes) value to be considered, so that
 small pieces of code (e.g., expressions) are ignored.
 
-- Sequence Detection Algorithm: detection of variable-size sequences of sub-tree clones, detect statement and declaration sequence clones
-- more complex near-miss clones by attempting to generalize combinations of other clones
+2) Sequence Detection Algorithm: detection of variable-size sequences of sub-tree clones, detect statement and declaration sequence clones
+3) More complex near-miss clones by attempting to generalize combinations of other clones

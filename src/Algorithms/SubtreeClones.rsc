@@ -1,67 +1,78 @@
 module Algorithms::SubtreeClones
 
+import Lib::Utilities;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 import IO;
-import Lib::Utilities;
+import Node;
+import List;
 
 // int hash(str s) {
 //     return 0;
 // }
 
 void findSubtreeClones(loc projectLocation, int cloneType) {
-    clones = ();
-    buckets = ();
     // small pieces of code are ignored
     int massThreshold = 10;
-    if (cloneType == 1) {
-        real similarityThreshold = 1.0;
-    } else if (cloneType == 2) {
-        real similarityThreshold = 1.0;
-    } else if (cloneType == 3) {
-        real similarityThreshold = 1.0;
-    }
+    real similarityThreshold = 1.0;
     list[Declaration] ast = getASTs(projectLocation);
+    map[str, list[node]] hashTable = createHashTable(ast, massThreshold);
+    // for (bucket <- hashTable) {
+    //     println("<bucket>: <hashTable[bucket]> <size(hashTable[bucket])>\n");
+    // }
+    findClones(hashTable, similarityThreshold);
+
+}
+
+void findClones(map[str, list[node]] hashTable, real similarityThreshold) {
+    clones = ();
+	for (bucket <- hashTable) {	
+        for (bucketNode <- hashTable[bucket]) {
+            for (bucketNode2 <- hashTable[bucket]) {
+                if (bucketNode != bucketNode2) {
+                    if (compareTree(bucketNode, bucketNode2) > similarityThreshold) {
+                        // visit (bucketNode) {
+                        //     case node n: {
+                        //         if (n in clones) {
+                        //             delete(clones, n);
+                        //         }
+                        //     }
+                        // }
+                        // visit (bucketNode2) {
+                        //     case node n: {
+                        //         if (n in clones) {
+                        //             delete(clones, n);
+                        //         }
+                        //     }
+                        // }
+                        clones[bucketNode] = bucketNode2;
+                    }
+                }
+            }
+        }	
+    }
+}
+
+
+map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold) {
+    map[str, list[node]] hashTable = ();
     int subtreeNumber = treeMass(ast);
     int bucketNumber = subtreeNumber*10/100;
+
     visit (ast) {
 		case node n: {
 			int nodeMass = subtreeMass(n);
 			if (nodeMass >= massThreshold) {
-                buckets[0] = n;
-                // hash n to bucket
-                // buckets[hash(n) % (bucketNumber + 1)] = n;
+                // hash n to bucket -> remove line numbers of nodes
+                if (md5Hash(unsetRec(n)) in hashTable) {
+                    hashTable[md5Hash(unsetRec(n))] += n;
+                } else {
+                    hashTable[md5Hash(unsetRec(n))] = [n];
+                }
 			}
 		}
 	}
-
-	// for (bucket <- buckets) {	
-    //     for (i <- buckets[bucket]) {
-    //         for (j <- buckets[bucket]) {
-    //             if (i != j) {
-    //                 if (compareTree(i, j) > similarityThreshold) {
-    //                     visit (i) {
-    //                         case node n: {
-    //                             if (n in clones) {
-    //                                 delete(clones, n);
-    //                             }
-    //                         }
-    //                     }
-    //                     visit (j) {
-    //                         case node n: {
-    //                             if (n in clones) {
-    //                                 delete(clones, n);
-    //                             }
-    //                         }
-    //                     }
-    //                     clones[i] = j;
-    //                 }
-    //             }
-    //         }
-    //     }	
-    // }
-
-
+    return hashTable;
 }
 
 int treeMass(list[Declaration] ast) {
@@ -91,7 +102,7 @@ int compareTree(node node1, node node2) {
             // check if node of subtree 1 is in subtree 2 too
             visit (node2) {
                 case node n2 : {
-                    if (n == n2) {
+                    if (unsetRec(n) == unsetRec(n2)) {
                         sharedNodes += 1;
                     }
                 }
@@ -101,14 +112,14 @@ int compareTree(node node1, node node2) {
 	}
     // count all nodes of subtree 2
     visit (node2) {
-		case node n : {
+		case node _ : {
             subtree2Nodes += 1;
         }
 	}
 	return 2 * sharedNodes / (2 * sharedNodes + (subtree1Nodes - sharedNodes) + (subtree2Nodes - sharedNodes));
 } 
 
-public node cleanNode(node currentNode) {
+public node normalizeIdentifiers(node currentNode) {
 	return visit (currentNode) {
         case \enum(_, x, y, z) => \enum("name", x, y, z)
         case \enumConstant(_, y) => \enumConstant("name", y) 
