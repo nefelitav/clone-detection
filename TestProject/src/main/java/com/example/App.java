@@ -8,7 +8,11 @@ package com.example;
 public class App
 {
     public void bigFunction() {
-        System.out.println( "Hello World!" );
-        System.out.println( "Hello World!" );
+        if (true) {
+            System.out.println( "Hello World!" );
+        }
+        if (true) {
+            System.out.println( "Hello World!" );
+        }
     }
 }

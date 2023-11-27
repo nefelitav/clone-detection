@@ -7,67 +7,48 @@ import IO;
 import Node;
 import List;
 
-// int hash(str s) {
-//     return 0;
-// }
+// TODO
+// choose what to keep in normalizeIdentifiers
+// choose similarityThreshold for type 2 and 3
+// how to handle similarityThreshold=1.0 in findClones
 
-void findSubtreeClones(loc projectLocation, int cloneType) {
+list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType) {
     // small pieces of code are ignored
     int massThreshold = 10;
-    real similarityThreshold = 1.0;
     list[Declaration] ast = getASTs(projectLocation);
-    map[str, list[node]] hashTable = createHashTable(ast, massThreshold);
+    real similarityThreshold = 1.0;
+    if (cloneType == 2) {
+        real similarityThreshold = 1.0;
+    } if (cloneType == 3) {
+        real similarityThreshold = 1.0;
+    }
+    map[str, list[node]] hashTable = createHashTable(ast, massThreshold, cloneType);
     // for (bucket <- hashTable) {
     //     println("<bucket>: <hashTable[bucket]> <size(hashTable[bucket])>\n");
     // }
-    findClones(hashTable, similarityThreshold);
+    return findClones(hashTable, similarityThreshold, cloneType);
 
 }
 
-void findClones(map[str, list[node]] hashTable, real similarityThreshold) {
-    clones = ();
-	for (bucket <- hashTable) {	
-        for (bucketNode <- hashTable[bucket]) {
-            for (bucketNode2 <- hashTable[bucket]) {
-                if (bucketNode != bucketNode2) {
-                    if (compareTree(bucketNode, bucketNode2) > similarityThreshold) {
-                        // visit (bucketNode) {
-                        //     case node n: {
-                        //         if (n in clones) {
-                        //             delete(clones, n);
-                        //         }
-                        //     }
-                        // }
-                        // visit (bucketNode2) {
-                        //     case node n: {
-                        //         if (n in clones) {
-                        //             delete(clones, n);
-                        //         }
-                        //     }
-                        // }
-                        clones[bucketNode] = bucketNode2;
-                    }
-                }
-            }
-        }	
-    }
-}
-
-
-map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold) {
+map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
     map[str, list[node]] hashTable = ();
-    int subtreeNumber = treeMass(ast);
-    int bucketNumber = subtreeNumber*10/100;
-
+    // int subtreeNumber = treeMass(ast);
+    // int bucketNumber = subtreeNumber*10/100;
     visit (ast) {
 		case node n: {
 			int nodeMass = subtreeMass(n);
 			if (nodeMass >= massThreshold) {
                 // hash n to bucket -> remove line numbers of nodes
-                if (md5Hash(unsetRec(n)) in hashTable) {
-                    hashTable[md5Hash(unsetRec(n))] += n;
+                str hash = md5Hash(unsetRec(n));
+                if (cloneType == 2) {
+                    n = normalizeIdentifiers(n);
+                } else if (cloneType == 3) {
+                    n = normalizeIdentifiers(n);
+                }
+                if (hash in hashTable) {
+                    hashTable[hash] += n;
                 } else {
-                    hashTable[md5Hash(unsetRec(n))] = [n];
+                    hashTable[hash] = [n];
                 }
 			}
 		}
@@ -75,10 +56,93 @@ map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold) {
     return hashTable;
 }
 
+
+list[tuple[node, node]] removeSubclones(list[tuple[node, node]] clones, node i, node j) {
+    for(pair <- clones) {
+        visit(i) {
+            case node s: {
+                visit(j) {
+                    case node s2: {
+                        if (pair[0] == s && pair[1] == s2) {
+                            clones -= <s, s2>;
+                        } else if (pair[0] == s2 && pair[1] == s) {
+                            clones -= <s2, s>;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return clones;   
+}
+
+bool canAdd(list[tuple[node, node]] clones, node i, node j) {
+    for(pair <- clones) {
+        visit(pair[0]) {
+            case node s: {
+                visit(pair[1]) {
+                    case node s2: {
+                        if ((i == s && j == s2) || (i == s2 && j == s)) {
+                            // println("cant add : <i> <j> <pair>\n");
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+list[tuple[node, node]] addClone(list[tuple[node, node]] clones, node i, node j) {
+    // if clones is empty, just add the pair
+    if (size(clones) == 0) {
+        clones = [<i, j>];
+        return clones;
+    } else {
+        // check if the pair is already in clones, as is or as a subclone
+        if (<j,i> in clones) {
+            return clones;
+        }
+        clones = removeSubclones(clones, i, j);
+        if (canAdd(clones, i, j)) {
+            // println("can add \n");
+            clones += <i, j>;
+        }
+        return clones;
+    }
+}
+
+
+list[tuple[node, node]] findClones(map[str, list[node]] hashTable, real similarityThreshold, int cloneType) {
+    list[tuple[node, node]] clones = [];
+    // for each subtree i and j in the same bucket
+	for (bucket <- hashTable) {	
+        for (i <- hashTable[bucket]) {
+            for (j <- hashTable[bucket]) {
+                // ensure we are not comparing one thing with itself
+                if (i != j) {
+                    int comparison = compareTree(i, j);
+                    // check if are clones
+                    if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison > similarityThreshold))) {
+                        // println("<hashTable[bucket]>\n");
+                        clones = addClone(clones, i, j);
+                    }
+                }
+            }
+        }	
+    }
+    println(size(clones));
+    return clones;
+}
+
+
+
+
 int treeMass(list[Declaration] ast) {
 	int mass = 0;
 	visit (ast) {
-		case node n : mass += 1;
+		case node _ : mass += 1;
 	}
 	return mass;
 }
@@ -86,7 +150,7 @@ int treeMass(list[Declaration] ast) {
 int subtreeMass(node currentNode) {
 	int mass = 0;
 	visit (currentNode) {
-		case node n : mass += 1;
+		case node _ : mass += 1;
 	}
 	return mass;
 }
@@ -141,11 +205,11 @@ public node normalizeIdentifiers(node currentNode) {
 		case \characterLiteral(_) => \characterLiteral("a")
         case \fieldAccess(x, y, _) => \fieldAccess(x, y, "name")
         case \fieldAccess(x, _) => \fieldAccess(x, "name")
-		case \methodCall(x, _, z) => \methodCall(x, "name", z)
-		case \methodCall(x, y, _, z) => \methodCall(x, y, "name", z) 
-		case \number(_) => \number("0")
-		case \booleanLiteral(_) => \booleanLiteral(true)
-		case \stringLiteral(_) => \stringLiteral("name")
+		// case \methodCall(x, _, z) => \methodCall(x, "name", z)
+		// case \methodCall(x, y, _, z) => \methodCall(x, y, "name", z) 
+		// case \number(_) => \number("0")
+		// case \booleanLiteral(_) => \booleanLiteral(true)
+		// case \stringLiteral(_) => \stringLiteral("name")
         case \variable(_,y) => \variable("name", y) 
 		case \variable(_,y,z) => \variable("name", y, z) 
         case \simpleName(_) => \simpleName("name")
