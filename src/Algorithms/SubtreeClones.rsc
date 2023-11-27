@@ -1,18 +1,98 @@
 module Algorithms::SubtreeClones
 
 import Lib::Utilities;
+import Lib::Statistics;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 import IO;
 import Node;
 import List;
+import util::Math;
 
 // TODO
 // choose what to keep in normalizeIdentifiers
 // choose similarityThreshold for type 2 and 3
-// how to handle similarityThreshold=1.0 in findClones
+// how to handle similarityThreshold=1.0 in findClonePairs
 
-list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType) {
+
+// % of duplicated lines, 
+
+map[node, list[node]] findCloneClasses(list[tuple[node, node]] clonePairs) {
+    map[node, list[node]] cloneMap = (); 
+    for(pair <- clonePairs) { 
+        if (pair[0] in cloneMap) {
+            if (pair[1] notin cloneMap[pair[0]]) {
+                cloneMap[pair[0]] += pair[1];
+            }
+        } else if (pair[1] in cloneMap) {
+            if (pair[0] notin cloneMap[pair[1]]) {
+                cloneMap[pair[1]] += pair[0];
+            }
+        } else {
+            bool added = false;
+            for (key <- cloneMap) {
+                if (pair[0] in cloneMap[key] && pair[1] notin cloneMap[key]) {
+                    cloneMap[key] += pair[1];
+                    added = true;
+                    break;
+                } else if (pair[0] in cloneMap[key] && pair[1] in cloneMap[key]) {
+                    added = true;
+                }
+            }
+            if (added == false) {
+                for (key <- cloneMap) {
+                    if (pair[1] in cloneMap[key] && pair[0] notin cloneMap[key]) {
+                        cloneMap[key] += pair[0];
+                        added = true;
+                        break;
+                    }
+                } 
+            }
+            if (added == false) {
+                cloneMap[pair[0]] = [pair[1]];
+            }
+        }
+    }
+    return cloneMap;
+}
+
+// findBiggestCloneClass()
+
+tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
+    int maxLines = 0;
+    node maxNode = clonePairs[0][0];
+    for(pair <- clonePairs) {
+        int numberOfLines = UnitLOC((pair[0]).src);
+        if (numberOfLines > maxLines) {
+            maxLines = numberOfLines;
+            maxNode = pair[0];
+        }
+    }
+    return <maxNode, maxLines>;
+}
+
+void getStatistics(list[tuple[node, node]] clonePairs) {
+    int numberOfClones = size(clonePairs);
+    node biggestClone = clonePairs[0][0];
+    int lines = 0;
+    <biggestClone, lines> = findBiggestClone(clonePairs);
+    map[node, list[node]] cloneClasses =  findCloneClasses(clonePairs);
+    int numberOfCloneClasses = 0;
+    int biggestCloneClass = 0;
+    int duplicatedLines = 0;
+    for (class <- cloneClasses) {
+        numberOfCloneClasses += 1;
+        int classSize = size(cloneClasses[class]);
+        duplicatedLines += (size(cloneClasses[class]) + 1) * UnitLOC(class.src);
+        if (classSize > biggestCloneClass) {
+            biggestCloneClass = classSize;
+        }
+    }
+    biggestCloneClass += 1;
+    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+}
+
+void findSubtreeClones(loc projectLocation, int cloneType) {
     // small pieces of code are ignored
     int massThreshold = 10;
     list[Declaration] ast = getASTs(projectLocation);
@@ -26,8 +106,8 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType) {
     // for (bucket <- hashTable) {
     //     println("<bucket>: <hashTable[bucket]> <size(hashTable[bucket])>\n");
     // }
-    return findClones(hashTable, similarityThreshold, cloneType);
-
+    list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
+    getStatistics(clonePairs);
 }
 
 map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
@@ -114,7 +194,7 @@ list[tuple[node, node]] addClone(list[tuple[node, node]] clones, node i, node j)
 }
 
 
-list[tuple[node, node]] findClones(map[str, list[node]] hashTable, real similarityThreshold, int cloneType) {
+list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int cloneType) {
     list[tuple[node, node]] clones = [];
     // for each subtree i and j in the same bucket
 	for (bucket <- hashTable) {	
@@ -132,12 +212,9 @@ list[tuple[node, node]] findClones(map[str, list[node]] hashTable, real similari
             }
         }	
     }
-    println(size(clones));
+    // println(size(clones));
     return clones;
 }
-
-
-
 
 int treeMass(list[Declaration] ast) {
 	int mass = 0;

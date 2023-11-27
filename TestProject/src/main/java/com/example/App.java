@@ -14,5 +14,8 @@ public class App
         if (true) {
             System.out.println( "Hello World!" );
         }
+        if (true) {
+            System.out.println( "Hello World!" );
+        }
     }
 }
