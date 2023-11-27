@@ -14,9 +14,6 @@ import util::Math;
 // choose similarityThreshold for type 2 and 3
 // how to handle similarityThreshold=1.0 in findClonePairs
 
-
-// % of duplicated lines, 
-
 map[node, list[node]] findCloneClasses(list[tuple[node, node]] clonePairs) {
     map[node, list[node]] cloneMap = (); 
     for(pair <- clonePairs) { 
@@ -71,7 +68,7 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
     return <maxNode, maxLines>;
 }
 
-void getStatistics(list[tuple[node, node]] clonePairs) {
+void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
     int numberOfClones = size(clonePairs);
     node biggestClone = clonePairs[0][0];
     int lines = 0;
@@ -107,7 +104,7 @@ void findSubtreeClones(loc projectLocation, int cloneType) {
     //     println("<bucket>: <hashTable[bucket]> <size(hashTable[bucket])>\n");
     // }
     list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
-    getStatistics(clonePairs);
+    getStatistics(clonePairs, projectLocation);
 }
 
 map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
