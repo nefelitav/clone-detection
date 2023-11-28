@@ -53,8 +53,6 @@ map[node, list[node]] findCloneClasses(list[tuple[node, node]] clonePairs) {
     return cloneMap;
 }
 
-// findBiggestCloneClass()
-
 tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
     int maxLines = 0;
     node maxNode = clonePairs[0][0];
@@ -69,7 +67,9 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
 }
 
 void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
+    println(clonePairs);
     int numberOfClones = size(clonePairs);
+    println(numberOfClones);
     node biggestClone = clonePairs[0][0];
     int lines = 0;
     <biggestClone, lines> = findBiggestClone(clonePairs);
@@ -85,13 +85,14 @@ void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
             biggestCloneClass = classSize;
         }
     }
+    println(numberOfCloneClasses);
     biggestCloneClass += 1;
     int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
 }
 
 void findSubtreeClones(loc projectLocation, int cloneType) {
     // small pieces of code are ignored
-    int massThreshold = 10;
+    int massThreshold = 5;
     list[Declaration] ast = getASTs(projectLocation);
     real similarityThreshold = 1.0;
     if (cloneType == 2) {
@@ -99,15 +100,19 @@ void findSubtreeClones(loc projectLocation, int cloneType) {
     } if (cloneType == 3) {
         real similarityThreshold = 1.0;
     }
-    map[str, list[node]] hashTable = createHashTable(ast, massThreshold, cloneType);
+    map[str, list[node]] hashTable = createSubtreeHashTable(ast, massThreshold, cloneType);
     // for (bucket <- hashTable) {
     //     println("<bucket>: <hashTable[bucket]> <size(hashTable[bucket])>\n");
     // }
     list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
+    // println(clonePairs);
+    // for(pair <- clonePairs) {
+    //     println("pair = <pair[0]> <pair[1]> !!!!\n");
+    // }
     getStatistics(clonePairs, projectLocation);
 }
 
-map[str, list[node]] createHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
+map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
     map[str, list[node]] hashTable = ();
     // int subtreeNumber = treeMass(ast);
     // int bucketNumber = subtreeNumber*10/100;
