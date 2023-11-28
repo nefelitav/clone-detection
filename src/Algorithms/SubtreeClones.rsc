@@ -92,7 +92,7 @@ void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
 
 void findSubtreeClones(loc projectLocation, int cloneType) {
     // small pieces of code are ignored
-    int massThreshold = 5;
+    int massThreshold = 6;
     list[Declaration] ast = getASTs(projectLocation);
     real similarityThreshold = 1.0;
     if (cloneType == 2) {
