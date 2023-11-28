@@ -33,5 +33,8 @@ public class App
         int b=2;
         int c=3;
         int i=5;
+        if (y == 2) {
+            int j = 4;
+        }
     }
 }

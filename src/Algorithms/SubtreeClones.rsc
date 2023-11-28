@@ -67,7 +67,7 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
 }
 
 void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
-    println(clonePairs);
+    // println(clonePairs);
     int numberOfClones = size(clonePairs);
     println(numberOfClones);
     node biggestClone = clonePairs[0][0];
@@ -200,16 +200,14 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
     list[tuple[node, node]] clones = [];
     // for each subtree i and j in the same bucket
 	for (bucket <- hashTable) {	
-        for (i <- hashTable[bucket]) {
-            for (j <- hashTable[bucket]) {
-                // ensure we are not comparing one thing with itself
-                if (i != j) {
-                    int comparison = compareTree(i, j);
-                    // check if are clones
-                    if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison > similarityThreshold))) {
-                        // println("<hashTable[bucket]>\n");
-                        clones = addClone(clones, i, j);
-                    }
+        for (i <- hashTable[bucket], j <- hashTable[bucket]) {
+            // ensure we are not comparing one thing with itself
+            if (i != j) {
+                int comparison = compareTree(i, j);
+                // check if are clones
+                if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison > similarityThreshold))) {
+                    // println("<hashTable[bucket]>\n");
+                    clones = addClone(clones, i, j);
                 }
             }
         }	
