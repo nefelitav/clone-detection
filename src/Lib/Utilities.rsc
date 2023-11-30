@@ -10,18 +10,3 @@ list[Declaration] getASTs(loc projectLocation) {
     | f <- files(model.containment), isCompilationUnit(f)];
     return asts;
 }
-
-public map[node, set[loc]] getSubtrees(list[Declaration] decl) {
-	map[node, set[loc]] subtrees = ();
-
-	for (d <- decl) {				
-		visit(d) {
-			case node n : {
-                println("!!<n>!!");
-				// subtrees[n] = n@src;
-			}
-		}
-	}
-	
-	return subtrees;
-}

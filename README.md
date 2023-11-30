@@ -22,13 +22,12 @@
 - Type IV: functionality is the same, code may be completely different.
 
 # TODO
-1) Finish 3 algorithms
-2) Clean code, make functions reusable, comments
-3) Cases for type 1, type 2, type 3, type 4
-4) Parametrize thresholds etc
-5) Export json
-6) Make frontend
-7) Create a test project
-8) Tests
-9) Report
-10) Ensure results are correct
+1) Clean code, comments
+2) Cases for type 1, type 2, type 3, type 4
+3) Parametrize thresholds etc
+4) Export json
+5) Make frontend
+6) Create a test project
+7) Tests
+8) Report
+9) Ensure results are correct
