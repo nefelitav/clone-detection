@@ -22,12 +22,16 @@
 - Type IV: functionality is the same, code may be completely different.
 
 # TODO
-1) Clean code, comments
-2) Cases for type 1, type 2, type 3, type 4
-3) Parametrize thresholds etc
-4) Export json
-5) Make frontend
-6) Create a test project
-7) Tests
-8) Report
-9) Ensure results are correct
+1) Cases for type 1, type 2, type 3, type 4
+2) Parametrize thresholds etc
+3) Export json
+4) Make frontend
+5) Create a test project
+6) Tests
+7) Report
+8) Ensure results are correct
+
+# Questions
+1) Are two algorithms enough if they work for type 1,2,3?
+2) What to keep in normalizeIdentifiers?
+3)

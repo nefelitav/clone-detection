@@ -1,4 +1,4 @@
-module Algorithms::CloneSequences
+module Algorithms::SequenceClones
 
 import Lib::Utilities;
 import Lib::Statistics;
@@ -14,7 +14,7 @@ import util::Math;
 /////////////////////////
 /*
     arguments: projectLocation, cloneType (can be 1,2,3)
-    massThreshold: small pieces of code should be ignored
+    massThreshold: small subtrees should be ignored
     similarityThreshold: how similar do we want the clones to be
     minimumSequenceLengthThreshold: minimum number of sequences to group
     gets ASTs of the project 
@@ -24,25 +24,15 @@ import util::Math;
     prints statistics
 
 */
-list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int cloneType) {
+list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold) {
     list[Declaration] ast = getASTs(projectLocation);
     real similarityThreshold = 1.0;
-    int minimumSequenceLengthThreshold = 2;
-    if (cloneType == 2) {
-        real similarityThreshold = 1.0;
-    } if (cloneType == 3) {
-        real similarityThreshold = 1.0;
+    if (cloneType == 3) {
+        real similarityThreshold = 0.8;
     }
     map[str, list[list[node]]] hashTable = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType);
-    // for (bucket <- hashTable) {
-    //     println("<bucket>: <hashTable[bucket]> <size(hashTable[bucket])>\n");
-    // }
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
-    // println(clonePairs);
-    // for(pair <- clonePairs) {
-    //     println("pair = <pair[0]> <pair[1]> !!!!\n");
-    // }
-    // getSequenceStatistics(clonePairs, projectLocation);
+    getSequenceStatistics(clonePairs, projectLocation);
     return clonePairs;
 }
 
@@ -55,7 +45,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     - for every sequence, get all subsequences with size bigger than the minimum acceptable one.
     - hash every "clean" subsequence with md5Hash. By clean I mean that it does not have locations etc.
     - these subsequence hashes are concatenated into a string, which is also hashed later on.
-    - this sequence hash is the bucket key, and the value is the sequence.
+    - this sequence hash is the bucket key, and the value is the sequence or a normalized version of the sequence, if cloneType is 2 or 3.
 */
 map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType) {
     map[str, list[list[node]]] hashTable = ();
@@ -72,19 +62,20 @@ map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int mi
         for (i <- [0..(size(sequence) + 1)], j <- [0..(size(sequence) + 1)]) {
             if ((j >= i + minimumSequenceLengthThreshold)) {
                 list[node] subsequence = sequence[i..j];
-                // hash every subsequence
                 str subsequenceHash = "";
                 for (n <- subsequence) {
                     subsequenceHash += md5Hash(unsetRec(n));
                 }
-                // println("<subsequence> <i> <j> <subsequenceHash>\n");
                 str sequenceHash = md5Hash(subsequenceHash);
-                // println("<subsequence> <i> <j> <subsequenceHash> <sequenceHash>\n");
-                // if (cloneType == 2) {
-                //     n = normalizeIdentifiers(n);
-                // } else if (cloneType == 3) {
-                //     n = normalizeIdentifiers(n);
-                // }
+
+                //if (cloneType != 1) {
+                //    list[node] normalizedSubsequence = [];
+                //    for (n <- subsequence) {
+                //        normalizedSubsequence += normalizeIdentifiers(n);
+                //    }
+                //    subsequence = normalizedSubsequence;
+                //}
+
                 if (sequenceHash in hashTable) {
                     hashTable[sequenceHash] += [subsequence];
                 } else {
@@ -101,30 +92,30 @@ map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int mi
 /////////////////////////
 /*
     arguments: hashTable, similarityThreshold, cloneType
-    for every bucket, get a pair:
-    - compare it using the compareSequences function that checks for similarity between sequences
-    - if compareSequences returned 1, then it is an exact match, 
-    - if not but we are looking for clones of type 2 or 3, we check if the comparison result is over the similarityThreshold
-    - in any of these two cases, we get prepared to add the clone to our struct, checking first that we can add it
+    for every bucket:
+    - if size == 1, nothing to compare
+    - get a pair of subtrees:
+        - ensure we are not comparing the same subtree with itself
+        - compare it using the compareSequences function that checks for similarity between sequences, to see if they are clones
+        - if compareSequences returned 1, then it is an exact match, 
+        - if not but we are looking for clones of type 2 or 3, we check if the comparison result is over the similarityThreshold 
+        or equal for the case of cloneType=2 && similarityThreshold==1.0
+        - in any of these two cases, we get prepared to add the clone to our struct, checking first that we can add it
 */
 list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[node]]] hashTable, real similarityThreshold, int cloneType) {
     list[tuple[list[node], list[node]]] clones = [];
-    // for each sequence i and j in the same bucket
 	for (bucket <- hashTable) {	
-        for (i <- hashTable[bucket], j <- hashTable[bucket]) {
-            // ensure we are not comparing one thing with itself
-            if (i != j) {
-                // println("<i> <j>\n");
-                int comparison = compareSequences(i, j);
-                // check if are clones
-                if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison > similarityThreshold))) {
-                    // println("<i> <j> <bucket>\n");
-                    clones = addSequenceClone(clones, i, j);
+        if (size(hashTable[bucket]) > 1) {
+            for (i <- hashTable[bucket], j <- hashTable[bucket]) {
+                if (i != j) {
+                    int comparison = compareSequences(i, j);
+                    if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison >= similarityThreshold))) {
+                        clones = addSequenceClone(clones, i, j);
+                    }
                 }
-            }
-        }	
+            }	
+        }
     }
-    // println(size(clones));
     return clones;
 }
 
@@ -187,7 +178,6 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
 */
 list[tuple[list[node], list[node]]] removeSequenceSubclones(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     for(pair <- clones) {
-        // pair has sublists of i,j
         if (pair[0] <= i && pair[1] <= j) {
             clones -= <pair[0], pair[1]>;
         } else if (pair[1] <= i && pair[0] <= j) {
@@ -240,12 +230,10 @@ bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, li
     - and we do not have duplicates
 */
 list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
-    // if clones is empty, just add the pair
     if (size(clones) == 0) {
         clones = [<i, j>];
         return clones;
     } else {
-        // check if the pair is already in clones, as is or as a subclone
         if (<j,i> in clones) {
             return clones;
         }
@@ -349,8 +337,7 @@ tuple[list[node], int] findBiggestSequenceClone(list[tuple[list[node], list[node
 void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
     // println(clonePairs);
     int numberOfClones = size(clonePairs);
-    // println(numberOfClones);
-
+    println(numberOfClones);
     list[node] biggestClone = clonePairs[0][0];
     int lines = 0;
     <biggestClone, lines> = findBiggestSequenceClone(clonePairs);
@@ -362,18 +349,16 @@ void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc p
     for (class <- cloneClasses) {
         numberOfCloneClasses += 1;
         int classSize = size(cloneClasses[class]);
-
         int classDuplicatedLines = 0;
         for(classNode <- class) {
             classDuplicatedLines += UnitLOC(classNode.src);
         }
         duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
-
         if (classSize > biggestCloneClass) {
             biggestCloneClass = classSize;
         }
     }
-    // println(numberOfCloneClasses);
+    println(numberOfCloneClasses);
     biggestCloneClass += 1;
     int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
 }
