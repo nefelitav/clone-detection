@@ -10,8 +10,7 @@ import List;
 import util::Math;
 
 // TODO
-// choose what to keep in normalizeIdentifiers
-// choose similarityThreshold for type 2 and 3
+// type 2,3
 
 /////////////////////////
 ///   Main function   ///
@@ -58,10 +57,10 @@ map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThres
 		case node n: {
 			if (subtreeMass(n) >= massThreshold) {
                 node normalizedIdentifier = n;
-                //if (cloneType != 1) {
+                // if (cloneType != 1) {
                 //    println("<n>  <normalizeIdentifiers(n)>\n");
                 //    normalizedIdentifier = normalizeIdentifiers(n);
-                //} 
+                // } 
                 str hash = md5Hash(unsetRec(normalizedIdentifier));
                 if (hash in hashTable) {
                     hashTable[hash] += n;
@@ -296,6 +295,7 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
     int maxLines = 0;
     node maxNode = clonePairs[0][0];
     for(pair <- clonePairs) {
+        // println("!!!!!!!!!<pair[0]>\n");
         int numberOfLines = UnitLOC((pair[0]).src);
         if (numberOfLines > maxLines) {
             maxLines = numberOfLines;
@@ -317,12 +317,10 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
 
 */
 void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
-    // println(clonePairs);
     int numberOfClones = size(clonePairs);
-    println(numberOfClones);
     node biggestClone = clonePairs[0][0];
-    int lines = 0;
-    <biggestClone, lines> = findBiggestClone(clonePairs);
+    int biggestCloneLines = 0;
+    <biggestClone, biggestCloneLines> = findBiggestClone(clonePairs);
     map[node, list[node]] cloneClasses =  findCloneClasses(clonePairs);
     int numberOfCloneClasses = 0;
     int biggestCloneClass = 0;
@@ -335,9 +333,18 @@ void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
             biggestCloneClass = classSize;
         }
     }
-    println(numberOfCloneClasses);
     biggestCloneClass += 1;
     int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+
+    println("-------------------------");
+    println("Subtree Clones Statistics");
+    println("-------------------------");
+    println("example of clone pair: <clonePairs[0]>\n");
+    println("number of clone pairs: <numberOfClones>");
+    println("number of clone classes: <numberOfCloneClasses>");
+    println("biggest clone class in members: <biggestCloneClass>");
+    println("biggest clone class in lines: <biggestCloneLines>");
+    println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
 }
 
 ////////////////////

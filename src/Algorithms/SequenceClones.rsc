@@ -9,6 +9,10 @@ import Node;
 import List;
 import util::Math;
 
+// TODO
+// type 2,3
+// subclones
+
 /////////////////////////
 ///   Main function   ///
 /////////////////////////
@@ -335,14 +339,11 @@ tuple[list[node], int] findBiggestSequenceClone(list[tuple[list[node], list[node
 
 */
 void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
-    // println(clonePairs);
     int numberOfClones = size(clonePairs);
-    println(numberOfClones);
     list[node] biggestClone = clonePairs[0][0];
     int lines = 0;
-    <biggestClone, lines> = findBiggestSequenceClone(clonePairs);
+    <biggestClone, biggestCloneLines> = findBiggestSequenceClone(clonePairs);
     map[list[node], list[list[node]]] cloneClasses =  findSequenceCloneClasses(clonePairs);
-    // println(cloneClasses);
     int numberOfCloneClasses = 0;
     int biggestCloneClass = 0;
     int duplicatedLines = 0;
@@ -358,7 +359,16 @@ void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc p
             biggestCloneClass = classSize;
         }
     }
-    println(numberOfCloneClasses);
     biggestCloneClass += 1;
     int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+    
+    println("-------------------------");
+    println("Sequence Clones Statistics");
+    println("-------------------------");
+    println("example of clone pair: <clonePairs[0]>\n");
+    println("number of clone pairs: <numberOfClones>");
+    println("number of clone classes: <numberOfCloneClasses>");
+    println("biggest clone class in members: <biggestCloneClass>");
+    println("biggest clone class in lines: <biggestCloneLines>");
+    println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
 }

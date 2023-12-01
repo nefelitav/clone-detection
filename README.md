@@ -34,4 +34,4 @@
 # Questions
 1) Are two algorithms enough if they work for type 1,2,3?
 2) What to keep in normalizeIdentifiers?
-3)
+3) Are our statistics correct?
