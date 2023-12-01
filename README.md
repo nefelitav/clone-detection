@@ -22,16 +22,16 @@
 - Type IV: functionality is the same, code may be completely different.
 
 # TODO
-1) Cases for type 1, type 2, type 3, type 4
-2) Parametrize thresholds etc
-3) Export json
-4) Make frontend
-5) Create a test project
-6) Tests
-7) Report
-8) Ensure results are correct
+1) Cases for type 1, type 2, type 3
+2) Export json
+3) Make frontend
+4) Create a test project
+5) Tests
+6) Report
+7) Ensure results are correct
 
 # Questions
 1) Are two algorithms enough if they work for type 1,2,3?
 2) What to keep in normalizeIdentifiers?
 3) Are our statistics correct?
+4) Is the way we remove subclones correct?

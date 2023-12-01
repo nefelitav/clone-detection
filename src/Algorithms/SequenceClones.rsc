@@ -176,9 +176,11 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
 /*
     arguments: clones, a pair of sequences
     for every pair in clones:
-    - checks if they are sublists of the given pair, either as is <i,j> or flipped <j,i>
-    - if yes, it removes them, 
-    - because we are looking for the biggest sequence that is cloned
+    - checks if they are sublists of the given pair, either as is <i,j> or flipped <j,i>, remove them
+    - dig deeper into the subtrees of the given pair as we did for subtree clones
+        - if their subtree nodes are the same as the clone pair(the lists of the pair should contain only one node in that case), remove the pair
+        - if the blocks in the subtrees contain the clone pair, remove it
+    because we are looking for the biggest sequence that is cloned
 */
 list[tuple[list[node], list[node]]] removeSequenceSubclones(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     for(pair <- clones) {
@@ -186,6 +188,34 @@ list[tuple[list[node], list[node]]] removeSequenceSubclones(list[tuple[list[node
             clones -= <pair[0], pair[1]>;
         } else if (pair[1] <= i && pair[0] <= j) {
             clones -= <pair[1], pair[0]>;
+        }
+    }
+    for(pair <- clones) {
+        for(member1 <- i, member2 <- j) {
+            visit(member1) {
+                case node n: {
+                    visit(member2) {
+                        case node n2: {
+                            if (size(pair[0]) == 1 && size(pair[1]) == 1 && ((n == pair[0][0] && n2 == pair[1][0]) || (n2 == pair[0][0] && n == pair[1][0]))) {
+                                clones -= <pair[0], pair[1]>;
+                            }
+                        }
+                    }
+                }
+                case \block(statements): {
+                    list[node] sequence = statements;
+                    visit(j) {
+                        case \block(statements2): {
+                            list[node] sequence2 = statements2;
+                            if (pair[0] <= sequence && pair[1] <= sequence2) {
+                                clones -= <pair[0], pair[1]>;
+                            } else if (pair[0] <= sequence2 && pair[1] <= sequence) {
+                                clones -= <pair[1], pair[0]>;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     return clones;
@@ -197,29 +227,48 @@ list[tuple[list[node], list[node]]] removeSequenceSubclones(list[tuple[list[node
 /*
     arguments: clones, a pair of sequences
     for every pair in clones:
-    - visits the two sequences of the pair
-    - checks if their children are the same as <i,j> or flipped as <j,i>
-    - if yes, it returns False, because that means that the pair of clones we want to add
-    - are subclones of already existent clones of our clones struct
-    - so there is no need to add them, because we are looking for the biggest sequence that is cloned
+    - visits the two sequences of the pair, check three cases:
+        - if they have sublists that are the same as <i,j> or flipped as <j,i>. 
+        - otherwise, we dig deeper, looking into the subtrees of the clones, as we did for subtreeClones:
+            - if the sequences only have one node, and the clone pair also has only one node, and they are the same
+            - if they have blocks inside their subtrees that contain the pair as sublists
+        In any of these cases, it returns False, because that means that the pair of clones we want to add
+        are subclones of already existent clones of our clones struct.
+        so there is no need to add them, because we are looking for the biggest sequence that is cloned.
     - otherwise, we can add them
 */
 bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     for(pair <- clones) {
-        // for(member1 <- pair[0], member2 <- pair[1]) {
-            // visit(member1) {
-            //     case node s: {
-            //         visit(member2) {
-            //             case node s2: {
-                            // i,j sublists of pair that is in clones, no need to add it
-                            if (i <= pair[0] && j <= pair[1]) {
+        if (i <= pair[0] && j <= pair[1]) {
+            return false;
+        }
+        for(member1 <- pair[0], member2 <- pair[1]) {
+            visit(member1) {
+                case node n: {
+                    visit(member2) {
+                        case node n2: {
+                            if (size(i) == 1 && size(j) == 1 && ((i[0] == n && j[0] == n2) || (i[0] == n2 && j[0] == n))) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                case \block(statements): {
+                    list[node] sequence = statements;
+                    visit(member2) {
+                        case \block(statements2): {
+                            list[node] sequence2 = statements2;
+                            if (i <= sequence && j <= sequence2) {
                                 return false;
                             }
-                        // }
-                    // }
-                // }
-            // }
-        // }
+                            if (i <= sequence2 && j <= sequence) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     return true;
 }

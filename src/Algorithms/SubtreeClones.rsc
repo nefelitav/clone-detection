@@ -295,7 +295,6 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
     int maxLines = 0;
     node maxNode = clonePairs[0][0];
     for(pair <- clonePairs) {
-        // println("!!!!!!!!!<pair[0]>\n");
         int numberOfLines = UnitLOC((pair[0]).src);
         if (numberOfLines > maxLines) {
             maxLines = numberOfLines;
