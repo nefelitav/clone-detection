@@ -36,7 +36,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     }
     map[str, list[node]] hashTable = createSubtreeHashTable(ast, massThreshold, cloneType);
     list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
-    getStatistics(clonePairs, projectLocation);
+    getSubtreeStatistics(clonePairs, projectLocation);
     return clonePairs;
 }
 
@@ -245,7 +245,7 @@ list[tuple[node, node]] addClone(list[tuple[node, node]] clones, node i, node j)
         if they are both added already, return
         if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
-map[node, list[node]] findCloneClasses(list[tuple[node, node]] clonePairs) {
+map[node, list[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
     map[node, list[node]] cloneMap = (); 
     for(pair <- clonePairs) { 
         if (pair[0] in cloneMap) {
@@ -291,7 +291,7 @@ map[node, list[node]] findCloneClasses(list[tuple[node, node]] clonePairs) {
     - finds the clone class with the most lines of code
     - returns both the node and the number of lines
 */
-tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
+tuple[node, int] getBiggestSubtreeCloneInLines(list[tuple[node, node]] clonePairs) {
     int maxLines = 0;
     node maxNode = clonePairs[0][0];
     for(pair <- clonePairs) {
@@ -305,35 +305,78 @@ tuple[node, int] findBiggestClone(list[tuple[node, node]] clonePairs) {
 }
 
 /*
+    arguments: clones
+    for every clone class:
+    - finds maximum number of members 
+    - adds 1 at the end, for the original code that was cloned
+*/
+int getBiggestSubtreeCloneClassInMembers(list[tuple[node, node]] clonePairs) {
+    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    int biggestCloneClass = 0;
+    for (class <- cloneClasses) {
+        int classSize = size(cloneClasses[class]);
+        if (classSize > biggestCloneClass) {
+            biggestCloneClass = classSize;
+        }
+    }
+    biggestCloneClass += 1;
+    return biggestCloneClass;
+}
+
+/*
+    arguments: clones
+    returns size of clones struct
+*/
+int getNumberOfSubtreeClonePairs(list[tuple[node, node]] clonePairs) {
+    return size(clonePairs);
+}
+
+/*
+    arguments: clones
+    counts number of clone classes
+*/
+int getNumberOfSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
+    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    int numberOfCloneClasses = 0;
+    for (_ <- cloneClasses) {
+        numberOfCloneClasses += 1;
+    }
+    return numberOfCloneClasses;
+}
+
+/*
+    arguments: clones, projectLocation
+    for every clone class:
+    - multiply size of code of the class with members of that class (+1 for the original code)
+    sum up for all classes
+    multiply with 100 and divide by the total number of lines of the project to get the percentage
+*/
+int getPercentageOfDuplicatedLinesSubtrees(list[tuple[node, node]] clonePairs, loc projectLocation) {
+    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    int duplicatedLines = 0;
+    for (class <- cloneClasses) {
+        duplicatedLines += (size(cloneClasses[class]) + 1) * UnitLOC(class.src);
+    }
+    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+    return percentageOfDuplicatedLines;
+}
+
+/*
     arguments: clones, projectLocation
     prints:
         - number of clone pairs
         - biggest clone in lines
         - biggest clone class in members
         - number of clone classes
-        - number of duplicated lines
         - percentage of duplicated lines
 
 */
-void getStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
-    int numberOfClones = size(clonePairs);
-    node biggestClone = clonePairs[0][0];
-    int biggestCloneLines = 0;
-    <biggestClone, biggestCloneLines> = findBiggestClone(clonePairs);
-    map[node, list[node]] cloneClasses =  findCloneClasses(clonePairs);
-    int numberOfCloneClasses = 0;
-    int biggestCloneClass = 0;
-    int duplicatedLines = 0;
-    for (class <- cloneClasses) {
-        numberOfCloneClasses += 1;
-        int classSize = size(cloneClasses[class]);
-        duplicatedLines += (size(cloneClasses[class]) + 1) * UnitLOC(class.src);
-        if (classSize > biggestCloneClass) {
-            biggestCloneClass = classSize;
-        }
-    }
-    biggestCloneClass += 1;
-    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+void getSubtreeStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
+    int numberOfClones = getNumberOfSubtreeClonePairs(clonePairs);
+    <biggestClone, biggestCloneLines> = getBiggestSubtreeCloneInLines(clonePairs);
+    int numberOfCloneClasses = getNumberOfSubtreeCloneClasses(clonePairs);
+    int biggestCloneClass = getBiggestSubtreeCloneClassInMembers(clonePairs);
+    int percentageOfDuplicatedLines = getPercentageOfDuplicatedLinesSubtrees(clonePairs, projectLocation);
 
     println("-------------------------");
     println("Subtree Clones Statistics");

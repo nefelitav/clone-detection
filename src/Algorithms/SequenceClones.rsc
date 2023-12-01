@@ -11,7 +11,6 @@ import util::Math;
 
 // TODO
 // type 2,3
-// subclones
 
 /////////////////////////
 ///   Main function   ///
@@ -314,7 +313,7 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         if they are both added already, return
         if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
-map[list[node], list[list[node]]] findSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
+map[list[node], list[list[node]]] getSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
     map[list[node], list[list[node]]] cloneMap = (); 
     for(pair <- clonePairs) { 
         if (pair[0] in cloneMap) {
@@ -360,7 +359,7 @@ map[list[node], list[list[node]]] findSequenceCloneClasses(list[tuple[list[node]
     - finds the clone class with the most lines of code
     - returns both the node and the number of lines
 */
-tuple[list[node], int] findBiggestSequenceClone(list[tuple[list[node], list[node]]] clonePairs) {
+tuple[list[node], int] getBiggestSequenceCloneInLines(list[tuple[list[node], list[node]]] clonePairs) {
     int maxLines = 0;
     list[node] maxNodeList = clonePairs[0][0];
     for(pair <- clonePairs) {
@@ -376,6 +375,76 @@ tuple[list[node], int] findBiggestSequenceClone(list[tuple[list[node], list[node
     return <maxNodeList, maxLines>;
 }
 
+
+
+
+
+
+
+
+
+
+/*
+    arguments: clones
+    for every clone class:
+    - finds maximum number of members 
+    - adds 1 at the end, for the original code that was cloned
+*/
+int getBiggestSequenceCloneClassInMembers(list[tuple[list[node], list[node]]] clonePairs) {
+    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
+    int biggestCloneClass = 0;
+    for (class <- cloneClasses) {
+        int classSize = size(cloneClasses[class]);
+        if (classSize > biggestCloneClass) {
+            biggestCloneClass = classSize;
+        }
+    }
+    biggestCloneClass += 1;
+    return biggestCloneClass;
+}
+
+/*
+    arguments: clones
+    returns size of clones struct
+*/
+int getNumberOfSequenceClonePairs(list[tuple[list[node], list[node]]] clonePairs) {
+    return size(clonePairs);
+}
+
+/*
+    arguments: clones
+    counts number of clone classes
+*/
+int getNumberOfSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
+    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
+    int numberOfCloneClasses = 0;
+    for (_ <- cloneClasses) {
+        numberOfCloneClasses += 1;
+    }
+    return numberOfCloneClasses;
+}
+
+/*
+    arguments: clones, projectLocation
+    for every clone class:
+    - multiply size of code of the class with members of that class (+1 for the original code)
+    sum up for all classes
+    multiply with 100 and divide by the total number of lines of the project to get the percentage
+*/
+int getPercentageOfDuplicatedLinesSequences(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
+    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
+    int duplicatedLines = 0;
+    for (class <- cloneClasses) {
+        int classDuplicatedLines = 0;
+        for(classNode <- class) {
+            classDuplicatedLines += UnitLOC(classNode.src);
+        }
+        duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
+    }
+    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+    return percentageOfDuplicatedLines;
+}
+
 /*
     arguments: clones, projectLocation
     prints:
@@ -388,28 +457,11 @@ tuple[list[node], int] findBiggestSequenceClone(list[tuple[list[node], list[node
 
 */
 void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
-    int numberOfClones = size(clonePairs);
-    list[node] biggestClone = clonePairs[0][0];
-    int lines = 0;
-    <biggestClone, biggestCloneLines> = findBiggestSequenceClone(clonePairs);
-    map[list[node], list[list[node]]] cloneClasses =  findSequenceCloneClasses(clonePairs);
-    int numberOfCloneClasses = 0;
-    int biggestCloneClass = 0;
-    int duplicatedLines = 0;
-    for (class <- cloneClasses) {
-        numberOfCloneClasses += 1;
-        int classSize = size(cloneClasses[class]);
-        int classDuplicatedLines = 0;
-        for(classNode <- class) {
-            classDuplicatedLines += UnitLOC(classNode.src);
-        }
-        duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
-        if (classSize > biggestCloneClass) {
-            biggestCloneClass = classSize;
-        }
-    }
-    biggestCloneClass += 1;
-    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
+    int numberOfClones = getNumberOfSequenceClonePairs(clonePairs);
+    <biggestClone, biggestCloneLines> = getBiggestSequenceCloneInLines(clonePairs);
+    int numberOfCloneClasses = getNumberOfSequenceCloneClasses(clonePairs);
+    int biggestCloneClass = getBiggestSequenceCloneClassInMembers(clonePairs);
+    int percentageOfDuplicatedLines = getPercentageOfDuplicatedLinesSequences(clonePairs, projectLocation);
     
     println("-------------------------");
     println("Sequence Clones Statistics");
