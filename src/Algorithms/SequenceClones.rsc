@@ -35,7 +35,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     }
     map[str, list[list[node]]] hashTable = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType);
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
-    getSequenceStatistics(clonePairs, projectLocation);
+    getSequenceStatisticsFast(clonePairs, projectLocation);
     return clonePairs;
 }
 
@@ -169,9 +169,9 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
 	return 2 * sharedNodes / (2 * sharedNodes + nodelist1NodesNumber + nodelist2NodesNumber);
 } 
 
-/////////////////////////////
-///    Remove subclones   ///
-/////////////////////////////
+////////////////////////////////////////////////////
+///    Remove subclones. Do not add subclones    ///
+////////////////////////////////////////////////////
 /*
     arguments: clones, a pair of sequences
     for every pair in clones:
@@ -180,23 +180,38 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
         - if their subtree nodes are the same as the clone pair(the lists of the pair should contain only one node in that case), remove the pair
         - if the blocks in the subtrees contain the clone pair, remove it
     because we are looking for the biggest sequence that is cloned
+    then:
+    - visits the two sequences of the pair, check three cases:
+        - if they have sublists that are the same as <i,j> or flipped as <j,i>. 
+        - otherwise, we dig deeper, looking into the subtrees of the clones, as we did for subtreeClones:
+            - if the sequences only have one node, and the clone pair also has only one node, and they are the same
+            - if they have blocks inside their subtrees that contain the pair as sublists
+        In any of these cases, it returns clones as is, because that means that the pair of clones we want to add
+        are subclones of already existent clones of our clones struct.
+        so there is no need to add them, because we are looking for the biggest sequence that is cloned.
+    - otherwise, we can add them
 */
-list[tuple[list[node], list[node]]] removeSequenceSubclones(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
+list[tuple[list[node], list[node]]] addSubquence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     for(pair <- clones) {
+        // remove subclones
         if (pair[0] <= i && pair[1] <= j) {
             clones -= <pair[0], pair[1]>;
         } else if (pair[1] <= i && pair[0] <= j) {
             clones -= <pair[1], pair[0]>;
         }
-    }
-    for(pair <- clones) {
+        bool removed = false;
         for(member1 <- i, member2 <- j) {
+            if (removed == true) {
+                break;
+            }
             visit(member1) {
                 case node n: {
                     visit(member2) {
                         case node n2: {
                             if (size(pair[0]) == 1 && size(pair[1]) == 1 && ((n == pair[0][0] && n2 == pair[1][0]) || (n2 == pair[0][0] && n == pair[1][0]))) {
                                 clones -= <pair[0], pair[1]>;
+                                removed = true;
+                                continue;
                             }
                         }
                     }
@@ -208,38 +223,21 @@ list[tuple[list[node], list[node]]] removeSequenceSubclones(list[tuple[list[node
                             list[node] sequence2 = statements2;
                             if (pair[0] <= sequence && pair[1] <= sequence2) {
                                 clones -= <pair[0], pair[1]>;
+                                removed = true;
+                                continue;
                             } else if (pair[0] <= sequence2 && pair[1] <= sequence) {
                                 clones -= <pair[1], pair[0]>;
+                                removed = true;
+                                continue;
                             }
                         }
                     }
                 }
             }
         }
-    }
-    return clones;
-}
-
-/////////////////////////////////
-///    Do not add subclones   ///
-/////////////////////////////////
-/*
-    arguments: clones, a pair of sequences
-    for every pair in clones:
-    - visits the two sequences of the pair, check three cases:
-        - if they have sublists that are the same as <i,j> or flipped as <j,i>. 
-        - otherwise, we dig deeper, looking into the subtrees of the clones, as we did for subtreeClones:
-            - if the sequences only have one node, and the clone pair also has only one node, and they are the same
-            - if they have blocks inside their subtrees that contain the pair as sublists
-        In any of these cases, it returns False, because that means that the pair of clones we want to add
-        are subclones of already existent clones of our clones struct.
-        so there is no need to add them, because we are looking for the biggest sequence that is cloned.
-    - otherwise, we can add them
-*/
-bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
-    for(pair <- clones) {
+        // check if subclone, otherwise add it
         if (i <= pair[0] && j <= pair[1]) {
-            return false;
+            return clones;
         }
         for(member1 <- pair[0], member2 <- pair[1]) {
             visit(member1) {
@@ -247,7 +245,7 @@ bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, li
                     visit(member2) {
                         case node n2: {
                             if (size(i) == 1 && size(j) == 1 && ((i[0] == n && j[0] == n2) || (i[0] == n2 && j[0] == n))) {
-                                return true;
+                                return clones;
                             }
                         }
                     }
@@ -258,10 +256,10 @@ bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, li
                         case \block(statements2): {
                             list[node] sequence2 = statements2;
                             if (i <= sequence && j <= sequence2) {
-                                return false;
+                                return clones;
                             }
                             if (i <= sequence2 && j <= sequence) {
-                                return false;
+                                return clones;
                             }
                         }
                     }
@@ -269,7 +267,8 @@ bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, li
             }
         }
     }
-    return true;
+    clones += <i,j>;
+    return clones;
 }
 
 /*
@@ -283,17 +282,12 @@ bool canAddSequence(list[tuple[list[node], list[node]]] clones, list[node] i, li
 */
 list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     if (size(clones) == 0) {
-        clones = [<i, j>];
-        return clones;
+        return [<i, j>];
     } else {
         if (<j,i> in clones) {
             return clones;
         }
-        clones = removeSequenceSubclones(clones, i, j);
-        if (canAddSequence(clones, i, j)) {
-            clones += <i, j>;
-        }
-        return clones;
+        return addSubquence(clones, i, j);
     }
 }
 
@@ -375,15 +369,6 @@ tuple[list[node], int] getBiggestSequenceCloneInLines(list[tuple[list[node], lis
     return <maxNodeList, maxLines>;
 }
 
-
-
-
-
-
-
-
-
-
 /*
     arguments: clones
     for every clone class:
@@ -462,6 +447,42 @@ void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc p
     int numberOfCloneClasses = getNumberOfSequenceCloneClasses(clonePairs);
     int biggestCloneClass = getBiggestSequenceCloneClassInMembers(clonePairs);
     int percentageOfDuplicatedLines = getPercentageOfDuplicatedLinesSequences(clonePairs, projectLocation);
+    
+    println("-------------------------");
+    println("Sequence Clones Statistics");
+    println("-------------------------");
+    println("example of clone pair: <clonePairs[0]>\n");
+    println("number of clone pairs: <numberOfClones>");
+    println("number of clone classes: <numberOfCloneClasses>");
+    println("biggest clone class in members: <biggestCloneClass>");
+    println("biggest clone class in lines: <biggestCloneLines>");
+    println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
+}
+
+// a faster version of the above
+void getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
+    int numberOfClones = size(clonePairs);
+    list[node] biggestClone = clonePairs[0][0];
+    int lines = 0;
+    <biggestClone, biggestCloneLines> = getBiggestSequenceCloneInLines(clonePairs);
+    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
+    int numberOfCloneClasses = 0;
+    int biggestCloneClass = 0;
+    int duplicatedLines = 0;
+    for (class <- cloneClasses) {
+        numberOfCloneClasses += 1;
+        int classSize = size(cloneClasses[class]);
+        int classDuplicatedLines = 0;
+        for(classNode <- class) {
+            classDuplicatedLines += UnitLOC(classNode.src);
+        }
+        duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
+        if (classSize > biggestCloneClass) {
+            biggestCloneClass = classSize;
+        }
+    }
+    biggestCloneClass += 1;
+    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
     
     println("-------------------------");
     println("Sequence Clones Statistics");

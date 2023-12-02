@@ -8,6 +8,7 @@ import IO;
 import Node;
 import List;
 import util::Math;
+import DateTime;
 
 // TODO
 // type 2,3
@@ -36,7 +37,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     }
     map[str, list[node]] hashTable = createSubtreeHashTable(ast, massThreshold, cloneType);
     list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
-    getSubtreeStatistics(clonePairs, projectLocation);
+    getSubtreeStatisticsFast(clonePairs, projectLocation);
     return clonePairs;
 }
 
@@ -95,9 +96,9 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
             for (i <- hashTable[bucket], j <- hashTable[bucket]) {
                 if (i != j) {
                     int comparison = compareTree(i, j);
-                    if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison >= similarityThreshold))) {
-                        clones = addClone(clones, i, j);
-                    }
+                    if ((cloneType == 1) && (unsetRec(i) == unsetRec(j)) || ((cloneType != 1) && (comparison >= similarityThreshold))) {
+                        clones = addSubtreeClone(clones, i, j);
+                    } 
                 }
             }
         }
@@ -131,22 +132,21 @@ int compareTree(node node1, node node2) {
                     if (unsetRec(n) == unsetRec(n2)) {
                         sharedNodes += 1;
                     }
+                    // the first time i visit node2
+                    if (subtree1Nodes == 0) {
+                        subtree2Nodes += 1;
+                    }
                 }
             }
             subtree1Nodes += 1;
         }
 	}
-    visit (node2) {
-		case node _ : {
-            subtree2Nodes += 1;
-        }
-	}
 	return 2 * sharedNodes / (2 * sharedNodes + (subtree1Nodes - sharedNodes) + (subtree2Nodes - sharedNodes));
 } 
 
-/////////////////////////////
-///    Remove subclones   ///
-/////////////////////////////
+///////////////////////////////////////////////////
+///    Remove subclones. Do not add subclones   ///
+///////////////////////////////////////////////////
 /*
     arguments: clones, a pair of subtrees
     for every pair in clones:
@@ -154,56 +154,57 @@ int compareTree(node node1, node node2) {
     - checks if their children exist in clones, as <i,j> or flipped as <j,i>
     - if yes, it removes them, because their parents will be added, who are more powerful
     - because we are looking for the biggest subtree that is cloned
+    then:
+    - visits the two subtrees of the pair
+    - checks if their children are the same as <i,j> or flipped as <j,i>
+    - if yes, it returns clones as is, because that means that the pair of clones we want to add
+    - are subclones of already existent clones of our clones struct
+    - so there is no need to add them, because we are looking for the biggest subtree that is cloned
+    - otherwise, we can add them
 */
-list[tuple[node, node]] removeSubclones(list[tuple[node, node]] clones, node i, node j) {
+list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node j) {
     for(pair <- clones) {
+        // remove subclones
         visit(i) {
             case node s: {
-                visit(j) {
-                    case node s2: {
-                        if (pair[0] == s && pair[1] == s2) {
-                            clones -= <s, s2>;
-                        } else if (pair[0] == s2 && pair[1] == s) {
-                            clones -= <s2, s>;
+                if (pair[0] == s) {
+                    visit(j) {
+                        case node s2: {
+                            if (pair[1] == s2) {
+                                clones -= <pair[0], pair[1]>;
+                                continue;
+                            }
+                        }
+                    }
+                }
+                if (pair[1] == s) {
+                    visit(j) {
+                        case node s2: {
+                            if (pair[0] == s2) {
+                                clones -= <pair[1], pair[0]>;
+                                continue;
+                            }
                         }
                     }
                 }
             }
         }
-    }
-    return clones;   
-}
-
-/////////////////////////////////
-///    Do not add subclones   ///
-/////////////////////////////////
-/*
-    arguments: clones, a pair of subtrees
-    for every pair in clones:
-    - visits the two subtrees of the pair
-    - checks if their children are the same as <i,j> or flipped as <j,i>
-    - if yes, it returns False, because that means that the pair of clones we want to add
-    - are subclones of already existent clones of our clones struct
-    - so there is no need to add them, because we are looking for the biggest subtree that is cloned
-    - otherwise, we can add them
-*/
-bool canAdd(list[tuple[node, node]] clones, node i, node j) {
-    for(pair <- clones) {
+        // check if subclone, otherwise add it
         visit(pair[0]) {
             case node s: {
                 visit(pair[1]) {
                     case node s2: {
                         if ((i == s && j == s2) || (i == s2 && j == s)) {
-                            return false;
+                            return clones;
                         }
                     }
                 }
             }
         }
     }
-    return true;
+    clones += <i, j>;
+    return clones;  
 }
-
 /*
     arguments: clones, a pair of subtrees
     - adds subtrees to the clones struct
@@ -213,19 +214,14 @@ bool canAdd(list[tuple[node, node]] clones, node i, node j) {
     - all in all, we ensure that we only add the biggest subtrees in the clones struct
     - and we do not have duplicates
 */
-list[tuple[node, node]] addClone(list[tuple[node, node]] clones, node i, node j) {
+list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j) {
     if (size(clones) == 0) {
-        clones = [<i, j>];
-        return clones;
+        return [<i, j>];
     } else {
         if (<j,i> in clones) {
             return clones;
         }
-        clones = removeSubclones(clones, i, j);
-        if (canAdd(clones, i, j)) {
-            clones += <i, j>;
-        }
-        return clones;
+        return addSubtree(clones, i, j);
     }
 }
 
@@ -377,6 +373,38 @@ void getSubtreeStatistics(list[tuple[node, node]] clonePairs, loc projectLocatio
     int numberOfCloneClasses = getNumberOfSubtreeCloneClasses(clonePairs);
     int biggestCloneClass = getBiggestSubtreeCloneClassInMembers(clonePairs);
     int percentageOfDuplicatedLines = getPercentageOfDuplicatedLinesSubtrees(clonePairs, projectLocation);
+
+    println("-------------------------");
+    println("Subtree Clones Statistics");
+    println("-------------------------");
+    println("example of clone pair: <clonePairs[0]>\n");
+    println("number of clone pairs: <numberOfClones>");
+    println("number of clone classes: <numberOfCloneClasses>");
+    println("biggest clone class in members: <biggestCloneClass>");
+    println("biggest clone class in lines: <biggestCloneLines>");
+    println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
+}
+
+// a faster version of the above
+void getSubtreeStatisticsFast(list[tuple[node, node]] clonePairs, loc projectLocation) {
+    int numberOfClones = size(clonePairs);
+    node biggestClone = clonePairs[0][0];
+    int biggestCloneLines = 0;
+    <biggestClone, biggestCloneLines> = getBiggestSubtreeCloneInLines(clonePairs);
+    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    int numberOfCloneClasses = 0;
+    int biggestCloneClass = 0;
+    int duplicatedLines = 0;
+    for (class <- cloneClasses) {
+        numberOfCloneClasses += 1;
+        int classSize = size(cloneClasses[class]);
+        duplicatedLines += (size(cloneClasses[class]) + 1) * UnitLOC(class.src);
+        if (classSize > biggestCloneClass) {
+            biggestCloneClass = classSize;
+        }
+    }
+    biggestCloneClass += 1;
+    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
 
     println("-------------------------");
     println("Subtree Clones Statistics");

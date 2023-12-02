@@ -29,6 +29,7 @@
 5) Tests
 6) Report
 7) Ensure results are correct
+8) Improve time
 
 # Questions
 1) Are two algorithms enough if they work for type 1,2,3?
