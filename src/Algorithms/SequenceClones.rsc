@@ -310,14 +310,10 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
 map[list[node], list[list[node]]] getSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
     map[list[node], list[list[node]]] cloneMap = (); 
     for(pair <- clonePairs) { 
-        if (pair[0] in cloneMap) {
-            if (pair[1] notin cloneMap[pair[0]]) {
-                cloneMap[pair[0]] += pair[1];
-            }
-        } else if (pair[1] in cloneMap) {
-            if (pair[0] notin cloneMap[pair[1]]) {
-                cloneMap[pair[1]] += pair[0];
-            }
+        if (pair[0] in cloneMap && pair[1] notin cloneMap[pair[0]]) {
+            cloneMap[pair[0]] += pair[1];
+        } else if (pair[1] in cloneMap && pair[0] notin cloneMap[pair[1]]) {
+            cloneMap[pair[1]] += pair[0];
         } else {
             bool added = false;
             for (key <- cloneMap) {
@@ -325,18 +321,14 @@ map[list[node], list[list[node]]] getSequenceCloneClasses(list[tuple[list[node],
                     cloneMap[key] += pair[1];
                     added = true;
                     break;
+                } else if (pair[1] in cloneMap[key] && pair[0] notin cloneMap[key]) {
+                    cloneMap[key] += pair[0];
+                    added = true;
+                    break;
                 } else if (pair[0] in cloneMap[key] && pair[1] in cloneMap[key]) {
                     added = true;
+                    break;
                 }
-            }
-            if (added == false) {
-                for (key <- cloneMap) {
-                    if (pair[1] in cloneMap[key] && pair[0] notin cloneMap[key]) {
-                        cloneMap[key] += pair[0];
-                        added = true;
-                        break;
-                    }
-                } 
             }
             if (added == false) {
                 cloneMap[pair[0]] = [pair[1]];
