@@ -135,7 +135,7 @@ int compareTree(node node1, node node2) {
                     if (unsetRec(n) == unsetRec(n2)) {
                         sharedNodes += 1;
                     }
-                    // the first time i visit node2
+                    // only calculate this once
                     if (subtree1Nodes == 0) {
                         subtree2Nodes += 1;
                     }
@@ -254,15 +254,17 @@ map[node, list[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs)
         } else {
             bool added = false;
             for (key <- cloneMap) {
-                if (pair[0] in cloneMap[key] && pair[1] notin cloneMap[key]) {
+                bool pair0inmap = pair[0] in cloneMap[key];
+                bool pair1inmap = pair[1] in cloneMap[key];
+                if (pair0inmap && !pair1inmap) {
                     cloneMap[key] += pair[1];
                     added = true;
                     break;
-                } else if (pair[1] in cloneMap[key] && pair[0] notin cloneMap[key]) {
+                } else if (pair1inmap && !pair0inmap) {
                     cloneMap[key] += pair[0];
                     added = true;
                     break;
-                } else if (pair[0] in cloneMap[key] && pair[1] in cloneMap[key]) {
+                } else if (pair0inmap && pair1inmap) {
                     added = true;
                     break;
                 }
@@ -327,12 +329,7 @@ int getNumberOfSubtreeClonePairs(list[tuple[node, node]] clonePairs) {
     counts number of clone classes
 */
 int getNumberOfSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
-    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
-    int numberOfCloneClasses = 0;
-    for (_ <- cloneClasses) {
-        numberOfCloneClasses += 1;
-    }
-    return numberOfCloneClasses;
+    return size(getSubtreeCloneClasses(clonePairs));
 }
 
 /*

@@ -131,8 +131,8 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
         Similarity = 2 x S / (2 x S + L + R)
         where:
         S = number of shared nodes
-        L = number of different nodes in sub-tree 1
-        R = number of different nodes in sub-tree 2
+        L = number of different nodes in sequence 1
+        R = number of different nodes in sequence 2
     - if the two sequences are identical, it will return 1, otherwise a value between 0 and 1
 */
 int compareSequences(list[node] nodelist1, list[node] nodelist2) {
@@ -317,15 +317,17 @@ map[list[node], list[list[node]]] getSequenceCloneClasses(list[tuple[list[node],
         } else {
             bool added = false;
             for (key <- cloneMap) {
-                if (pair[0] in cloneMap[key] && pair[1] notin cloneMap[key]) {
+                bool pair0inmap = pair[0] in cloneMap[key];
+                bool pair1inmap = pair[1] in cloneMap[key];
+                if (pair0inmap && !pair1inmap) {
                     cloneMap[key] += pair[1];
                     added = true;
                     break;
-                } else if (pair[1] in cloneMap[key] && pair[0] notin cloneMap[key]) {
+                } else if (pair1inmap && !pair0inmap) {
                     cloneMap[key] += pair[0];
                     added = true;
                     break;
-                } else if (pair[0] in cloneMap[key] && pair[1] in cloneMap[key]) {
+                } else if (pair0inmap && pair1inmap) {
                     added = true;
                     break;
                 }
@@ -393,12 +395,7 @@ int getNumberOfSequenceClonePairs(list[tuple[list[node], list[node]]] clonePairs
     counts number of clone classes
 */
 int getNumberOfSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
-    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-    int numberOfCloneClasses = 0;
-    for (_ <- cloneClasses) {
-        numberOfCloneClasses += 1;
-    }
-    return numberOfCloneClasses;
+    return size(getSequenceCloneClasses(clonePairs));
 }
 
 /*
