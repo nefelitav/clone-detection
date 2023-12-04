@@ -61,28 +61,40 @@ map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int mi
             }
         }
     }
-    for (sequence <- sequences) {
-        for (i <- [0..(size(sequence) + 1)], j <- [0..(size(sequence) + 1)]) {
-            if ((j >= i + minimumSequenceLengthThreshold)) {
-                list[node] subsequence = sequence[i..j];
-                str subsequenceHash = "";
-                for (n <- subsequence) {
-                    subsequenceHash += md5Hash(unsetRec(n));
+    // written in a stupid way to check only once for the clone type and save time
+    if (cloneType != 1) {
+        for (sequence <- sequences) {
+            for (i <- [0..(size(sequence) + 1)], j <- [0..(size(sequence) + 1)]) {
+                if ((j >= i + minimumSequenceLengthThreshold)) {
+                    list[node] subsequence = sequence[i..j];
+                    str subsequenceHash = "";
+                    for (n <- subsequence) {
+                        subsequenceHash += md5Hash(unsetRec(normalizeIdentifiers(n)));
+                    }
+                    str sequenceHash = md5Hash(subsequenceHash);
+                    if (sequenceHash in hashTable) {
+                        hashTable[sequenceHash] += [subsequence];
+                    } else {
+                        hashTable[sequenceHash] = [subsequence];
+                    }
                 }
-                str sequenceHash = md5Hash(subsequenceHash);
-
-                //if (cloneType != 1) {
-                //    list[node] normalizedSubsequence = [];
-                //    for (n <- subsequence) {
-                //        normalizedSubsequence += normalizeIdentifiers(n);
-                //    }
-                //    subsequence = normalizedSubsequence;
-                //}
-
-                if (sequenceHash in hashTable) {
-                    hashTable[sequenceHash] += [subsequence];
-                } else {
-                    hashTable[sequenceHash] = [subsequence];
+            }
+        }
+    } else {
+        for (sequence <- sequences) {
+            for (i <- [0..(size(sequence) + 1)], j <- [0..(size(sequence) + 1)]) {
+                if ((j >= i + minimumSequenceLengthThreshold)) {
+                    list[node] subsequence = sequence[i..j];
+                    str subsequenceHash = "";
+                    for (n <- subsequence) {
+                        subsequenceHash += md5Hash(unsetRec(n));
+                    }
+                    str sequenceHash = md5Hash(subsequenceHash);
+                    if (sequenceHash in hashTable) {
+                        hashTable[sequenceHash] += [subsequence];
+                    } else {
+                        hashTable[sequenceHash] = [subsequence];
+                    }
                 }
             }
         }
@@ -107,18 +119,49 @@ map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int mi
 */
 list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[node]]] hashTable, real similarityThreshold, int cloneType) {
     list[tuple[list[node], list[node]]] clones = [];
-	for (bucket <- hashTable) {	
-        if (size(hashTable[bucket]) > 1) {
-            for (i <- hashTable[bucket], j <- hashTable[bucket]) {
-                if (i != j) {
-                    int comparison = compareSequences(i, j);
-                    if ((cloneType == 1 && comparison == 1) || ((cloneType == 2 || cloneType == 3) && (comparison >= similarityThreshold))) {
-                        clones = addSequenceClone(clones, i, j);
+    if (cloneType == 1) {
+        for (bucket <- hashTable) {	
+            if (size(hashTable[bucket]) > 1) {
+                for (i <- hashTable[bucket], j <- hashTable[bucket]) {
+                    if (i != j) {
+                        list[node] i_items = [];
+                        list[node] j_items = [];
+                        for (i_item <- i) {
+                            visit (i_item) {
+                                case node n : {
+                                    i_items += unsetRec(n);
+                                }
+                            }
+                        }
+                        for (j_item <- j) {
+                            visit (j_item) {
+                                case node n : {
+                                    j_items += unsetRec(n);
+                                }
+                            }
+                        }
+                        if (i_items == j_items) {
+                            clones = addSequenceClone(clones, i, j);
+                        }
                     }
-                }
-            }	
+                }	
+            }
+        }        
+    } else {
+        for (bucket <- hashTable) {	
+            if (size(hashTable[bucket]) > 1) {
+                for (i <- hashTable[bucket], j <- hashTable[bucket]) {
+                    if (i != j) {
+                        int comparison = compareSequences(i, j);
+                        if (comparison >= similarityThreshold) {
+                            clones = addSequenceClone(clones, i, j);
+                        }
+                    }
+                }	
+            }
         }
     }
+
     return clones;
 }
 
@@ -144,7 +187,7 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
             case node n : {
                 visit (n) {
                     case node nodeDeeper : {
-                        nodelist1Nodes += [unsetRec(nodeDeeper)];
+                        nodelist1Nodes += [unsetRec(normalizeIdentifiers(nodeDeeper))];
                     }
                 }
             }
@@ -156,7 +199,7 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
             case node n : {
                 visit (n) {
                     case node nodeDeeper : {
-                        nodelist2Nodes += [unsetRec(nodeDeeper)];
+                        nodelist2Nodes += [unsetRec(normalizeIdentifiers(nodeDeeper))];
                     }
                 }
             }

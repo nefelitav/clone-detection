@@ -61,10 +61,9 @@ map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThres
 		case node n: {
 			if (subtreeMass(n) >= massThreshold) {
                 node normalizedIdentifier = n;
-                // if (cloneType != 1) {
-                //    println("<n>  <normalizeIdentifiers(n)>\n");
-                //    normalizedIdentifier = normalizeIdentifiers(n);
-                // } 
+                if (cloneType != 1) {
+                   normalizedIdentifier = normalizeIdentifiers(n);
+                } 
                 str hash = md5Hash(unsetRec(normalizedIdentifier));
                 if (hash in hashTable) {
                     hashTable[hash] += n;
@@ -129,13 +128,13 @@ int compareTree(node node1, node node2) {
 
     visit (node1) {
         case node n : {
-            subtree1Nodes += [unsetRec(n)];
+            subtree1Nodes += [unsetRec(normalizeIdentifiers(n))];
         }
     }
 
     visit (node2) {
         case node n : {
-            subtree2Nodes += [unsetRec(n)];
+            subtree2Nodes += [unsetRec(normalizeIdentifiers(n))];
         }
     }
 

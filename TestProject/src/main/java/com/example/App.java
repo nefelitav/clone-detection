@@ -39,10 +39,10 @@ public class App
     }
     public void h()
     {
-        int l=0;
+        int l=2;
         int a=1;
         int b=2;
         int c=3;
-        int k=4;
+        int k=5;
     }
 }
