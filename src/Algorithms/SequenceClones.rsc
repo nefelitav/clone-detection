@@ -198,15 +198,15 @@ list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node
             clones -= pair;
         }
         for(i_node <- i, j_node <- j) {
-            node whichIsSubcloneOfI = isSubclone(pair[0][0], i_node, pair[1][0]); 
-            node whichIsSubcloneOfJ = isSubclone(pair[0][0], j_node, pair[1][0]); 
-            if (size(pair[0]) == 1 && ((whichIsSubcloneOfI == i_node && whichIsSubcloneOfJ == pair[1][0]) || (whichIsSubcloneOfJ == pair[0][0] && whichIsSubcloneOfI == pair[1][0]))) {
+            node isSubcloneOfI = isSubclone(pair[0][0], i_node, pair[1][0]); 
+            node isSubcloneOfJ = isSubclone(pair[0][0], j_node, pair[1][0]); 
+            if (size(pair[0]) == 1 && ((isSubcloneOfI == i_node && isSubcloneOfJ == pair[1][0]) || (isSubcloneOfJ == pair[0][0] && isSubcloneOfI == pair[1][0]))) {
                 clones -= pair;
                 continue;
             }
-            list[node] whichListIsSubcloneOfI = isSubcloneSequence(pair[0], i_node, pair[1]); 
-            list[node] whichListIsSubcloneOfJ = isSubcloneSequence(pair[0], j_node, pair[1]); 
-            if ((whichListIsSubcloneOfI == pair[0] && whichListIsSubcloneOfJ == pair[1]) || (whichListIsSubcloneOfJ == pair[0] && whichListIsSubcloneOfI == pair[1])) {
+            list[node] listIsSubcloneOfI = isSubcloneSequence(pair[0], i_node, pair[1]); 
+            list[node] listIsSubcloneOfJ = isSubcloneSequence(pair[0], j_node, pair[1]); 
+            if ((listIsSubcloneOfI == pair[0] && listIsSubcloneOfJ == pair[1]) || (listIsSubcloneOfJ == pair[0] && listIsSubcloneOfI == pair[1])) {
                 clones -= pair;
                 continue;
             }
@@ -216,14 +216,14 @@ list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node
             return clones;
         }
         for(member1 <- pair[0], member2 <- pair[1]) {
-            node whichIsSubcloneOfMember1 = isSubclone(i[0], member1, j[0]); 
-            node whichIsSubcloneOfMember2 = isSubclone(i[0], member2, j[0]); 
-            if (size(i) == 1 && ((whichIsSubcloneOfMember1 == i[0] && whichIsSubcloneOfMember2 == j[0]) || (whichIsSubcloneOfMember2 == i[0] && whichIsSubcloneOfMember1 == j[0]))) {
+            node isSubcloneOfMember1 = isSubclone(i[0], member1, j[0]); 
+            node isSubcloneOfMember2 = isSubclone(i[0], member2, j[0]); 
+            if (size(i) == 1 && ((isSubcloneOfMember1 == i[0] && isSubcloneOfMember2 == j[0]) || (isSubcloneOfMember2 == i[0] && isSubcloneOfMember1 == j[0]))) {
                 return clones;
             }
-            list[node] whichListIsSubcloneOfMember1 = isSubcloneSequence(i, member1, j); 
-            list[node] whichListIsSubcloneOfMember2 = isSubcloneSequence(i, member2, j);
-            if ((whichListIsSubcloneOfMember1 == i && whichListIsSubcloneOfMember2 == j) || (whichListIsSubcloneOfMember2 == i && whichListIsSubcloneOfMember1 == j)) {
+            list[node] listIsSubcloneOfMember1 = isSubcloneSequence(i, member1, j); 
+            list[node] listIsSubcloneOfMember2 = isSubcloneSequence(i, member2, j);
+            if ((listIsSubcloneOfMember1 == i && listIsSubcloneOfMember2 == j) || (listIsSubcloneOfMember2 == i && listIsSubcloneOfMember1 == j)) {
                 return clones;
             }
         }

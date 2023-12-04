@@ -56,6 +56,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     - this way, clones end up in the same bucket and can easily and quickly be compared with each other
 */
 map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
+    println("createSubtreeHashTable <printTime(now(), "HH:mm:ss")>\n");
     map[str, list[node]] hashTable = ();
     visit (ast) {
 		case node n: {
@@ -74,6 +75,7 @@ map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThres
 			}
 		}
 	}
+    println("createSubtreeHashTable end <printTime(now(), "HH:mm:ss")>\n");
     return hashTable;
 }
 
@@ -93,6 +95,7 @@ map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThres
         - in any of these two cases, we get prepared to add the clone to our struct, checking first that we can add it
 */
 list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int cloneType) {
+    println("findClonePairs <printTime(now(), "HH:mm:ss")>\n");
     list[tuple[node, node]] clones = [];
 	for (bucket <- hashTable) {	
         if (size(hashTable[bucket]) > 1) {
@@ -107,6 +110,7 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
         }
 	
     }
+    println("findClonePairs end <printTime(now(), "HH:mm:ss")>\n");
     return clones;
 }
 
@@ -124,6 +128,7 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
     - if the two subtress are identical, it will return 1, otherwise a value between 0 and 1
 */
 int compareTree(node node1, node node2) {
+    println("compareTree <printTime(now(), "HH:mm:ss")>\n");
 	list[node] subtree1Nodes = [];
 	list[node] subtree2Nodes = [];
 
@@ -142,6 +147,7 @@ int compareTree(node node1, node node2) {
 	int sharedNodes = size(subtree1Nodes & subtree2Nodes);
     int subtree1NodesNumber = size(subtree1Nodes - subtree2Nodes);
     int subtree2NodesNumber = size(subtree2Nodes - subtree1Nodes);
+    println("compareTree end <printTime(now(), "HH:mm:ss")>\n");
 	return 2 * sharedNodes / (2 * sharedNodes + subtree1NodesNumber + subtree2NodesNumber);
 } 
 
@@ -164,21 +170,25 @@ int compareTree(node node1, node node2) {
     - otherwise, we can add them
 */
 list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node j) {
+    println("addSubtree <printTime(now(), "HH:mm:ss")>\n");
     for(pair <- clones) {
         // remove subclones
-        node whichIsSubcloneOfI = isSubclone(pair[0], i, pair[1]); 
-        node whichIsSubcloneOfJ = isSubclone(pair[1], j, pair[0]); 
-        if ((whichIsSubcloneOfI == pair[0] && whichIsSubcloneOfJ == pair[1]) || (whichIsSubcloneOfJ == pair[0] &&  whichIsSubcloneOfI == pair[1])) {
+        println("addSubtree removal <printTime(now(), "HH:mm:ss")>\n");
+        node isSubcloneOfI = isSubclone(pair[0], i, pair[1]); 
+        node isSubcloneOfJ = isSubclone(pair[1], j, pair[0]); 
+        if ((isSubcloneOfI == pair[0] && isSubcloneOfJ == pair[1]) || (isSubcloneOfJ == pair[0] &&  isSubcloneOfI == pair[1])) {
             clones -= pair;
         }
+        println("addSubtree removal end <printTime(now(), "HH:mm:ss")>\n");
         // check if subclone, otherwise add it
-        node whichIsSubcloneOfPair0 = isSubclone(i, pair[0], j); 
-        node whichIsSubcloneOfPair1 = isSubclone(i, pair[1], j); 
-        if ((whichIsSubcloneOfPair0 == i && whichIsSubcloneOfPair1 == j) || (whichIsSubcloneOfPair1 == i && whichIsSubcloneOfPair0 == j)) {
+        node isSubcloneOfPair0 = isSubclone(i, pair[0], j); 
+        node isSubcloneOfPair1 = isSubclone(i, pair[1], j); 
+        if ((isSubcloneOfPair0 == i && isSubcloneOfPair1 == j) || (isSubcloneOfPair1 == i && isSubcloneOfPair0 == j)) {
             return clones;
         }
     }
     clones += <i, j>;
+    println("addSubtree end <printTime(now(), "HH:mm:ss")>\n");
     return clones;  
 }
 /*
@@ -191,6 +201,7 @@ list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node 
     - and we do not have duplicates
 */
 list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j) {
+    println("addSubtreeClone <printTime(now(), "HH:mm:ss")>\n");
     if (size(clones) == 0) {
         return [<i, j>];
     } else {
