@@ -11,36 +11,41 @@ list[Declaration] getASTs(loc projectLocation) {
 }
 
 /*
-    arguments: two nodes
-    checks if first node is subtree of the other
+    arguments: three nodes
+    checks if first node or the third node are subtrees of the second node
 
 */
-bool isSubclone(node node1, node node2) {
+node isSubclone(node node1, node node2, node node3) {
     visit(node2) {
         case node s: {
             if (node1 == s) {
-                return true;
+                return node1;
+            }
+            if (node3 == s) {
+                return node3;
             }
         }
     }
-    return false;
+    return "nefeli"(0);
 }
 
 /*
-    arguments: two nodes
-    checks if first node is subsequence of the other
-
+    arguments: two list nodes, one node
+    checks if first list or the third list are subsequences of the node
 */
-bool isSubcloneSequence(list[node] node1, node node2) {
+list[node] isSubcloneSequence(list[node] node1, node node2, list[node] node3) {
     visit(node2) {
         case \block(statements): {
             list[node] sequence = statements;
             if (node1 <= sequence) {
-                return true;
+                return node1;
+            }
+            if (node3 <= sequence) {
+                return node3;
             }
         }
     }
-    return false;
+    return [];
 }
 
 /*

@@ -166,11 +166,15 @@ int compareTree(node node1, node node2) {
 list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node j) {
     for(pair <- clones) {
         // remove subclones
-        if ((isSubclone(pair[0], i) && isSubclone(pair[1], j)) || (isSubclone(pair[0], j) &&  isSubclone(pair[1], i))) {
-            clones -= <pair[0], pair[1]>;
+        node whichIsSubcloneOfI = isSubclone(pair[0], i, pair[1]); 
+        node whichIsSubcloneOfJ = isSubclone(pair[1], j, pair[0]); 
+        if ((whichIsSubcloneOfI == pair[0] && whichIsSubcloneOfJ == pair[1]) || (whichIsSubcloneOfJ == pair[0] &&  whichIsSubcloneOfI == pair[1])) {
+            clones -= pair;
         }
         // check if subclone, otherwise add it
-        if ((isSubclone(i, pair[0]) && isSubclone(j, pair[1])) || (isSubclone(i, pair[1]) &&  isSubclone(j, pair[0]))) {
+        node whichIsSubcloneOfPair0 = isSubclone(i, pair[0], j); 
+        node whichIsSubcloneOfPair1 = isSubclone(i, pair[1], j); 
+        if ((whichIsSubcloneOfPair0 == i && whichIsSubcloneOfPair1 == j) || (whichIsSubcloneOfPair1 == i && whichIsSubcloneOfPair0 == j)) {
             return clones;
         }
     }
