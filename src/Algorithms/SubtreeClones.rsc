@@ -9,9 +9,7 @@ import Node;
 import List;
 import util::Math;
 import DateTime;
-
-// TODO
-// type 2,3
+import Algorithms::GeneralizeClones;
 
 /////////////////////////
 ///   Main function   ///
@@ -29,16 +27,21 @@ import DateTime;
     - prints statistics
 
 */
-list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold) {
+list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     real similarityThreshold = 1.0;
     if (cloneType == 3) {
         real similarityThreshold = 0.8;
     }
-    map[str, list[node]] hashTable = createSubtreeHashTable(ast, massThreshold, cloneType);
+    map[str, list[node]] hashTable = ();
+    map[node, list[value]] childrenOfParents = ();
+    <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, cloneType);
     println("---\n");
     list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
     println("---\n");
+    if (generalize) {
+        clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
+    }
     getSubtreeStatisticsFast(clonePairs, projectLocation);
     println("---\n");
     return clonePairs;
@@ -55,10 +58,12 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     - the hash is the key for each bucket and the value is the node or a normalized version of the node, if cloneType is 2 or 3
     - this way, clones end up in the same bucket and can easily and quickly be compared with each other
 */
-map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
+tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType) {
     map[str, list[node]] hashTable = ();
+    map[node, list[value]] childrenOfParents = ();
     visit (ast) {
 		case node n: {
+            childrenOfParents[n] = getChildren(n);
 			if (subtreeMass(n) >= massThreshold) {
                 node normalizedIdentifier = n;
                 if (cloneType != 1) {
@@ -73,7 +78,7 @@ map[str, list[node]] createSubtreeHashTable(list[Declaration] ast, int massThres
 			}
 		}
 	}
-    return hashTable;
+    return <hashTable, childrenOfParents>;
 }
 
 /////////////////////////

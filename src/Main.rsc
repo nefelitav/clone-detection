@@ -1,9 +1,10 @@
 module Main
 
 import IO;
+import DateTime;
 import Algorithms::SubtreeClones;
 import Algorithms::SequenceClones;
-import DateTime;
+import Algorithms::GeneralizeClones;
 
 void main() {
     println(printTime(now(), "HH:mm:ss"));
@@ -12,11 +13,11 @@ void main() {
     // loc projectLocation = |project://smallsql0.21_src|;
     int cloneType = 1;
     
-    int massThreshold = 20;
-    findSubtreeClones(projectLocation, cloneType, massThreshold);
+    int massThreshold = 6;
+    findSubtreeClones(projectLocation, cloneType, massThreshold, false);
     println(printTime(now(), "HH:mm:ss"));
 
     println("\n");
-    int minimumSequenceLengthThreshold = 6;
-    findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold);
+    int minimumSequenceLengthThreshold = 1;
+    findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
 }

@@ -26,7 +26,7 @@ node isSubclone(node node1, node node2, node node3) {
             }
         }
     }
-    return "nefeli"(0);
+    return "null"(0);
 }
 
 /*
@@ -61,7 +61,7 @@ public node normalizeIdentifiers(node currentNode) {
 		case \class(_, x, y, z) => \class("className", x, y, z)
 		case \interface(_, x, y, z) => \interface("interfaceName", x, y, z)
         // case \method(_, _, list[Declaration] y, list[Expression] z, Statement w) => \method(short(), "methodName", y, z, w)
-        case \method(_, _, list[Declaration] y, list[Expression] z) => \method(short(), "methodName", y, z)
+        // case \method(_, _, list[Declaration] y, list[Expression] z) => \method(short(), "methodName", y, z)
 		case \constructor(_, x, y, z) => \constructor("constructorName", x, y, z)
 		case \import(_) => \import("importName")
         case \package(_) => \package("packageName")
@@ -78,7 +78,6 @@ public node normalizeIdentifiers(node currentNode) {
         case \simpleName(_) => \simpleName("simpleName")
 		case \methodCall(x, _, z) => \methodCall(x, "methodCallName", z)
 		case \methodCall(x, y, _, z) => \methodCall(x, y, "methodCallName", z) 
-        case \type(_) => boolean()
 		case Modifier _ => \public()
         
         // i dont think we need these, because then they are not clones

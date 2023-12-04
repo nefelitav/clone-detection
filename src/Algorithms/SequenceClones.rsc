@@ -8,9 +8,7 @@ import IO;
 import Node;
 import List;
 import util::Math;
-
-// TODO
-// type 2,3
+import Algorithms::GeneralizeClones;
 
 /////////////////////////
 ///   Main function   ///
@@ -27,14 +25,19 @@ import util::Math;
     prints statistics
 
 */
-list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold) {
+list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     real similarityThreshold = 1.0;
     if (cloneType == 3) {
         real similarityThreshold = 0.8;
     }
-    map[str, list[list[node]]] hashTable = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType);
+    map[str, list[list[node]]] hashTable = ();
+    map[list[node], list[value]] childrenOfParents = ();
+    <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType);
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
+    if (generalize) {
+        clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
+    }
     getSequenceStatisticsFast(clonePairs, projectLocation);
     return clonePairs;
 }
@@ -50,14 +53,19 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     - these subsequence hashes are concatenated into a string, which is also hashed later on.
     - this sequence hash is the bucket key, and the value is the sequence or a normalized version of the sequence, if cloneType is 2 or 3.
 */
-map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType) {
+tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType) {
     map[str, list[list[node]]] hashTable = ();
     list[list[node]] sequences = [];
+    map[list[node], list[value]] childrenOfParents = ();
     visit (ast) {
         case \block(statements): {
             list[node] sequence = statements;
             if (size(sequence) >= minimumSequenceLengthThreshold) {
                 sequences += [sequence];
+            }
+            childrenOfParents[sequence] = [];
+            for (n <- sequence) {
+                childrenOfParents[sequence] += getChildren(n);
             }
         }
     }
@@ -99,7 +107,7 @@ map[str, list[list[node]]] createSequenceHashTable(list[Declaration] ast, int mi
             }
         }
     }
-    return hashTable;
+    return <hashTable, childrenOfParents>;
 }
 
 /////////////////////////
