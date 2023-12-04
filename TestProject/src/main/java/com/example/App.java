@@ -37,4 +37,12 @@ public class App
             int j = 4;
         }
     }
+    public void h()
+    {
+        int l=0;
+        int a=1;
+        int b=2;
+        int c=3;
+        int k=4;
+    }
 }
