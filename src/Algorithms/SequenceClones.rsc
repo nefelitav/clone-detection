@@ -191,48 +191,20 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
         so there is no need to add them, because we are looking for the biggest sequence that is cloned.
     - otherwise, we can add them
 */
-list[tuple[list[node], list[node]]] addSubquence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
+list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     for(pair <- clones) {
         // remove subclones
-        if (pair[0] <= i && pair[1] <= j) {
+        if ((pair[0] <= i && pair[1] <= j) || (pair[1] <= i && pair[0] <= j)) {
             clones -= <pair[0], pair[1]>;
-        } else if (pair[1] <= i && pair[0] <= j) {
-            clones -= <pair[1], pair[0]>;
         }
-        bool removed = false;
         for(member1 <- i, member2 <- j) {
-            if (removed == true) {
-                break;
+            if (size(pair[0]) == 1 && ((isSubclone(pair[0][0], member1) && isSubclone(pair[1][0], member2)) || (isSubclone(pair[0][0], member2) && isSubclone(pair[1][0], member1)))) {
+                clones -= <pair[0], pair[1]>;
+                continue;
             }
-            visit(member1) {
-                case node n: {
-                    visit(member2) {
-                        case node n2: {
-                            if (size(pair[0]) == 1 && size(pair[1]) == 1 && ((n == pair[0][0] && n2 == pair[1][0]) || (n2 == pair[0][0] && n == pair[1][0]))) {
-                                clones -= <pair[0], pair[1]>;
-                                removed = true;
-                                continue;
-                            }
-                        }
-                    }
-                }
-                case \block(statements): {
-                    list[node] sequence = statements;
-                    visit(j) {
-                        case \block(statements2): {
-                            list[node] sequence2 = statements2;
-                            if (pair[0] <= sequence && pair[1] <= sequence2) {
-                                clones -= <pair[0], pair[1]>;
-                                removed = true;
-                                continue;
-                            } else if (pair[0] <= sequence2 && pair[1] <= sequence) {
-                                clones -= <pair[1], pair[0]>;
-                                removed = true;
-                                continue;
-                            }
-                        }
-                    }
-                }
+            if ((isSubcloneSequence(pair[0], member1) && isSubcloneSequence(pair[1], member2)) || (isSubcloneSequence(pair[0], member2) && isSubcloneSequence(pair[1], member1))) {
+                clones -= <pair[0], pair[1]>;
+                continue;
             }
         }
         // check if subclone, otherwise add it
@@ -240,30 +212,11 @@ list[tuple[list[node], list[node]]] addSubquence(list[tuple[list[node], list[nod
             return clones;
         }
         for(member1 <- pair[0], member2 <- pair[1]) {
-            visit(member1) {
-                case node n: {
-                    visit(member2) {
-                        case node n2: {
-                            if (size(i) == 1 && size(j) == 1 && ((i[0] == n && j[0] == n2) || (i[0] == n2 && j[0] == n))) {
-                                return clones;
-                            }
-                        }
-                    }
-                }
-                case \block(statements): {
-                    list[node] sequence = statements;
-                    visit(member2) {
-                        case \block(statements2): {
-                            list[node] sequence2 = statements2;
-                            if (i <= sequence && j <= sequence2) {
-                                return clones;
-                            }
-                            if (i <= sequence2 && j <= sequence) {
-                                return clones;
-                            }
-                        }
-                    }
-                }
+            if (size(i) == 1 && ((isSubclone(i[0], member1) && isSubclone(j[0], member2)) || (isSubclone(i[0], member2) && isSubclone(j[0], member1)))) {
+                return clones;
+            }
+            if ((isSubcloneSequence(i, member1) && isSubcloneSequence(j, member2)) || (isSubcloneSequence(i, member2) && isSubcloneSequence(j, member1))) {
+                return clones;
             }
         }
     }
@@ -287,7 +240,7 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         if (<j,i> in clones) {
             return clones;
         }
-        return addSubquence(clones, i, j);
+        return addSequence(clones, i, j);
     }
 }
 

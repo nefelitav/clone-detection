@@ -124,27 +124,25 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
     - if the two subtress are identical, it will return 1, otherwise a value between 0 and 1
 */
 int compareTree(node node1, node node2) {
-	int sharedNodes = 0;
-	int subtree1Nodes = 0;
-	int subtree2Nodes = 0;
+	list[node] subtree1Nodes = [];
+	list[node] subtree2Nodes = [];
 
-	visit (node1) {
-		case node n : {
-            visit (node2) {
-                case node n2 : {
-                    if (unsetRec(n) == unsetRec(n2)) {
-                        sharedNodes += 1;
-                    }
-                    // only calculate this once
-                    if (subtree1Nodes == 0) {
-                        subtree2Nodes += 1;
-                    }
-                }
-            }
-            subtree1Nodes += 1;
+    visit (node1) {
+        case node n : {
+            subtree1Nodes += [unsetRec(n)];
         }
-	}
-	return 2 * sharedNodes / (2 * sharedNodes + (subtree1Nodes - sharedNodes) + (subtree2Nodes - sharedNodes));
+    }
+
+    visit (node2) {
+        case node n : {
+            subtree2Nodes += [unsetRec(n)];
+        }
+    }
+
+	int sharedNodes = size(subtree1Nodes & subtree2Nodes);
+    int subtree1NodesNumber = size(subtree1Nodes - subtree2Nodes);
+    int subtree2NodesNumber = size(subtree2Nodes - subtree1Nodes);
+	return 2 * sharedNodes / (2 * sharedNodes + subtree1NodesNumber + subtree2NodesNumber);
 } 
 
 ///////////////////////////////////////////////////
@@ -168,41 +166,12 @@ int compareTree(node node1, node node2) {
 list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node j) {
     for(pair <- clones) {
         // remove subclones
-        visit(i) {
-            case node s: {
-                if (pair[0] == s) {
-                    visit(j) {
-                        case node s2: {
-                            if (pair[1] == s2) {
-                                clones -= <pair[0], pair[1]>;
-                                continue;
-                            }
-                        }
-                    }
-                }
-                if (pair[1] == s) {
-                    visit(j) {
-                        case node s2: {
-                            if (pair[0] == s2) {
-                                clones -= <pair[1], pair[0]>;
-                                continue;
-                            }
-                        }
-                    }
-                }
-            }
+        if ((isSubclone(pair[0], i) && isSubclone(pair[1], j)) || (isSubclone(pair[0], j) &&  isSubclone(pair[1], i))) {
+            clones -= <pair[0], pair[1]>;
         }
         // check if subclone, otherwise add it
-        visit(pair[0]) {
-            case node s: {
-                visit(pair[1]) {
-                    case node s2: {
-                        if ((i == s && j == s2) || (i == s2 && j == s)) {
-                            return clones;
-                        }
-                    }
-                }
-            }
+        if ((isSubclone(i, pair[0]) && isSubclone(j, pair[1])) || (isSubclone(i, pair[1]) &&  isSubclone(j, pair[0]))) {
+            return clones;
         }
     }
     clones += <i, j>;

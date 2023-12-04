@@ -11,6 +11,39 @@ list[Declaration] getASTs(loc projectLocation) {
 }
 
 /*
+    arguments: two nodes
+    checks if first node is subtree of the other
+
+*/
+bool isSubclone(node node1, node node2) {
+    visit(node2) {
+        case node s: {
+            if (node1 == s) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/*
+    arguments: two nodes
+    checks if first node is subsequence of the other
+
+*/
+bool isSubcloneSequence(list[node] node1, node node2) {
+    visit(node2) {
+        case \block(statements): {
+            list[node] sequence = statements;
+            if (node1 <= sequence) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/*
     arguments: node
     normalize identifiers removing names 
     Type II: syntactical copy, changes allowed in variable, type, function identifiers
