@@ -30,7 +30,7 @@ node isSubclone(node node1, node node2, node node3) {
 }
 
 /*
-    arguments: two list nodes, one node
+    arguments: two lists of nodes, one node
     checks if first list or the third list are subsequences of the node
 */
 list[node] isSubcloneSequence(list[node] node1, node node2, list[node] node3) {

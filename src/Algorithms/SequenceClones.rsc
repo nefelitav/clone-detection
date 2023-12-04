@@ -14,10 +14,8 @@ import Algorithms::GeneralizeClones;
 ///   Main function   ///
 /////////////////////////
 /*
-    arguments: projectLocation, cloneType (can be 1,2,3)
-    massThreshold: small subtrees should be ignored
+    arguments: projectLocation, cloneType (can be 1,2,3), minimumSequenceLengthThreshold: minimum number of sequences to group, generalize:  bool (whether we should also run the 3rd algorithm)
     similarityThreshold: how similar do we want the clones to be
-    minimumSequenceLengthThreshold: minimum number of sequences to group
     gets ASTs of the project 
     performs some preprocessing on ASTs, depending on the type of clones
     creates a hash table with the sequences
@@ -33,7 +31,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     }
     map[str, list[list[node]]] hashTable = ();
     map[list[node], list[value]] childrenOfParents = ();
-    <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType);
+    <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType, generalize);
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
@@ -52,8 +50,9 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     - hash every "clean" subsequence with md5Hash. By clean I mean that it does not have locations etc.
     - these subsequence hashes are concatenated into a string, which is also hashed later on.
     - this sequence hash is the bucket key, and the value is the sequence or a normalized version of the sequence, if cloneType is 2 or 3.
+    - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
 */
-tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType) {
+tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType, bool generalize) {
     map[str, list[list[node]]] hashTable = ();
     list[list[node]] sequences = [];
     map[list[node], list[value]] childrenOfParents = ();
@@ -64,8 +63,10 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
                 sequences += [sequence];
             }
             childrenOfParents[sequence] = [];
-            for (n <- sequence) {
-                childrenOfParents[sequence] += getChildren(n);
+            if (generalize) {
+                for (n <- sequence) {
+                    childrenOfParents[sequence] += getChildren(n);
+                }
             }
         }
     }
@@ -120,8 +121,8 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
     - get a pair of subtrees:
         - ensure we are not comparing the same subtree with itself
         - compare it using the compareSequences function that checks for similarity between sequences, to see if they are clones
-        - if compareSequences returned 1, then it is an exact match, 
-        - if not but we are looking for clones of type 2 or 3, we check if the comparison result is over the similarityThreshold 
+        - if cloneType == 1, we are looking for an exact match, 
+        - if we are looking for clones of type 2 or 3, we check if the comparison result is over the similarityThreshold 
         or equal for the case of cloneType=2 && similarityThreshold==1.0
         - in any of these two cases, we get prepared to add the clone to our struct, checking first that we can add it
 */
@@ -178,6 +179,7 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
     - visits every node of the two sequences and counts the number of nodes they have
     - finds shared nodes of the two sequences, "cleaning" the nodes with unsetRec, 
     so that method locations and other useless informations are ignored
+    - also normalizes identifiers, since this function is used for near-misses
     - calculates:
         Similarity = 2 x S / (2 x S + L + R)
         where:
