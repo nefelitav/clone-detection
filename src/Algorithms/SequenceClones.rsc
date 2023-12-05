@@ -9,6 +9,7 @@ import Node;
 import List;
 import util::Math;
 import Algorithms::GeneralizeClones;
+import Visualization::ExportJson;
 
 /////////////////////////
 ///   Main function   ///
@@ -36,7 +37,10 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     }
-    getSequenceStatisticsFast(clonePairs, projectLocation);
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatisticsFast(clonePairs, projectLocation);
+    // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
+    // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
+    // exportData(numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, biggestClassesMembers, biggestClonesLines, "subtreeClones");    
     return clonePairs;
 }
 
@@ -439,6 +443,46 @@ int getPercentageOfDuplicatedLinesSequences(list[tuple[list[node], list[node]]] 
     return percentageOfDuplicatedLines;
 }
 
+
+// list[tuple[node, int]] get5BiggestSubtreeClonesInLines(list[tuple[list[node], list[node]]] clonePairs) {
+//     list[tuple[node, int]] maxNodesAndLines = [];
+
+//     while(size(maxNodesAndLines) != 5) {
+//         int maxLines = 0;
+//         node maxNode = clonePairs[0][0];
+//         for(pair <- clonePairs) {
+//             int numberOfLines = UnitLOC((pair[0]).src);
+//             if (numberOfLines > maxLines) {
+//                 maxLines = numberOfLines;
+//                 maxNode = pair;
+//             }
+//         }
+//         clonePairs -= pair;
+//         maxNodesAndLines += <maxNode[0], maxLines>;
+//     }
+//     return maxNodesAndLines;
+// }
+
+// list[tuple[node, int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[list[node], list[node]]] clonePairs) {
+//     list[tuple[list[node], int]] maxNodesAndMembers = [];
+//     node biggestCloneClass = "null"(0);
+//     map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
+
+//     while(size(maxNodesAndMembers) != 5) {
+//         int biggestCloneClassMembers = 0;
+//         for (class <- cloneClasses) {
+//             int classSize = size(cloneClasses[class]);
+//             if (classSize > biggestCloneClassMembers && <class, classSize> notin maxNodesAndMembers) {
+//                 biggestCloneClassMembers = classSize;
+//                 biggestCloneClass = class;
+//             }
+//         }
+//         biggestCloneClassMembers += 1;
+//         maxNodesAndMembers += <biggestCloneClass, biggestCloneClassMembers>;
+//     }
+//     return maxNodesAndMembers;
+// }
+
 /*
     arguments: clones, projectLocation
     prints:
@@ -469,7 +513,7 @@ void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc p
 }
 
 // a faster version of the above
-void getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
+tuple[int, int, int, int] getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
     println("-------------------------");
     println("Sequence Clones Statistics");
     println("-------------------------");
@@ -479,6 +523,7 @@ void getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, l
     int biggestCloneClass = 0;
     int percentageOfDuplicatedLines = 0;
     int biggestCloneLines = 0;
+    int projectLines = 0;
 
     if (size(clonePairs) != 0) {
         numberOfClones = size(clonePairs);
@@ -499,6 +544,7 @@ void getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, l
             }
         }
         biggestCloneClass += 1;
+        projectLines = LOC(projectLocation);
         percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
 
         println("example of clone pair: <clonePairs[0]>\n");
@@ -508,4 +554,6 @@ void getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, l
     println("biggest clone class in members: <biggestCloneClass>");
     println("biggest clone class in lines: <biggestCloneLines>");
     println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
+
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines>;
 }

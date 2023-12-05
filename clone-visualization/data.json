@@ -1,0 +1,459 @@
+[
+ {
+  "projectLines": 100,
+  "generalizedClones": {
+   "subtreeClones": {
+    "type1": {
+     "biggestLines": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "pairs": 35,
+     "biggestMembers": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "classes": 11,
+     "duplicatedLines": 70
+    },
+    "type2": {
+     "biggestLines": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "pairs": 45,
+     "biggestMembers": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "classes": 12,
+     "duplicatedLines": 80
+    },
+    "type3": {
+     "biggestLines": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "pairs": 55,
+     "biggestMembers": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "classes": 13,
+     "duplicatedLines": 90
+    }
+   },
+   "sequenceClones": {
+    "type1": {
+     "biggestLines": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "pairs": 40,
+     "biggestMembers": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "classes": 14,
+     "duplicatedLines": 95
+    },
+    "type2": {
+     "biggestLines": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "pairs": 50,
+     "biggestMembers": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "classes": 15,
+     "duplicatedLines": 45
+    },
+    "type3": {
+     "biggestLines": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "pairs": 60,
+     "biggestMembers": {
+      "classes": [
+       "x=1",
+       "y=1",
+       "z=1",
+       "w=1",
+       "q=1"
+      ],
+      "numbers": [
+       10,
+       9,
+       8,
+       7,
+       6
+      ]
+     },
+     "classes": 16,
+     "duplicatedLines": 56
+    }
+   }
+  },
+  "subtreeClones": {
+   "type1": {
+    "biggestLines": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "pairs": 10,
+    "biggestMembers": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "classes": 5,
+    "duplicatedLines": 10
+   },
+   "type2": {
+    "biggestLines": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "pairs": 20,
+    "biggestMembers": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "classes": 6,
+    "duplicatedLines": 20
+   },
+   "type3": {
+    "biggestLines": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "pairs": 30,
+    "biggestMembers": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "classes": 7,
+    "duplicatedLines": 30
+   }
+  },
+  "sequenceClones": {
+   "type1": {
+    "biggestLines": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "pairs": 5,
+    "biggestMembers": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "classes": 8,
+    "duplicatedLines": 40
+   },
+   "type2": {
+    "biggestLines": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "pairs": 15,
+    "biggestMembers": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "classes": 9,
+    "duplicatedLines": 50
+   },
+   "type3": {
+    "biggestLines": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "pairs": 25,
+    "biggestMembers": {
+     "classes": [
+      "x=1",
+      "y=1",
+      "z=1",
+      "w=1",
+      "q=1"
+     ],
+     "numbers": [
+      10,
+      9,
+      8,
+      7,
+      6
+     ]
+    },
+    "classes": 10,
+    "duplicatedLines": 60
+   }
+  }
+ }
+]
