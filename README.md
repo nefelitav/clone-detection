@@ -35,3 +35,9 @@
 3) Are our statistics correct?
 4) Is the way we remove subclones correct?
 5) What to do with type 2 and 3?
+
+# Visualizations
+- number of clone pairs and number of clone classes of each algorithm
+- 5 biggest clone classes in lines for each algorithm
+- 5 biggest clone class in members for each algorithm
+- percentage of duplicated lines for each algorithm

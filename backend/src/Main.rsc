@@ -18,6 +18,6 @@ void main() {
     println(printTime(now(), "HH:mm:ss"));
 
     println("\n");
-    int minimumSequenceLengthThreshold = 1;
+    int minimumSequenceLengthThreshold = 3;
     findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
 }
