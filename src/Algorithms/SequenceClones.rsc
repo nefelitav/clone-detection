@@ -443,44 +443,54 @@ int getPercentageOfDuplicatedLinesSequences(list[tuple[list[node], list[node]]] 
     return percentageOfDuplicatedLines;
 }
 
-
-// list[tuple[node, int]] get5BiggestSubtreeClonesInLines(list[tuple[list[node], list[node]]] clonePairs) {
-//     list[tuple[node, int]] maxNodesAndLines = [];
-
-//     while(size(maxNodesAndLines) != 5) {
+/*  
+    arguments: clones
+    gets 5 biggest sequence clones in lines
+    returns both the clones and the number of lines that corresponds to them
+*/
+// list[tuple[list[node], int]] get5BiggestSequenceClonesInLines(list[tuple[list[node], list[node]]] clonePairs) {
+//     list[tuple[list[node], int]] maxSequencesAndLines = [];
+//     while(size(maxSequencesAndLines) != 5) {
 //         int maxLines = 0;
-//         node maxNode = clonePairs[0][0];
+//         tuple[list[node],list[node]] maxPair = clonePairs[0];
 //         for(pair <- clonePairs) {
-//             int numberOfLines = UnitLOC((pair[0]).src);
-//             if (numberOfLines > maxLines) {
-//                 maxLines = numberOfLines;
-//                 maxNode = pair;
-//             }
-//         }
+//           int numberOfLines = 0;
+//           for(pairNode <- pair[0]) {
+//              numberOfLines += UnitLOC(pairNode.src);
+//           }
+//           if (numberOfLines > maxLines) {
+//              maxLines = numberOfLines;
+//              maxPair = pair;
+//           }
+//.        }
 //         clonePairs -= pair;
-//         maxNodesAndLines += <maxNode[0], maxLines>;
+//         maxSequencesAndLines += <maxPair[0], maxLines>;
 //     }
-//     return maxNodesAndLines;
+//     return maxSequencesAndLines;
 // }
 
-// list[tuple[node, int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[list[node], list[node]]] clonePairs) {
-//     list[tuple[list[node], int]] maxNodesAndMembers = [];
-//     node biggestCloneClass = "null"(0);
+/*  
+    arguments: clones
+    gets 5 biggest sequence clone classes in members
+    returns both the clone classes and the number of members that corresponds to them
+*/
+// list[tuple[list[node], int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[list[node], list[node]]] clonePairs) {
+//     list[tuple[list[node], int]] maxSequencesAndLines = [];
+//     list[node] biggestCloneClass = "null"(0);
 //     map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-
 //     while(size(maxNodesAndMembers) != 5) {
 //         int biggestCloneClassMembers = 0;
 //         for (class <- cloneClasses) {
 //             int classSize = size(cloneClasses[class]);
-//             if (classSize > biggestCloneClassMembers && <class, classSize> notin maxNodesAndMembers) {
+//             if (classSize > biggestCloneClassMembers && <class, classSize> notin maxSequencesAndLines) {
 //                 biggestCloneClassMembers = classSize;
 //                 biggestCloneClass = class;
 //             }
 //         }
 //         biggestCloneClassMembers += 1;
-//         maxNodesAndMembers += <biggestCloneClass, biggestCloneClassMembers>;
+//         maxSequencesAndLines += <biggestCloneClass, biggestCloneClassMembers>;
 //     }
-//     return maxNodesAndMembers;
+//     return maxSequencesAndLines;
 // }
 
 /*
