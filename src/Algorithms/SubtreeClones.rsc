@@ -341,13 +341,16 @@ int getPercentageOfDuplicatedLinesSubtrees(list[tuple[node, node]] clonePairs, l
     return percentageOfDuplicatedLines;
 }
 
-
+/*
+    arguments: clones
+    get 5 biggest subtree clones in lines
+    return both the subtrees and the number of lines that corresponds to them
+*/
 // list[tuple[node, int]] get5BiggestSubtreeClonesInLines(list[tuple[node, node]] clonePairs) {
 //     list[tuple[node, int]] maxNodesAndLines = [];
-
 //     while(size(maxNodesAndLines) != 5) {
 //         int maxLines = 0;
-//         tuples[node, node] maxNode = clonePairs[0][0];
+//         tuple[node, node] maxNode = clonePairs[0];
 //         for(pair <- clonePairs) {
 //             int numberOfLines = UnitLOC((pair[0]).src);
 //             if (numberOfLines > maxLines) {
@@ -361,11 +364,15 @@ int getPercentageOfDuplicatedLinesSubtrees(list[tuple[node, node]] clonePairs, l
 //     return maxNodesAndLines;
 // }
 
+/*
+    arguments: clones
+    get 5 biggest subtree clone classes in members
+    return both the subtrees and the number of members that corresponds to them
+*/
 // list[tuple[node, int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[node, node]] clonePairs) {
 //     list[tuple[node, int]] maxNodesAndMembers = [];
 //     node biggestCloneClass = "null"(0);
 //     map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
-
 //     while(size(maxNodesAndMembers) != 5) {
 //         int biggestCloneClassMembers = 0;
 //         for (class <- cloneClasses) {
