@@ -7,10 +7,18 @@ import lang::java::m3::AST;
 import IO;
 import Node;
 import List;
+import Map;
 import util::Math;
 import DateTime;
 import Algorithms::GeneralizeClones;
 import Visualization::ExportJson;
+import Set;
+
+// cache similarities
+// cache processed pairs  -> stringify
+// real compareTree
+// decrease buckets 
+// set to remove duplicates
 
 /////////////////////////
 ///   Main function   ///
@@ -44,9 +52,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatisticsFast(clonePairs, projectLocation);
-    // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
-    // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
-    // exportData(numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, biggestClassesMembers, biggestClonesLines, "subtreeClones");
+
     println("---\n");
     return clonePairs;
 }
@@ -66,25 +72,24 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
 tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType, bool generalize) {
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
-    visit (ast) {
-		case node n: {
-            if (generalize) {
-                childrenOfParents[n] = getChildren(n);
+    list[node] treeNodes = getTreeNodes(ast);
+    for(n <- treeNodes) {
+        // if (generalize) {
+        //     childrenOfParents[n] = getChildren(n);
+        // }
+		if (subtreeMass(unsetRec(n, {"decl", "messages"})) >= massThreshold) {
+            node normalizedIdentifier = n;
+            if (cloneType != 1) {
+               normalizedIdentifier = normalizeIdentifiers(n);
+            } 
+            str hash = hashSubtree(normalizedIdentifier);
+            if (hash in hashTable) {
+                hashTable[hash] += n;
+            } else {
+                hashTable[hash] = [n];
             }
-			if (subtreeMass(n) >= massThreshold) {
-                node normalizedIdentifier = n;
-                if (cloneType != 1) {
-                   normalizedIdentifier = normalizeIdentifiers(n);
-                } 
-                str hash = md5Hash(unsetRec(normalizedIdentifier));
-                if (hash in hashTable) {
-                    hashTable[hash] += n;
-                } else {
-                    hashTable[hash] = [n];
-                }
-			}
 		}
-	}
+    }
     return <hashTable, childrenOfParents>;
 }
 
@@ -105,22 +110,41 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
 */
 list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int cloneType) {
     list[tuple[node, node]] clones = [];
+    map[str, real] similarityMap = ();
+    set[str] processed = {};
 	for (bucket <- hashTable) {	
-        if (size(hashTable[bucket]) > 1) {
-            for (i <- hashTable[bucket], j <- hashTable[bucket]) {
-                if (i != j) {
-                    int comparison = compareTree(i, j);
-                    if ((cloneType == 1) && (unsetRec(i) == unsetRec(j)) || ((cloneType != 1) && (comparison >= similarityThreshold))) {
-                        clones = addSubtreeClone(clones, i, j);
-                    } 
-                }
+        list[node] nodes = hashTable[bucket];
+        for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
+            node i = nodes[i_index];
+            node j = nodes[j_index];
+            str iString = toString(i);
+            str jString = toString(j);
+            str pairStr = iString + jString;
+            str pairStrRev = jString + iString;
+            real comparison = 0.0;
+            // Skip if pair has already been processed
+            if (pairStr in processed) {
+                continue;
             }
-        }
-	
+            if(pairStr in similarityMap) {
+                comparison = similarityMap[pairStr];
+            } else if (pairStrRev in similarityMap) {
+                comparison = similarityMap[pairStrRev];
+            } else if (cloneType != 1) {
+                comparison = compareTree(i, j);
+                similarityMap[pairStr] = comparison;
+            } 
+            if (iString != jString) {
+                if ((cloneType == 1 && unsetRec(i) == unsetRec(j)) || ((cloneType != 1) && (comparison >= similarityThreshold))) {
+                    clones = addSubtreeClone(clones, i, j);
+                } 
+                processed += pairStr;
+            }
+        }    
     }
     return clones;
 }
-
+                    
 /*
     arguments: two subtrees
     - visits the two subtrees and counts the number of nodes they have
@@ -135,26 +159,14 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
         R = number of different nodes in sub-tree 2
     - if the two subtress are identical, it will return 1, otherwise a value between 0 and 1
 */
-int compareTree(node node1, node node2) {
-	list[node] subtree1Nodes = [];
-	list[node] subtree2Nodes = [];
-
-    visit (node1) {
-        case node n : {
-            subtree1Nodes += [unsetRec(normalizeIdentifiers(n))];
-        }
-    }
-
-    visit (node2) {
-        case node n : {
-            subtree2Nodes += [unsetRec(normalizeIdentifiers(n))];
-        }
-    }
+real compareTree(node node1, node node2) {
+	list[node] subtree1Nodes = [unsetRec(normalizeIdentifiers(n)) | n <- getSubtreeNodes(node1)];
+	list[node] subtree2Nodes = [unsetRec(normalizeIdentifiers(n)) | n <- getSubtreeNodes(node2)];
 
 	int sharedNodes = size(subtree1Nodes & subtree2Nodes);
     int subtree1NodesNumber = size(subtree1Nodes - subtree2Nodes);
     int subtree2NodesNumber = size(subtree2Nodes - subtree1Nodes);
-	return 2 * sharedNodes / (2 * sharedNodes + subtree1NodesNumber + subtree2NodesNumber);
+	return toReal(2 * sharedNodes / (2 * sharedNodes + subtree1NodesNumber + subtree2NodesNumber));
 } 
 
 ///////////////////////////////////////////////////
@@ -176,18 +188,17 @@ int compareTree(node node1, node node2) {
     - otherwise, we can add them
 */
 list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node j) {
-    for(pair <- clones) {
+    if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
+        return clones;
+    }
+    for(oldPair <- clones) {
         // remove subclones
-        node isSubcloneOfI = isSubclone(pair[0], i, pair[1]); 
-        node isSubcloneOfJ = isSubclone(pair[1], j, pair[0]); 
-        if ((isSubcloneOfI == pair[0] && isSubcloneOfJ == pair[1]) || (isSubcloneOfJ == pair[0] &&  isSubcloneOfI == pair[1])) {
-            clones -= pair;
+        if ((isSubset(oldPair[0], i) && (isSubset(oldPair[1], j))) || (isSubset(oldPair[0], j) && (isSubset(oldPair[1], i)))) {
+            clones -= oldPair;
             continue;
         }
         // check if subclone, otherwise add it
-        node isSubcloneOfPair0 = isSubclone(i, pair[0], j); 
-        node isSubcloneOfPair1 = isSubclone(i, pair[1], j); 
-        if ((isSubcloneOfPair0 == i && isSubcloneOfPair1 == j) || (isSubcloneOfPair1 == i && isSubcloneOfPair0 == j)) {
+        if ((isSubset(i, oldPair[0]) && (isSubset(j, oldPair[1]))) || (isSubset(j, oldPair[0]) && (isSubset(i, oldPair[1])))) {
             return clones;
         }
     }
@@ -207,9 +218,6 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
     if (size(clones) == 0) {
         return [<i, j>];
     } else {
-        if (<j,i> in clones) {
-            return clones;
-        }
         return addSubtree(clones, i, j);
     }
 }
@@ -230,23 +238,23 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
         if they are both added already, return
         if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
-map[node, list[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
-    map[node, list[node]] cloneMap = (); 
+map[node, set[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
+    map[node, set[node]] cloneMap = (); 
     for(pair <- clonePairs) { 
-        if (pair[0] in cloneMap && pair[1] notin cloneMap[pair[0]]) {
+        if (pair[0] in cloneMap) {
             cloneMap[pair[0]] += pair[1];
-        } else if (pair[1] in cloneMap && pair[0] notin cloneMap[pair[1]]) {
+        } else if (pair[1] in cloneMap) {
             cloneMap[pair[1]] += pair[0];
         } else {
             bool added = false;
             for (key <- cloneMap) {
                 bool pair0inmap = pair[0] in cloneMap[key];
                 bool pair1inmap = pair[1] in cloneMap[key];
-                if (pair0inmap && !pair1inmap) {
+                if (pair0inmap) {
                     cloneMap[key] += pair[1];
                     added = true;
                     break;
-                } else if (pair1inmap && !pair0inmap) {
+                } else if (pair1inmap) {
                     cloneMap[key] += pair[0];
                     added = true;
                     break;
@@ -256,7 +264,7 @@ map[node, list[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs)
                 }
             }
             if (added == false) {
-                cloneMap[pair[0]] = [pair[1]];
+                cloneMap[pair[0]] = {pair[1]};
             }
         }
     }
@@ -272,7 +280,7 @@ map[node, list[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs)
 */
 tuple[node, int] getBiggestSubtreeCloneInLines(list[tuple[node, node]] clonePairs) {
     int maxLines = 0;
-    node maxNode = clonePairs[0][0];
+    node maxNode = "null"(0);
     for(pair <- clonePairs) {
         int numberOfLines = UnitLOC((pair[0]).src);
         if (numberOfLines > maxLines) {
@@ -290,13 +298,14 @@ tuple[node, int] getBiggestSubtreeCloneInLines(list[tuple[node, node]] clonePair
     - adds 1 at the end, for the original code that was cloned
 */
 tuple[node, int] getBiggestSubtreeCloneClassInMembers(list[tuple[node, node]] clonePairs) {
-    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    map[node, set[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
     int biggestCloneClassMembers = 0;
+    node biggestCloneClass = "null"(0);
     for (class <- cloneClasses) {
         int classSize = size(cloneClasses[class]);
         if (classSize > biggestCloneClassMembers) {
             biggestCloneClassMembers = classSize;
-            node biggestCloneClass = class;
+            biggestCloneClass = class;
         }
     }
     biggestCloneClassMembers += 1;
@@ -316,7 +325,7 @@ int getNumberOfSubtreeClonePairs(list[tuple[node, node]] clonePairs) {
     counts number of clone classes
 */
 int getNumberOfSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
-    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    map[node, set[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
     int numberOfCloneClasses = 0;
     for (_ <- cloneClasses) {
         numberOfCloneClasses += 1;
@@ -332,7 +341,7 @@ int getNumberOfSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
     multiply with 100 and divide by the total number of lines of the project to get the percentage
 */
 int getPercentageOfDuplicatedLinesSubtrees(list[tuple[node, node]] clonePairs, loc projectLocation) {
-    map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+    map[node, set[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
     int duplicatedLines = 0;
     for (class <- cloneClasses) {
         duplicatedLines += (size(cloneClasses[class]) + 1) * UnitLOC(class.src);
@@ -341,15 +350,15 @@ int getPercentageOfDuplicatedLinesSubtrees(list[tuple[node, node]] clonePairs, l
     return percentageOfDuplicatedLines;
 }
 
-/*
-    arguments: clones
-    get 5 biggest subtree clones in lines
-    return both the subtrees and the number of lines that corresponds to them
-*/
+// /*
+//     arguments: clones
+//     get 5 biggest subtree clones in lines
+//     return both the subtrees and the number of lines that corresponds to them
+// */
 // list[tuple[node, int]] get5BiggestSubtreeClonesInLines(list[tuple[node, node]] clonePairs) {
 //     list[tuple[node, int]] maxNodesAndLines = [];
 //     while(size(maxNodesAndLines) != 5) {
-//         int maxLines = 0;
+//         int maxLines = UnitLOC((clonePairs[0][0]).src);
 //         tuple[node, node] maxNode = clonePairs[0];
 //         for(pair <- clonePairs) {
 //             int numberOfLines = UnitLOC((pair[0]).src);
@@ -358,17 +367,17 @@ int getPercentageOfDuplicatedLinesSubtrees(list[tuple[node, node]] clonePairs, l
 //                 maxNode = pair;
 //             }
 //         }
-//         clonePairs -= pair;
+//         clonePairs -= maxNode;
 //         maxNodesAndLines += <maxNode[0], maxLines>;
 //     }
 //     return maxNodesAndLines;
 // }
 
-/*
-    arguments: clones
-    get 5 biggest subtree clone classes in members
-    return both the subtrees and the number of members that corresponds to them
-*/
+// /*
+//     arguments: clones
+//     get 5 biggest subtree clone classes in members
+//     return both the subtrees and the number of members that corresponds to them
+// */
 // list[tuple[node, int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[node, node]] clonePairs) {
 //     list[tuple[node, int]] maxNodesAndMembers = [];
 //     node biggestCloneClass = "null"(0);
@@ -422,25 +431,22 @@ tuple[int, int, int, int] getSubtreeStatisticsFast(list[tuple[node, node]] clone
     println("Subtree Clones Statistics");
     println("-------------------------");
 
-    int numberOfClones = 0;
-    int numberOfCloneClasses = 0;
+    int numberOfClones = size(clonePairs);
     int biggestCloneClassMembers = 0;
     int percentageOfDuplicatedLines = 0;
     int biggestCloneLines = 0;
     int projectLines = 0;
+    int numberOfCloneClasses = 0;
 
-    if (size(clonePairs) != 0) {
-        numberOfClones = size(clonePairs);
-        node biggestClone = clonePairs[0][0];
+    if (numberOfClones != 0) {
+        node biggestClone = "null"(0);
         <biggestClone, biggestCloneLines> = getBiggestSubtreeCloneInLines(clonePairs);
-        map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
-        numberOfCloneClasses = 0;
-        biggestCloneClassMembers = 0;
+        map[node, set[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+        numberOfCloneClasses = size(cloneClasses);
         int duplicatedLines = 0;
         for (class <- cloneClasses) {
-            numberOfCloneClasses += 1;
             int classSize = size(cloneClasses[class]);
-            duplicatedLines += (size(cloneClasses[class]) + 1) * UnitLOC(class.src);
+            duplicatedLines += (classSize + 1) * UnitLOC(class.src);
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
             }
@@ -448,10 +454,8 @@ tuple[int, int, int, int] getSubtreeStatisticsFast(list[tuple[node, node]] clone
         biggestCloneClassMembers += 1;
         projectLines = LOC(projectLocation);
         percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
-
         println("example of clone pair: <clonePairs[0]>\n");
     }
-
     println("number of clone pairs: <numberOfClones>");
     println("number of clone classes: <numberOfCloneClasses>");
     println("biggest clone class in members: <biggestCloneClassMembers>");
@@ -459,20 +463,4 @@ tuple[int, int, int, int] getSubtreeStatisticsFast(list[tuple[node, node]] clone
     println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
 
     return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines>;
-}
-
-////////////////////
-///    Helpers   ///
-////////////////////
-/*
-    arguments: ASTs
-    counts number of nodes of subtree
-
-*/
-int subtreeMass(node currentNode) {
-	int mass = 0;
-	visit (currentNode) {
-		case node _ : mass += 1;
-	}
-	return mass;
 }

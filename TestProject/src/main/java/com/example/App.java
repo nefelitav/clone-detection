@@ -23,12 +23,4 @@ public class App
         int c=3;
         int i=5;
     }
-    public void h()
-    {
-        int l=2;
-        int a=1;
-        int b=2;
-        int c=3;
-        int k=5;
-    }
 }

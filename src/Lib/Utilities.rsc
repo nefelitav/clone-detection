@@ -2,6 +2,10 @@ module Lib::Utilities
 
 import lang::java::m3::Core;
 import lang::java::m3::AST;
+import Node;
+import List;
+import String;
+import IO;
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -11,22 +15,12 @@ list[Declaration] getASTs(loc projectLocation) {
 }
 
 /*
-    arguments: three nodes
-    checks if first node or the third node are subtrees of the second node
+    arguments: two nodes
+    checks if first node is subset of the second one
 
 */
-node isSubclone(node node1, node node2, node node3) {
-    visit(node2) {
-        case node s: {
-            if (node1 == s) {
-                return node1;
-            }
-            if (node3 == s) {
-                return node3;
-            }
-        }
-    }
-    return "null"(0);
+bool isSubset(node node1, node node2) {
+    return contains(toString(node2), toString(node1));
 }
 
 /*
@@ -48,6 +42,46 @@ list[node] isSubcloneSequence(list[node] node1, node node2, list[node] node3) {
     return [];
 }
 
+list[node] getTreeNodes(list[Declaration] ast) {
+    list[node] treeNodes = [];
+    visit (ast) {
+		case node n: {
+            treeNodes += n;
+        }
+    }
+    return treeNodes;
+}
+
+list[node] getSubtreeNodes(node subtree) {
+    list[node] subtreeNodes = [];
+    visit (subtree) {
+		case node n: {
+            subtreeNodes += n;
+        }
+    }
+    return subtreeNodes;
+}
+str hashSubtree(node subtree) {
+    list[node] nodes = [];
+    for (node n <- subtree) {
+        nodes += unsetRec(n);
+    }
+    
+    return md5Hash(toString(nodes));
+}
+
+/*
+    arguments: ASTs
+    counts number of nodes of subtree
+
+*/
+int subtreeMass(node currentNode) {
+        int mass = 0;
+        visit (currentNode) {
+            case node _ : mass += 1;
+        }
+        return mass;
+}
 /*
     arguments: node
     normalize identifiers removing names 

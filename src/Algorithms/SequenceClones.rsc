@@ -37,10 +37,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     }
-    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatisticsFast(clonePairs, projectLocation);
-    // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
-    // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
-    // exportData(numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, biggestClassesMembers, biggestClonesLines, "subtreeClones");    
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatisticsFast(clonePairs, projectLocation); 
     return clonePairs;
 }
 
@@ -249,6 +246,9 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
     - otherwise, we can add them
 */
 list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
+    if (<j,i> in clones) {
+        return clones;
+    }
     for(pair <- clones) {
         // remove subclones
         if ((pair[0] <= i && pair[1] <= j) || (pair[1] <= i && pair[0] <= j)) {
@@ -256,9 +256,7 @@ list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node
             continue;
         }
         for(i_node <- i, j_node <- j) {
-            node isSubcloneOfI = isSubclone(pair[0][0], i_node, pair[1][0]); 
-            node isSubcloneOfJ = isSubclone(pair[0][0], j_node, pair[1][0]); 
-            if (size(pair[0]) == 1 && ((isSubcloneOfI == i_node && isSubcloneOfJ == pair[1][0]) || (isSubcloneOfJ == pair[0][0] && isSubcloneOfI == pair[1][0]))) {
+            if (size(pair[0]) == 1 && ((isSubset(pair[0][0], i_node) && isSubset(pair[1][0], j_node)) || (isSubset(pair[0][0], j_node) && isSubset(pair[1][0], i_node)))) {
                 clones -= pair;
                 continue;
             }
@@ -274,9 +272,7 @@ list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node
             return clones;
         }
         for(member1 <- pair[0], member2 <- pair[1]) {
-            node isSubcloneOfMember1 = isSubclone(i[0], member1, j[0]); 
-            node isSubcloneOfMember2 = isSubclone(i[0], member2, j[0]); 
-            if (size(i) == 1 && ((isSubcloneOfMember1 == i[0] && isSubcloneOfMember2 == j[0]) || (isSubcloneOfMember2 == i[0] && isSubcloneOfMember1 == j[0]))) {
+            if (size(i) == 1 && ((isSubset(i[0], member1) && isSubset(j[0], member2)) || (isSubset(i[0], member2) && isSubset(j[0], member1)))) {
                 return clones;
             }
             list[node] listIsSubcloneOfMember1 = isSubcloneSequence(i, member1, j); 
@@ -303,9 +299,6 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
     if (size(clones) == 0) {
         return [<i, j>];
     } else {
-        if (<j,i> in clones) {
-            return clones;
-        }
         return addSequence(clones, i, j);
     }
 }
