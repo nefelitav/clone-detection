@@ -7,6 +7,8 @@ import List;
 import String;
 import IO;
 
+public map[node, node] unsetReced = (); 
+
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
     list[Declaration] asts = [createAstFromFile(f, true)
@@ -64,7 +66,7 @@ list[node] getSubtreeNodes(node subtree) {
 str hashSubtree(node subtree) {
     list[node] nodes = [];
     for (node n <- subtree) {
-        nodes += unsetRec(n);
+        nodes += unsetReced[n];
     }
     
     return md5Hash(toString(nodes));

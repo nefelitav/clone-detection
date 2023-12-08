@@ -5,10 +5,11 @@ import DateTime;
 import Algorithms::SubtreeClones;
 import Algorithms::SequenceClones;
 import Algorithms::GeneralizeClones;
-
+import Lib::Utilities;
 
 void main() {
     datetime begin = now();
+    // println(printTime(now(), "HH:mm:ss"));
 
     loc projectLocation = |project://TestProject|;
     // loc projectLocation = |project://smallsql0.21_src|;
@@ -16,7 +17,6 @@ void main() {
     
     int massThreshold = 6;
     findSubtreeClones(projectLocation, cloneType, massThreshold, false);
-    println(printTime(now(), "HH:mm:ss"));
 
     // println("\n");
     // int minimumSequenceLengthThreshold = 3;

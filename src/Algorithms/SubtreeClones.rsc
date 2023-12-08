@@ -45,16 +45,33 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, cloneType, generalize);
-    println("---\n");
-    list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
-    println("---\n");
-    if (generalize) {
-        clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
+    println(size(hashTable));
+    int maxSize = 0;
+    list[node] maxBucket = [];
+    for (b <- hashTable) {
+        bucketSize = size(hashTable[b]);
+        if (bucketSize > maxSize) {
+            maxSize = bucketSize;
+            maxBucket = hashTable[b];
+        }
     }
-    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatisticsFast(clonePairs, projectLocation);
+    println(maxSize);
+    // for(b <- hashTable) {
+    //     if (size(hashTable[b]) > 1) {
+    //         println("<hashTable[b][0]>       <hashTable[b][1]>\n");
+    //     }
+    // }
+    // println("---\n");
+    // list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
+    // println("---\n");
+    // if (generalize) {
+    //     clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
+    // }
+    // <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatisticsFast(clonePairs, projectLocation);
 
-    println("---\n");
-    return clonePairs;
+    // println("---\n");
+    // return clonePairs;
+    return [];
 }
 
 //////////////////////////////
@@ -72,23 +89,25 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
 tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType, bool generalize) {
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
-    list[node] treeNodes = getTreeNodes(ast);
-    for(n <- treeNodes) {
-        // if (generalize) {
-        //     childrenOfParents[n] = getChildren(n);
-        // }
-		if (subtreeMass(unsetRec(n, {"decl", "messages"})) >= massThreshold) {
-            node normalizedIdentifier = n;
-            if (cloneType != 1) {
-               normalizedIdentifier = normalizeIdentifiers(n);
-            } 
-            str hash = hashSubtree(normalizedIdentifier);
-            if (hash in hashTable) {
-                hashTable[hash] += n;
-            } else {
-                hashTable[hash] = [n];
+    visit (ast) {
+		case node n: {
+            // if (generalize) {
+            //     childrenOfParents[n] = getChildren(n);
+            // }
+            unsetReced[n] = unsetRec(n);
+            if (subtreeMass(unsetRec(n, {"decl", "messages"})) >= massThreshold) {
+                node normalizedIdentifier = n;
+                if (cloneType != 1) {
+                    normalizedIdentifier = normalizeIdentifiers(n);
+                } 
+                str hash = hashSubtree(normalizedIdentifier);
+                if (hash in hashTable) {
+                    hashTable[hash] += n;
+                } else {
+                    hashTable[hash] = [n];
+                }
             }
-		}
+        }
     }
     return <hashTable, childrenOfParents>;
 }
@@ -135,7 +154,7 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
                 similarityMap[pairStr] = comparison;
             } 
             if (iString != jString) {
-                if ((cloneType == 1 && unsetRec(i) == unsetRec(j)) || ((cloneType != 1) && (comparison >= similarityThreshold))) {
+                if ((cloneType == 1 && unsetReced[i] == unsetReced[j]) || ((cloneType != 1) && (comparison >= similarityThreshold))) {
                     clones = addSubtreeClone(clones, i, j);
                 } 
                 processed += pairStr;
@@ -160,8 +179,8 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
     - if the two subtress are identical, it will return 1, otherwise a value between 0 and 1
 */
 real compareTree(node node1, node node2) {
-	list[node] subtree1Nodes = [unsetRec(normalizeIdentifiers(n)) | n <- getSubtreeNodes(node1)];
-	list[node] subtree2Nodes = [unsetRec(normalizeIdentifiers(n)) | n <- getSubtreeNodes(node2)];
+	list[node] subtree1Nodes = [unsetReced[normalizeIdentifiers(n)] | n <- getSubtreeNodes(node1)];
+	list[node] subtree2Nodes = [unsetReced[normalizeIdentifiers(n)] | n <- getSubtreeNodes(node2)];
 
 	int sharedNodes = size(subtree1Nodes & subtree2Nodes);
     int subtree1NodesNumber = size(subtree1Nodes - subtree2Nodes);
