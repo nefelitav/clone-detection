@@ -8,7 +8,7 @@ import Algorithms::GeneralizeClones;
 
 
 void main() {
-    println(printTime(now(), "HH:mm:ss"));
+    datetime begin = now();
 
     loc projectLocation = |project://TestProject|;
     // loc projectLocation = |project://smallsql0.21_src|;
@@ -32,4 +32,8 @@ void main() {
     // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
     // exportData(numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, biggestClassesMembers, biggestClonesLines, "subtreeClones");   
 
+    datetime end = now();
+    interval runTime = createInterval(begin, end);
+    print("Duration: \<years, months, days, hours, minutes, seconds, milliseconds\>: ");
+    println("<createDuration(runTime)>\n");
 }
