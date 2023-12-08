@@ -45,22 +45,6 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, cloneType, generalize);
-    println(size(hashTable));
-    int maxSize = 0;
-    list[node] maxBucket = [];
-    for (b <- hashTable) {
-        bucketSize = size(hashTable[b]);
-        if (bucketSize > maxSize) {
-            maxSize = bucketSize;
-            maxBucket = hashTable[b];
-        }
-    }
-    println(maxSize);
-    // for(b <- hashTable) {
-    //     if (size(hashTable[b]) > 1) {
-    //         println("<hashTable[b][0]>       <hashTable[b][1]>\n");
-    //     }
-    // }
     // println("---\n");
     // list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
     // println("---\n");
@@ -95,7 +79,7 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
             //     childrenOfParents[n] = getChildren(n);
             // }
             unsetReced[n] = unsetRec(n);
-            if (subtreeMass(unsetRec(n, {"decl", "messages"})) >= massThreshold) {
+            if (subtreeMass(unsetReced[n]) >= massThreshold) {
                 node normalizedIdentifier = n;
                 if (cloneType != 1) {
                     normalizedIdentifier = normalizeIdentifiers(n);
@@ -138,26 +122,27 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
             node j = nodes[j_index];
             str iString = toString(i);
             str jString = toString(j);
-            str pairStr = iString + jString;
-            str pairStrRev = jString + iString;
+            str pair = iString + jString;
+            str pairRev = jString + iString;
             real comparison = 0.0;
             // Skip if pair has already been processed
-            if (pairStr in processed) {
+            if (pair in processed) {
                 continue;
             }
-            if(pairStr in similarityMap) {
-                comparison = similarityMap[pairStr];
-            } else if (pairStrRev in similarityMap) {
-                comparison = similarityMap[pairStrRev];
+            if(pair in similarityMap) {
+                comparison = similarityMap[pair];
+            } else if (pairRev in similarityMap) {
+                comparison = similarityMap[pairRev];
             } else if (cloneType != 1) {
                 comparison = compareTree(i, j);
-                similarityMap[pairStr] = comparison;
+                similarityMap[pair] = comparison;
             } 
             if (iString != jString) {
-                if ((cloneType == 1 && unsetReced[i] == unsetReced[j]) || ((cloneType != 1) && (comparison >= similarityThreshold))) {
+            // if (i != j) {
+                if ((cloneType == 1 && unsetReced[i] == unsetReced[j]) || ((cloneType != 1) && (compareTree(i, j) >= similarityThreshold))) {
                     clones = addSubtreeClone(clones, i, j);
                 } 
-                processed += pairStr;
+                processed += pair;
             }
         }    
     }
