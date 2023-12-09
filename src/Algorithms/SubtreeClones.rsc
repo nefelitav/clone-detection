@@ -44,7 +44,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     }
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
-    <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, cloneType, generalize);
+    <hashTable, childrenOfParents> = createSubtreeHashTable(projectLocation, ast, massThreshold, cloneType, generalize);
     // println("---\n");
     // list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
     // println("---\n");
@@ -58,6 +58,25 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     return [];
 }
 
+loc getLocationOfNode(loc projectLocation, node subTree) {
+	loc location = projectLocation;
+	
+	if (Declaration d := subTree) { 
+		if (d@src?) {
+			location = d@src;
+		}
+	} else if (Expression e := subTree) {
+		if (e@src?) {
+			location = e@src;
+		}
+	} else if (Statement s := subTree) {
+		if (s@src?) {
+			location = s@src;
+		}
+	}
+	
+	return location;
+}
 //////////////////////////////
 ///    Create Hash Table   ///
 //////////////////////////////
@@ -70,7 +89,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     - this way, clones end up in the same bucket and can easily and quickly be compared with each other
     - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
 */
-tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType, bool generalize) {
+tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(loc projectLocation, list[Declaration] ast, int massThreshold, int cloneType, bool generalize) {
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
     visit (ast) {
@@ -85,14 +104,21 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
                     normalizedIdentifier = normalizeIdentifiers(n);
                 } 
                 str hash = hashSubtree(normalizedIdentifier);
-                if (hash in hashTable) {
-                    hashTable[hash] += n;
-                } else {
-                    hashTable[hash] = [n];
+                loc location = getLocationOfNode(projectLocation, n);
+                if (location != projectLocation){
+                    int lines = location.end.line - location.begin.line;
+                    if (lines >= massThreshold){
+                        if (hash in hashTable) {
+                            hashTable[hash] += n;
+                        } else {
+                                hashTable[hash] = [n];
+                        }
+                    }
                 }
             }
         }
     }
+    println("Size of hashTable: <size(hashTable)>");
     return <hashTable, childrenOfParents>;
 }
 
