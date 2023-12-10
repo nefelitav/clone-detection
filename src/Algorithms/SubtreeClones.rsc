@@ -41,7 +41,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
 
-    // Creating SubTreeHashTable
+    // Creating hash table
     println("Creating subTree HashTable:");
     datetime begin = now();
     <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, cloneType, generalize);
@@ -51,7 +51,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     println("<createDuration(runTime)>\n");
     println("---\n");
 
-    // Finding Clone paris
+    // Finding clone pairs
     println("Finding clonePairs:");
     begin = now();
     list[tuple[node, node]] clonePairs = [];
@@ -62,7 +62,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
         if (cloneType == 3) {
             similarityThreshold = 0.8;
         }
-        clonePairs = findTypeIClonePairs(hashTable, similarityThreshold);
+        clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold);
     }
     end = now();
     runTime = createInterval(begin, end);
@@ -251,85 +251,6 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
 ////////////////////////
 ///    Statistics    ///
 ////////////////////////
-/*
-    arguments: clones
-    - have a clone map
-    - for every pair of clones
-        - if the first element is in the clonemap but the second one isnt,
-        add it in the map, using the first element as key and the second as value
-        - if the first element isnt in the clonemap but the second one is,
-        add it in the map, using the second element as key and the first as value
-        - otherwise, if none of them exist in the map as keys, check if the first element is in the values of some key,
-        if yes, add the second one to the list also. if the second element is in the values of some key, add the first one to the list.
-        if they are both added already, return
-        if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
-*/
-map[node, set[node]] getSubtreeCloneClasses(list[tuple[node, node]] clonePairs) {
-    map[node, set[node]] cloneMap = (); 
-    for(pair <- clonePairs) { 
-        if (pair[0] in cloneMap) {
-            cloneMap[pair[0]] += pair[1];
-        } else if (pair[1] in cloneMap) {
-            cloneMap[pair[1]] += pair[0];
-        } else {
-            bool added = false;
-            for (key <- cloneMap) {
-                bool pair0inmap = pair[0] in cloneMap[key];
-                bool pair1inmap = pair[1] in cloneMap[key];
-                if (pair0inmap) {
-                    cloneMap[key] += pair[1];
-                    added = true;
-                    break;
-                } else if (pair1inmap) {
-                    cloneMap[key] += pair[0];
-                    added = true;
-                    break;
-                } else if (pair0inmap && pair1inmap) {
-                    added = true;
-                    break;
-                }
-            }
-            if (added == false) {
-                cloneMap[pair[0]] = {pair[1]};
-            }
-        }
-    }
-    return cloneMap;
-}
-
-/*
-    arguments: clones
-    for every pair of clones:
-    - calculates number of lines of code of the clone class, without comments and blank lines
-    - finds the clone class with the most lines of code
-    - returns both the node and the number of lines
-*/
-tuple[node, int] getBiggestSubtreeCloneInLines(loc projectLocation, list[tuple[node, node]] clonePairs) {
-    int maxLines = 0;
-    node maxNode = "null"(0);
-    for(pair <- clonePairs) {
-        loc location = nodeLocation(projectLocation, pair[0]);
-        if (location != projectLocation){
-            int numberOfLines = UnitLOC(location);
-            // int numberOfLines = UnitLOC((pair[0]).src);
-            if (numberOfLines > maxLines) {
-                maxLines = numberOfLines;
-                maxNode = pair[0];
-            }
-        }
-    }
-    return <maxNode, maxLines>;
-}
-
-
-/*
-    arguments: clones, projectLocation
-    for every clone class:
-    - multiply size of code of the class with members of that class (+1 for the original code)
-    sum up for all classes
-    multiply with 100 and divide by the total number of lines of the project to get the percentage
-*/
-
 
 // /*
 //     arguments: clones
@@ -388,7 +309,6 @@ tuple[node, int] getBiggestSubtreeCloneInLines(loc projectLocation, list[tuple[n
         - percentage of duplicated lines
 
 */
-
 tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
     println("-------------------------");
     println("Subtree Clones Statistics");
@@ -400,17 +320,54 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
     int biggestCloneLines = 0;
     int projectLines = 0;
     int numberOfCloneClasses = 0;
+    node biggestClone = "null"(0);
+    map[node, set[node]] cloneClasses = ();
 
     if (numberOfClones != 0) {
-        node biggestClone = "null"(0);
-        <biggestClone, biggestCloneLines> = getBiggestSubtreeCloneInLines(projectLocation, clonePairs);
-        map[node, set[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
+        for(pair <- clonePairs) { 
+            // find clone classes
+            if (pair[0] in cloneClasses) {
+                cloneClasses[pair[0]] += pair[1];
+            } else if (pair[1] in cloneClasses) {
+                cloneClasses[pair[1]] += pair[0];
+            } else {
+                bool added = false;
+                for (key <- cloneClasses) {
+                    bool pair0inmap = pair[0] in cloneClasses[key];
+                    bool pair1inmap = pair[1] in cloneClasses[key];
+                    if (pair0inmap) {
+                        cloneClasses[key] += pair[1];
+                        added = true;
+                        break;
+                    } else if (pair1inmap) {
+                        cloneClasses[key] += pair[0];
+                        added = true;
+                        break;
+                    } else if (pair0inmap && pair1inmap) {
+                        added = true;
+                        break;
+                    }
+                }
+                if (added == false) {
+                    cloneClasses[pair[0]] = {pair[1]};
+                }
+            }
+            // finder biggest clone in lines
+            loc location = nodeLocation(projectLocation, pair[0]);
+            if (location != projectLocation) {
+                int numberOfLines = UnitLOC(location);
+                if (numberOfLines > biggestCloneLines) {
+                    biggestCloneLines = numberOfLines;
+                    biggestClone = pair[0];
+                }
+            }
+        }
         numberOfCloneClasses = size(cloneClasses);
         int duplicatedLines = 0;
         for (class <- cloneClasses) {
             int classSize = size(cloneClasses[class]);
             loc location = nodeLocation(projectLocation, class);
-            if (location != projectLocation){
+            if (location != projectLocation) {
                 int numberOfLines = location.end.line - location.begin.line;
                 duplicatedLines += (classSize + 1) * numberOfLines;
                 if (classSize > biggestCloneClassMembers) {
