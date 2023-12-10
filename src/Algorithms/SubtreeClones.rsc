@@ -321,65 +321,56 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
     int projectLines = 0;
     int numberOfCloneClasses = 0;
     node biggestClone = "null"(0);
+    int duplicatedLines = 0;
     map[node, set[node]] cloneClasses = ();
 
-    if (numberOfClones != 0) {
-        for(pair <- clonePairs) { 
-            // find clone classes
-            if (pair[0] in cloneClasses) {
-                cloneClasses[pair[0]] += pair[1];
-            } else if (pair[1] in cloneClasses) {
-                cloneClasses[pair[1]] += pair[0];
-            } else {
-                bool added = false;
-                for (key <- cloneClasses) {
-                    bool pair0inmap = pair[0] in cloneClasses[key];
-                    bool pair1inmap = pair[1] in cloneClasses[key];
-                    if (pair0inmap) {
-                        cloneClasses[key] += pair[1];
-                        added = true;
-                        break;
-                    } else if (pair1inmap) {
-                        cloneClasses[key] += pair[0];
-                        added = true;
-                        break;
-                    } else if (pair0inmap && pair1inmap) {
-                        added = true;
-                        break;
-                    }
-                }
-                if (added == false) {
-                    cloneClasses[pair[0]] = {pair[1]};
-                }
+    for(pair <- clonePairs) { 
+        // find clone classes
+        if (pair[0] in cloneClasses) {
+            cloneClasses[pair[0]] += pair[1];
+        } else if (pair[1] in cloneClasses) {
+            cloneClasses[pair[1]] += pair[0];
+        } else {
+            bool added = false;
+            for (key <- cloneClasses) {
+                if (pair[0] in cloneClasses[key] || pair[1] in cloneClasses[key]) {
+                    cloneClasses[key] += pair[1];
+                    cloneClasses[key] += pair[0];
+                    added = true;
+                    break;
+                } 
             }
-            // finder biggest clone in lines
-            loc location = nodeLocation(projectLocation, pair[0]);
-            if (location != projectLocation) {
-                int numberOfLines = UnitLOC(location);
-                if (numberOfLines > biggestCloneLines) {
-                    biggestCloneLines = numberOfLines;
-                    biggestClone = pair[0];
-                }
+            if (added == false) {
+                cloneClasses[pair[0]] = {pair[1]};
             }
         }
-        numberOfCloneClasses = size(cloneClasses);
-        int duplicatedLines = 0;
-        for (class <- cloneClasses) {
-            int classSize = size(cloneClasses[class]);
-            loc location = nodeLocation(projectLocation, class);
-            if (location != projectLocation) {
-                int numberOfLines = location.end.line - location.begin.line;
-                duplicatedLines += (classSize + 1) * numberOfLines;
-                if (classSize > biggestCloneClassMembers) {
-                    biggestCloneClassMembers = classSize;
-                }
+        // find biggest clone in lines
+        loc location = nodeLocation(projectLocation, pair[0]);
+        if (location != projectLocation) {
+            int numberOfLines = UnitLOC(location);
+            if (numberOfLines > biggestCloneLines) {
+                biggestCloneLines = numberOfLines;
+                biggestClone = pair[0];
             }
         }
-        biggestCloneClassMembers += 1;
-        projectLines = LOC(projectLocation);
-        percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
-        println("example of clone pair: <clonePairs[0]>\n");
     }
+    numberOfCloneClasses = size(cloneClasses);
+    for (class <- cloneClasses) {
+        int classSize = size(cloneClasses[class]);
+        loc location = nodeLocation(projectLocation, class);
+        if (location != projectLocation) {
+            int numberOfLines = location.end.line - location.begin.line;
+            duplicatedLines += (classSize + 1) * numberOfLines;
+            if (classSize > biggestCloneClassMembers) {
+                biggestCloneClassMembers = classSize;
+            }
+        }
+    }
+    biggestCloneClassMembers += 1;
+    projectLines = LOC(projectLocation);
+    percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
+    
+    println("example of clone pair: <clonePairs[0]>\n");
     println("number of clone pairs: <numberOfClones>");
     println("number of clone classes: <numberOfCloneClasses>");
     println("biggest clone class in members: <biggestCloneClassMembers>");
