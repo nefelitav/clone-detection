@@ -57,11 +57,11 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     list[tuple[node, node]] clonePairs = [];
     real similarityThreshold = 1.0;
     if (cloneType == 1) {
-        clonePairs = findTypeIClonePairs(hashTable, similarityThreshold, cloneType);
+        clonePairs = findTypeIClonePairs(hashTable, similarityThreshold);
     }
     else{
         similarityThreshold = 0.8;
-        clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, cloneType);
+        clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold);
     }
     // list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
     end = now();
@@ -161,7 +161,7 @@ list[tuple[node, node]] findClonePairs(map[str, list[node]] hashTable, real simi
     return clones;
 }
 
-list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int cloneType) {
+list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, real similarityThreshold) {
     list[tuple[node, node]] clones = [];
 	for (bucket <- hashTable) {	
         // Cartesian product of all combinations
