@@ -38,13 +38,27 @@ import Set;
 */
 list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
-    map[str, list[node]] hashTable = ();
-    map[node, list[value]] childrenOfParents = ();
-
     // Creating hash table
     println("Creating subTree HashTable:");
     datetime begin = now();
-    <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, cloneType, generalize);
+    map[str, list[node]] hashTable = ();
+    map[node, list[value]] childrenOfParents = ();
+
+    if (cloneType == 1) {
+        visit (ast) {
+            case node n: {
+                <hashTable, childrenOfParents> = createSubtreeHashTable(n, n, hashTable, massThreshold, generalize, childrenOfParents);
+            }
+        }
+    } else {
+        visit (ast) {
+            case node n: {
+                <hashTable, childrenOfParents> = createSubtreeHashTable(n, normalizeIdentifiers(n), hashTable, massThreshold, generalize, childrenOfParents);
+            }
+        }        
+    }
+
+
     datetime end = now();
     interval runTime = createInterval(begin, end);
     print("Duration: \<years, months, days, hours, minutes, seconds, milliseconds\>: ");
@@ -99,26 +113,16 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     - this way, clones end up in the same bucket and can easily and quickly be compared with each other
     - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
 */
-tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, int cloneType, bool generalize) {
-    map[str, list[node]] hashTable = ();
-    map[node, list[value]] childrenOfParents = ();
-    visit (ast) {
-		case node n: {
-            // if (generalize) {
-            //     childrenOfParents[n] = getChildren(n);
-            // }
-            if (subtreeMass(unsetRec(n)) >= massThreshold) {
-                node normalizedIdentifier = n;
-                if (cloneType != 1) {
-                    normalizedIdentifier = normalizeIdentifiers(n);
-                }
-                str hash = md5Hash(unsetRec(normalizedIdentifier));
-                if (hash in hashTable) {
-                    hashTable[hash] += normalizedIdentifier;
-                } else {
-                    hashTable[hash] = [normalizedIdentifier];
-                }
-            }
+tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(node n, node normalizedNode, map[str, list[node]] hashTable, int massThreshold, bool generalize, map[node, list[value]] childrenOfParents) {
+    if (generalize) {
+        childrenOfParents[n] = getChildren(n);
+    }
+    if (subtreeMass(unsetRec(n)) >= massThreshold) {
+        str hash = md5Hash(unsetRec(normalizedNode));
+        if (hash in hashTable) {
+            hashTable[hash] += n;
+        } else {
+            hashTable[hash] = [n];
         }
     }
     return <hashTable, childrenOfParents>;
@@ -142,14 +146,15 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
 
 list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
     list[tuple[node, node]] clones = [];
+    node i;
+    node j;
 	for (bucket <- hashTable) {	
-        // Cartesian product of all combinations
-        lrel[node L, node R] subTreePairs = hashTable[bucket] * hashTable[bucket];
-        for (subTreePair <- subTreePairs) {
-            // Avoiding pairs of same node. E.g. (x,x)
-            // Removing location and comparing
-            if (subTreePair.L != subTreePair.R) {
-                clones = addSubtreeClone(clones, subTreePair.L, subTreePair.R);
+        list[node] nodes = hashTable[bucket];
+        for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
+            i = nodes[i_index];
+            j = nodes[j_index];
+            if (i != j) {
+                clones = addSubtreeClone(clones, i, j);
             }
         }
     }
@@ -158,14 +163,15 @@ list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
 
 list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold) {
     list[tuple[node, node]] clones = [];
+    node i;
+    node j;
 	for (bucket <- hashTable) {	
-        // Cartesian product of all combinations
-        lrel[node L, node R] subTreePairs = hashTable[bucket] * hashTable[bucket];
-        for (subTreePair <- subTreePairs) {
-            // Avoiding pairs of same node. E.g. (x,x)
-            // Removing location and comparing
-            if (subTreePair.L != subTreePair.R && compareTree(subTreePair.L, subTreePair.R) >= similarityThreshold) {
-                clones = addSubtreeClone(clones, subTreePair.L, subTreePair.R);
+        list[node] nodes = hashTable[bucket];
+        for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
+            i = nodes[i_index];
+            j = nodes[j_index];
+            if (i != j && compareTree(i, j) >= similarityThreshold) {
+                clones = addSubtreeClone(clones, i, j);
             }
         }
     }
@@ -213,24 +219,7 @@ real compareTree(node node1, node node2) {
     - so there is no need to add them, because we are looking for the biggest subtree that is cloned
     - otherwise, we can add them
 */
-list[tuple[node, node]] addSubtree(list[tuple[node, node]] clones, node i, node j) {
-    if (<j,i> in clones) {
-        return clones;
-    }
-    for(oldPair <- clones) {
-        // remove subclones
-        if ((isSubset(oldPair[0], i) && (isSubset(oldPair[1], j))) || (isSubset(oldPair[0], j) && (isSubset(oldPair[1], i)))) {
-            clones -= oldPair;
-            continue;
-        }
-        // check if subclone, otherwise add it
-        if ((isSubset(i, oldPair[0]) && (isSubset(j, oldPair[1]))) || (isSubset(j, oldPair[0]) && (isSubset(i, oldPair[1])))) {
-            return clones;
-        }
-    }
-    clones += <i, j>;
-    return clones;  
-}
+
 /*
     arguments: clones, a pair of subtrees
     - adds subtrees to the clones struct
@@ -244,8 +233,24 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
     if (size(clones) == 0) {
         return [<i, j>];
     } else {
-        return addSubtree(clones, i, j);
+        if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
+            println("flipped\n");
+            return clones;
+        }
+        for(oldPair <- clones) {
+            // remove subclones
+            if ((isSubset(oldPair[0], i) && (isSubset(oldPair[1], j))) || (isSubset(oldPair[0], j) && (isSubset(oldPair[1], i)))) {
+                clones -= oldPair;
+                continue;
+            }
+            // check if subclone, otherwise add it
+            if ((isSubset(i, oldPair[0]) && (isSubset(j, oldPair[1]))) || (isSubset(j, oldPair[0]) && (isSubset(i, oldPair[1])))) {
+                return clones;
+            }
+        }
+        clones += <i, j>;
     }
+    return clones;  
 }
 
 ////////////////////////
