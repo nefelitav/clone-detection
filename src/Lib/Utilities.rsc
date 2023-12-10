@@ -123,3 +123,22 @@ public node normalizeIdentifiers(node currentNode) {
 		// case \number(_) => \number("0")
 	}
 }
+
+// Get node location
+public loc nodeLocation(loc projectLocation, node subTree) {
+	loc location = projectLocation;
+	if (Declaration d := subTree) { 
+		if (d@src?) {
+			location = d@src;
+		}
+	} else if (Expression e := subTree) {
+		if (e@src?) {
+			location = e@src;
+		}
+	} else if (Statement s := subTree) {
+		if (s@src?) {
+			location = s@src;
+		}
+	}
+	return location;
+}

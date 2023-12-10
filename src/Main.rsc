@@ -13,6 +13,7 @@ void main() {
 
     // loc projectLocation = |project://TestProject|;
     loc projectLocation = |project://smallsql0.21_src|;
+    // loc projectLocation = |project://hsqldb-2.3.1|;
     int cloneType = 1;
     
     int massThreshold = 6; // uncomment this for smallsql
@@ -35,6 +36,6 @@ void main() {
 
     datetime end = now();
     interval runTime = createInterval(begin, end);
-    print("Duration: \<years, months, days, hours, minutes, seconds, milliseconds\>: ");
+    print("Total Duration: \<years, months, days, hours, minutes, seconds, milliseconds\>: ");
     println("<createDuration(runTime)>\n");
 }
