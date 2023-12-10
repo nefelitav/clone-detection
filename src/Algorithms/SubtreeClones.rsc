@@ -59,8 +59,10 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     if (cloneType == 1) {
         clonePairs = findTypeIClonePairs(hashTable);
     } else {
-        similarityThreshold = 0.8;
-        clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold);
+        if (cloneType == 3) {
+            similarityThreshold = 0.8;
+        }
+        clonePairs = findTypeIClonePairs(hashTable, similarityThreshold);
     }
     end = now();
     runTime = createInterval(begin, end);
