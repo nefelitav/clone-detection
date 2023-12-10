@@ -149,7 +149,7 @@ list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
             // Avoiding pairs of same node. E.g. (x,x)
             // Removing location and comparing
             if (subTreePair.L != subTreePair.R) {
-                clones += subTreePair;
+                clones = addSubtreeClone(clones, subTreePair.L, subTreePair.R);
             }
         }
     }
@@ -165,7 +165,7 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
             // Avoiding pairs of same node. E.g. (x,x)
             // Removing location and comparing
             if (subTreePair.L != subTreePair.R && compareTree(subTreePair.L, subTreePair.R) >= similarityThreshold) {
-                clones += subTreePair;
+                clones = addSubtreeClone(clones, subTreePair.L, subTreePair.R);
             }
         }
     }
@@ -359,7 +359,7 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
         int classSize = size(cloneClasses[class]);
         loc location = nodeLocation(projectLocation, class);
         if (location != projectLocation) {
-            int numberOfLines = location.end.line - location.begin.line;
+            int numberOfLines = UnitLOC(location);
             duplicatedLines += (classSize + 1) * numberOfLines;
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
