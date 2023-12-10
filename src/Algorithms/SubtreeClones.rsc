@@ -60,7 +60,9 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
         clonePairs = findTypeIClonePairs(hashTable, similarityThreshold);
     }
     else{
-        similarityThreshold = 0.8;
+        if (cloneType == 3){
+            similarityThreshold = 0.8;
+        }
         clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold);
     }
     // list[tuple[node, node]] clonePairs = findClonePairs(hashTable, similarityThreshold, cloneType);
@@ -215,7 +217,7 @@ real compareTree(node node1, node node2) {
 	real sharedNodes = toReal(size(subtree1Nodes & subtree2Nodes));
     real subtree1NodesNumber = toReal(size(subtree1Nodes - subtree2Nodes));
     real subtree2NodesNumber = toReal(size(subtree2Nodes - subtree1Nodes));
-	return 2.0 * sharedNodes / (2.0 * sharedNodes + subtree1NodesNumber + subtree2NodesNumber);
+	return (2.0 * sharedNodes / (2.0 * sharedNodes + subtree1NodesNumber + subtree2NodesNumber));
     // int sharedNodes = size(subtree1Nodes & subtree2Nodes);
     // int subtree1NodesNumber = size(subtree1Nodes - subtree2Nodes);
     // int subtree2NodesNumber = size(subtree2Nodes - subtree1Nodes);
