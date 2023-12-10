@@ -3,11 +3,7 @@ module Lib::Utilities
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 import Node;
-import List;
 import String;
-import IO;
-
-public map[node, node] unsetReced = (); 
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -44,16 +40,6 @@ list[node] isSubcloneSequence(list[node] node1, node node2, list[node] node3) {
     return [];
 }
 
-list[node] getTreeNodes(list[Declaration] ast) {
-    list[node] treeNodes = [];
-    visit (ast) {
-		case node n: {
-            treeNodes += n;
-        }
-    }
-    return treeNodes;
-}
-
 list[node] getSubtreeNodes(node subtree) {
     list[node] subtreeNodes = [];
     visit (subtree) {
@@ -62,14 +48,6 @@ list[node] getSubtreeNodes(node subtree) {
         }
     }
     return subtreeNodes;
-}
-str hashSubtree(node subtree) {
-    list[node] nodes = [];
-    for (node n <- subtree) {
-        nodes += unsetReced[n];
-    }
-    
-    return md5Hash(toString(nodes));
 }
 
 /*
@@ -126,19 +104,18 @@ public node normalizeIdentifiers(node currentNode) {
 
 // Get node location
 public loc nodeLocation(loc projectLocation, node subTree) {
-	loc location = projectLocation;
 	if (Declaration d := subTree) { 
 		if (d@src?) {
-			location = d@src;
+			projectLocation = d@src;
 		}
 	} else if (Expression e := subTree) {
 		if (e@src?) {
-			location = e@src;
+			projectLocation = e@src;
 		}
 	} else if (Statement s := subTree) {
 		if (s@src?) {
-			location = s@src;
+			projectLocation = s@src;
 		}
 	}
-	return location;
+	return projectLocation;
 }
