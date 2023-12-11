@@ -45,7 +45,7 @@ bool isSubset(list[node] subsequence, list[node] supersequence) {
 
 list[node] getSubtreeNodes(node subtree) {
     list[node] subtreeNodes = [];
-    visit (subtree) {
+    visit (unsetRec(subtree)) {
 		case node n: {
             subtreeNodes += n;
         }
@@ -59,11 +59,7 @@ list[node] getSubtreeNodes(node subtree) {
 
 */
 int subtreeMass(node currentNode) {
-        int mass = 0;
-        visit (currentNode) {
-            case node _ : mass += 1;
-        }
-        return mass;
+    return arity(currentNode) + 1;
 }
 
 loc nodeLocation(node subTree) {

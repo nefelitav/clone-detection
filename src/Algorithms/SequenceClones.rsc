@@ -37,9 +37,9 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     map[str, list[list[node]]] hashTable = ();
     map[list[node], list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType, generalize);
-    println(size(hashTable));
+    // println(size(hashTable));
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
-    println(size(clonePairs));
+    // println(size(clonePairs));
     // for(pair <- clonePairs) {
     //     println("<pair>\n");
     // }
@@ -144,6 +144,8 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
             } else if (cloneType != 1) {
                 comparison = compareSequences(i, j);
                 similarities[ij] = comparison;
+            } else if (cloneType == 1) {
+                similarities[ij] = 1.0;
             }
 
             if ((cloneType == 1) || (cloneType != 1 && comparison >= similarityThreshold)) {
@@ -461,7 +463,7 @@ tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node
     println("number of clone pairs: <numberOfClones>");
     println("number of clone classes: <numberOfCloneClasses>");
     println("biggest clone class in members: <biggestCloneClassMembers>");
-    println("biggest clone class in lines: <biggestCloneLines>");
+    println("biggest clone in lines: <biggestCloneLines>");
     println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
 
     return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines>;
