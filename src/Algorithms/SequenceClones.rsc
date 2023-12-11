@@ -7,9 +7,13 @@ import lang::java::m3::AST;
 import IO;
 import Node;
 import List;
+import Set;
+import Map;
 import util::Math;
 import Algorithms::GeneralizeClones;
 import Visualization::ExportJson;
+import Type;
+import Boolean;
 
 /////////////////////////
 ///   Main function   ///
@@ -33,11 +37,17 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     map[str, list[list[node]]] hashTable = ();
     map[list[node], list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType, generalize);
+    println(size(hashTable));
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
-    if (generalize) {
-        clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
-    }
-    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatisticsFast(clonePairs, projectLocation); 
+    println(size(clonePairs));
+    // for(pair <- clonePairs) {
+    //     println("<pair>\n");
+    // }
+
+    // if (generalize) {
+    //     clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
+    // }
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
     return clonePairs;
 }
 
@@ -55,56 +65,48 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
 */
 tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType, bool generalize) {
     map[str, list[list[node]]] hashTable = ();
-    list[list[node]] sequences = [];
+    set[list[node]] sequences = {};
     map[list[node], list[value]] childrenOfParents = ();
     visit (ast) {
         case \block(statements): {
             list[node] sequence = statements;
             if (size(sequence) >= minimumSequenceLengthThreshold) {
-                sequences += [sequence];
+                sequence = [unsetRec(n, {"decl", "messages", "typ"}) | n <- sequence];
+                sequences += {sequence};
             }
-            childrenOfParents[sequence] = [];
             if (generalize) {
+                childrenOfParents[sequence] = [];
                 for (n <- sequence) {
                     childrenOfParents[sequence] += getChildren(n);
                 }
             }
         }
     }
-    // written in a stupid way to check only once for the clone type and save time
-    if (cloneType != 1) {
-        for (sequence <- sequences) {
-            for (i <- [0..(size(sequence) + 1)], j <- [0..(size(sequence) + 1)]) {
-                if ((j >= i + minimumSequenceLengthThreshold)) {
-                    list[node] subsequence = sequence[i..j];
-                    str subsequenceHash = "";
-                    for (n <- subsequence) {
-                        subsequenceHash += md5Hash(unsetRec(normalizeIdentifiers(n)));
+    map[node, str] hashes = ();
+    for (sequence <- sequences) {
+        int sequenceSize = size(sequence);
+        for (i <- [0..(sequenceSize - minimumSequenceLengthThreshold + 1)], j <- [i + minimumSequenceLengthThreshold..(sequenceSize + 1)]) {
+            if ((j >= i + minimumSequenceLengthThreshold)) {
+                list[node] subsequence = sequence[i..j];
+                str subsequenceHash = "";
+                for (n <- subsequence) {
+                    if (cloneType == 2) {
+                        n = normalizeIdentifiers(unsetRec(n));
                     }
-                    str sequenceHash = md5Hash(subsequenceHash);
-                    if (sequenceHash in hashTable) {
-                        hashTable[sequenceHash] += [subsequence];
+                    if (n in hashes) {
+                        subsequenceHash += hashes[n];
                     } else {
-                        hashTable[sequenceHash] = [subsequence];
+                        str hash = md5Hash(unsetRec(n));
+                        subsequenceHash += hash;
+                        hashes[n] = hash; 
                     }
+                    
                 }
-            }
-        }
-    } else {
-        for (sequence <- sequences) {
-            for (i <- [0..(size(sequence) + 1)], j <- [0..(size(sequence) + 1)]) {
-                if ((j >= i + minimumSequenceLengthThreshold)) {
-                    list[node] subsequence = sequence[i..j];
-                    str subsequenceHash = "";
-                    for (n <- subsequence) {
-                        subsequenceHash += md5Hash(unsetRec(n));
-                    }
-                    str sequenceHash = md5Hash(subsequenceHash);
-                    if (sequenceHash in hashTable) {
-                        hashTable[sequenceHash] += [subsequence];
-                    } else {
-                        hashTable[sequenceHash] = [subsequence];
-                    }
+                str sequenceHash = md5Hash(subsequenceHash);
+                if (sequenceHash in hashTable) {
+                    hashTable[sequenceHash] += [subsequence];
+                } else {
+                    hashTable[sequenceHash] = [subsequence];
                 }
             }
         }
@@ -129,49 +131,26 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
 */
 list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[node]]] hashTable, real similarityThreshold, int cloneType) {
     list[tuple[list[node], list[node]]] clones = [];
-    if (cloneType == 1) {
-        for (bucket <- hashTable) {	
-            if (size(hashTable[bucket]) > 1) {
-                for (i <- hashTable[bucket], j <- hashTable[bucket]) {
-                    if (i != j) {
-                        list[node] i_items = [];
-                        list[node] j_items = [];
-                        for (i_item <- i) {
-                            visit (i_item) {
-                                case node n : {
-                                    i_items += unsetRec(n);
-                                }
-                            }
-                        }
-                        for (j_item <- j) {
-                            visit (j_item) {
-                                case node n : {
-                                    j_items += unsetRec(n);
-                                }
-                            }
-                        }
-                        if (i_items == j_items) {
-                            clones = addSequenceClone(clones, i, j);
-                        }
-                    }
-                }	
-            }
-        }        
-    } else {
-        for (bucket <- hashTable) {	
-            if (size(hashTable[bucket]) > 1) {
-                for (i <- hashTable[bucket], j <- hashTable[bucket]) {
-                    if (i != j) {
-                        int comparison = compareSequences(i, j);
-                        if (comparison >= similarityThreshold) {
-                            clones = addSequenceClone(clones, i, j);
-                        }
-                    }
-                }	
-            }
-        }
-    }
+    map[list[str], real] similarities = ();
+    real comparison = 0.0;
+    for (bucket <- hashTable) {	
+        for (i <- hashTable[bucket], j <- hashTable[bucket] - [i]) {
+            str i_str = toString(i);
+            str j_str = toString(j);
+            list[str] ij = [i_str, j_str];
 
+            if (ij in similarities) {
+                comparison = similarities[ij];
+            } else if (cloneType != 1) {
+                comparison = compareSequences(i, j);
+                similarities[ij] = comparison;
+            }
+
+            if ((cloneType == 1) || (cloneType != 1 && comparison >= similarityThreshold)) {
+                clones = addSequenceClone(clones, i, j);
+            }
+        }	
+    }        
     return clones;
 }
 
@@ -189,39 +168,31 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
         R = number of different nodes in sequence 2
     - if the two sequences are identical, it will return 1, otherwise a value between 0 and 1
 */
-int compareSequences(list[node] nodelist1, list[node] nodelist2) {
+real compareSequences(list[node] nodelist1, list[node] nodelist2) {
 	list[node] nodelist1Nodes = [];
 	list[node] nodelist2Nodes = [];
 
-    for (nodeInList <- nodelist1) {
-        visit (nodeInList) {
+    for (subtree <- nodelist1) {
+        visit (subtree) {
             case node n : {
-                visit (n) {
-                    case node nodeDeeper : {
-                        nodelist1Nodes += [unsetRec(normalizeIdentifiers(nodeDeeper))];
-                    }
-                }
+                nodelist1Nodes += [unsetRec(n)];
             }
         }
     }
 
-    for (nodeInList <- nodelist2) {
-        visit (nodeInList) {
+    for (subtree <- nodelist2) {
+        visit (subtree) {
             case node n : {
-                visit (n) {
-                    case node nodeDeeper : {
-                        nodelist2Nodes += [unsetRec(normalizeIdentifiers(nodeDeeper))];
-                    }
-                }
+                nodelist2Nodes += [unsetRec(n)];
             }
         }
     }
 
-	int sharedNodes = size(nodelist1Nodes & nodelist2Nodes);
-    int nodelist1NodesNumber = size(nodelist1Nodes - nodelist2Nodes);
-    int nodelist2NodesNumber = size(nodelist2Nodes - nodelist1Nodes);
-	return 2 * sharedNodes / (2 * sharedNodes + nodelist1NodesNumber + nodelist2NodesNumber);
-} 
+	real sharedNodes = toReal(size(nodelist1Nodes & nodelist2Nodes));
+    real nodelist1NodesNumber = toReal(size(nodelist1Nodes - nodelist2Nodes));
+    real nodelist2NodesNumber = toReal(size(nodelist2Nodes - nodelist1Nodes));
+	return 2 * sharedNodes / (2.0 * sharedNodes + nodelist1NodesNumber + nodelist2NodesNumber);
+}
 
 ////////////////////////////////////////////////////
 ///    Remove subclones. Do not add subclones    ///
@@ -245,45 +216,49 @@ int compareSequences(list[node] nodelist1, list[node] nodelist2) {
         so there is no need to add them, because we are looking for the biggest sequence that is cloned.
     - otherwise, we can add them
 */
-list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
-    if (<j,i> in clones) {
-        return clones;
-    }
-    for(pair <- clones) {
-        // remove subclones
-        if ((pair[0] <= i && pair[1] <= j) || (pair[1] <= i && pair[0] <= j)) {
-            clones -= pair;
-            continue;
-        }
-        for(i_node <- i, j_node <- j) {
-            if (size(pair[0]) == 1 && ((isSubset(pair[0][0], i_node) && isSubset(pair[1][0], j_node)) || (isSubset(pair[0][0], j_node) && isSubset(pair[1][0], i_node)))) {
-                clones -= pair;
-                continue;
-            }
-            list[node] listIsSubcloneOfI = isSubcloneSequence(pair[0], i_node, pair[1]); 
-            list[node] listIsSubcloneOfJ = isSubcloneSequence(pair[0], j_node, pair[1]); 
-            if ((listIsSubcloneOfI == pair[0] && listIsSubcloneOfJ == pair[1]) || (listIsSubcloneOfJ == pair[0] && listIsSubcloneOfI == pair[1])) {
-                clones -= pair;
-                continue;
-            }
-        }
-        // check if subclone, otherwise add it
-        if (i <= pair[0] && j <= pair[1]) {
+list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
+    if (size(clones) == 0) {
+        clones = [<i, j>];
+    } else {
+        if (<j,i> in clones) {
             return clones;
         }
-        for(member1 <- pair[0], member2 <- pair[1]) {
-            if (size(i) == 1 && ((isSubset(i[0], member1) && isSubset(j[0], member2)) || (isSubset(i[0], member2) && isSubset(j[0], member1)))) {
+        set[tuple[list[node], list[node]]] cloneSet = toSet(clones);
+        set[tuple[list[node], list[node]]] subclones = {[s, s2] | s <- i, s2 <- j, {s, s2} in cloneSet || {s2, s} in cloneSet};
+        clones = toList(cloneSet - subclones);
+
+        for (pair <- clones) {
+            map[tuple[list[node], list[node]], str] pair0IsSubset = ();
+            map[tuple[list[node], list[node]], str] pair1IsSubset = ();
+
+            bool pair0Value = false;
+            bool pair1Value = false;
+
+            if (<pair[0], i> in pair0IsSubset) {
+                pair0Value = fromString(pair0IsSubset[<pair[0], i>]);
+            } else {
+                pair0Value = isSubset(i, pair[0]);
+                pair0IsSubset[<pair[0],i>] = toString(pair0Value);
+            }
+
+            if (pair0Value) {
                 return clones;
             }
-            list[node] listIsSubcloneOfMember1 = isSubcloneSequence(i, member1, j); 
-            list[node] listIsSubcloneOfMember2 = isSubcloneSequence(i, member2, j);
-            if ((listIsSubcloneOfMember1 == i && listIsSubcloneOfMember2 == j) || (listIsSubcloneOfMember2 == i && listIsSubcloneOfMember1 == j)) {
-                return clones;
+            
+            if (<pair[1], j> in pair1IsSubset) {
+                pair1Value = fromString(pair1IsSubset[<pair[1], j>]);
+            } else {
+                pair1Value = isSubset(j, pair[1]);
+                pair1IsSubset[<pair[1],j>] = toString(pair1Value);
             }
+            
+            if (pair1Value) {
+                return clones;
+            }               
         }
     }
-    clones += <i,j>;
-    return clones;
+    clones += <i, j>;
+    return clones;  
 }
 
 /*
@@ -295,13 +270,6 @@ list[tuple[list[node], list[node]]] addSequence(list[tuple[list[node], list[node
     - all in all, we ensure that we only add the biggest sequences in the clones struct
     - and we do not have duplicates
 */
-list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
-    if (size(clones) == 0) {
-        return [<i, j>];
-    } else {
-        return addSequence(clones, i, j);
-    }
-}
 
 ////////////////////////
 ///    Statistics    ///
@@ -319,37 +287,30 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         if they are both added already, return
         if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
-map[list[node], list[list[node]]] getSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
-    map[list[node], list[list[node]]] cloneMap = (); 
+map[list[node], set[list[node]]] getSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
+    map[list[node], set[list[node]]] cloneClasses = (); 
+
     for(pair <- clonePairs) { 
-        if (pair[0] in cloneMap && pair[1] notin cloneMap[pair[0]]) {
-            cloneMap[pair[0]] += [pair[1]];
-        } else if (pair[1] in cloneMap && pair[0] notin cloneMap[pair[1]]) {
-            cloneMap[pair[1]] += [pair[0]];
+        if (pair[0] in cloneClasses) {
+            cloneClasses[pair[0]] += {pair[1]};
+        } else if (pair[1] in cloneClasses) {
+            cloneClasses[pair[1]] += {pair[0]};
         } else {
             bool added = false;
-            for (key <- cloneMap) {
-                bool pair0inmap = pair[0] in cloneMap[key];
-                bool pair1inmap = pair[1] in cloneMap[key];
-                if (pair0inmap && !pair1inmap) {
-                    cloneMap[key] += [pair[1]];
-                    added = true;
-                    break;
-                } else if (pair1inmap && !pair0inmap) {
-                    cloneMap[key] += [pair[0]];
-                    added = true;
-                    break;
-                } else if (pair0inmap && pair1inmap) {
+            for (key <- cloneClasses) {
+                if (pair[0] in cloneClasses[key] || pair[1] in cloneClasses[key]) {
+                    cloneClasses[key] += {pair[1]};
+                    cloneClasses[key] += {pair[0]};
                     added = true;
                     break;
                 }
             }
             if (added == false) {
-                cloneMap[pair[0]] = [pair[1]];
+                cloneClasses[pair[0]] = {pair[1]};
             }
         }
     }
-    return cloneMap;
+    return cloneClasses;
 }
 
 /*
@@ -373,67 +334,6 @@ tuple[list[node], int] getBiggestSequenceCloneInLines(list[tuple[list[node], lis
         }
     }
     return <maxNodeList, maxLines>;
-}
-
-/*
-    arguments: clones
-    for every clone class:
-    - finds maximum number of members 
-    - adds 1 at the end, for the original code that was cloned
-*/
-int getBiggestSequenceCloneClassInMembers(list[tuple[list[node], list[node]]] clonePairs) {
-    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-    int biggestCloneClass = 0;
-    for (class <- cloneClasses) {
-        int classSize = size(cloneClasses[class]);
-        if (classSize > biggestCloneClass) {
-            biggestCloneClass = classSize;
-        }
-    }
-    biggestCloneClass += 1;
-    return biggestCloneClass;
-}
-
-/*
-    arguments: clones
-    returns size of clones struct
-*/
-int getNumberOfSequenceClonePairs(list[tuple[list[node], list[node]]] clonePairs) {
-    return size(clonePairs);
-}
-
-/*
-    arguments: clones
-    counts number of clone classes
-*/
-int getNumberOfSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
-    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-    int numberOfCloneClasses = 0;
-    for (_ <- cloneClasses) {
-        numberOfCloneClasses += 1;
-    }
-    return numberOfCloneClasses;
-}
-
-/*
-    arguments: clones, projectLocation
-    for every clone class:
-    - multiply size of code of the class with members of that class (+1 for the original code)
-    sum up for all classes
-    multiply with 100 and divide by the total number of lines of the project to get the percentage
-*/
-int getPercentageOfDuplicatedLinesSequences(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
-    map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-    int duplicatedLines = 0;
-    for (class <- cloneClasses) {
-        int classDuplicatedLines = 0;
-        for(classNode <- class) {
-            classDuplicatedLines += UnitLOC(classNode.src);
-        }
-        duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
-    }
-    int percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
-    return percentageOfDuplicatedLines;
 }
 
 /*  
@@ -497,64 +397,70 @@ int getPercentageOfDuplicatedLinesSequences(list[tuple[list[node], list[node]]] 
         - percentage of duplicated lines
 
 */
-void getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
-    int numberOfClones = getNumberOfSequenceClonePairs(clonePairs);
-    <biggestClone, biggestCloneLines> = getBiggestSequenceCloneInLines(clonePairs);
-    int numberOfCloneClasses = getNumberOfSequenceCloneClasses(clonePairs);
-    int biggestCloneClass = getBiggestSequenceCloneClassInMembers(clonePairs);
-    int percentageOfDuplicatedLines = getPercentageOfDuplicatedLinesSequences(clonePairs, projectLocation);
-    
-    println("-------------------------");
-    println("Sequence Clones Statistics");
-    println("-------------------------");
-    println("example of clone pair: <clonePairs[0]>\n");
-    println("number of clone pairs: <numberOfClones>");
-    println("number of clone classes: <numberOfCloneClasses>");
-    println("biggest clone class in members: <biggestCloneClass>");
-    println("biggest clone class in lines: <biggestCloneLines>");
-    println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
-}
-
-// a faster version of the above
-tuple[int, int, int, int] getSequenceStatisticsFast(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
+tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
     println("-------------------------");
     println("Sequence Clones Statistics");
     println("-------------------------");
 
-    int numberOfClones = 0;
-    int numberOfCloneClasses = 0;
-    int biggestCloneClass = 0;
+    int numberOfClones = size(clonePairs);
+    int biggestCloneClassMembers = 0;
     int percentageOfDuplicatedLines = 0;
     int biggestCloneLines = 0;
     int projectLines = 0;
+    int numberOfCloneClasses = 0;
+    list[node] biggestClone = [];
+    int duplicatedLines = 0;
+    map[list[node], set[list[node]]] cloneClasses = ();
 
-    if (size(clonePairs) != 0) {
-        numberOfClones = size(clonePairs);
-        list[node] biggestClone = clonePairs[0][0];
-        <biggestClone, biggestCloneLines> = getBiggestSequenceCloneInLines(clonePairs);
-        map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-        int duplicatedLines = 0;
-        for (class <- cloneClasses) {
-            numberOfCloneClasses += 1;
-            int classSize = size(cloneClasses[class]);
-            int classDuplicatedLines = 0;
-            for(classNode <- class) {
-                classDuplicatedLines += UnitLOC(classNode.src);
+    for(pair <- clonePairs) { 
+        if (pair[0] in cloneClasses) {
+            cloneClasses[pair[0]] += {pair[1]};
+        } else if (pair[1] in cloneClasses) {
+            cloneClasses[pair[1]] += {pair[0]};
+        } else {
+            bool added = false;
+            for (key <- cloneClasses) {
+                if (pair[0] in cloneClasses[key] || pair[1] in cloneClasses[key]) {
+                    cloneClasses[key] += {pair[1]};
+                    cloneClasses[key] += {pair[0]};
+                    added = true;
+                    break;
+                }
             }
-            duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
-            if (classSize > biggestCloneClass) {
-                biggestCloneClass = classSize;
+            if (added == false) {
+                cloneClasses[pair[0]] = {pair[1]};
             }
         }
-        biggestCloneClass += 1;
-        projectLines = LOC(projectLocation);
-        percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(LOC(projectLocation))); 
 
-        println("example of clone pair: <clonePairs[0]>\n");
+        int numberOfLines = 0;
+        for(pairNode <- pair[0]) {
+            numberOfLines += UnitLOC(pairNode.src);
+        }
+        if (numberOfLines > biggestCloneLines) {
+            biggestCloneLines = numberOfLines;
+            biggestClone = pair[0];
+        }
     }
+    numberOfCloneClasses = size(cloneClasses);
+    for (class <- cloneClasses) {
+        int classSize = size(cloneClasses[class]);
+        int classDuplicatedLines = 0;
+        for(classNode <- class) {
+            classDuplicatedLines += UnitLOC(classNode.src);
+        }
+        duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
+        if (classSize > biggestCloneClassMembers) {
+            biggestCloneClassMembers = classSize;
+        }
+    }
+    biggestCloneClassMembers += 1;
+    projectLines = LOC(projectLocation);
+    percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
+
+    println("example of clone pair: <clonePairs[0]>\n");
     println("number of clone pairs: <numberOfClones>");
     println("number of clone classes: <numberOfCloneClasses>");
-    println("biggest clone class in members: <biggestCloneClass>");
+    println("biggest clone class in members: <biggestCloneClassMembers>");
     println("biggest clone class in lines: <biggestCloneLines>");
     println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
 

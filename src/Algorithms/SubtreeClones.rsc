@@ -57,6 +57,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
             }
         }        
     }
+    println(size(hashTable));
 
 
     datetime end = now();
@@ -350,8 +351,8 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
             }
         }
         // find biggest clone in lines
-        loc location = nodeLocation(projectLocation, pair[0]);
-        if (location != projectLocation) {
+        loc location = nodeLocation(pair[0]);
+        if (location != |unresolved:///|) {
             int numberOfLines = UnitLOC(location);
             if (numberOfLines > biggestCloneLines) {
                 biggestCloneLines = numberOfLines;
@@ -362,8 +363,8 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
     numberOfCloneClasses = size(cloneClasses);
     for (class <- cloneClasses) {
         int classSize = size(cloneClasses[class]);
-        loc location = nodeLocation(projectLocation, class);
-        if (location != projectLocation) {
+        loc location = nodeLocation(class);
+        if (location != |unresolved:///|) {
             int numberOfLines = UnitLOC(location);
             duplicatedLines += (classSize + 1) * numberOfLines;
             if (classSize > biggestCloneClassMembers) {

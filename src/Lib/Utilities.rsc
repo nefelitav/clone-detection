@@ -4,6 +4,8 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import Node;
 import String;
+import List;
+import Set;
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -21,23 +23,24 @@ bool isSubset(node node1, node node2) {
     return contains(toString(node2), toString(node1));
 }
 
-/*
-    arguments: two lists of nodes, one node
-    checks if first list or the third list are subsequences of the node
-*/
-list[node] isSubcloneSequence(list[node] node1, node node2, list[node] node3) {
-    visit(node2) {
-        case \block(statements): {
-            list[node] sequence = statements;
-            if (node1 <= sequence) {
-                return node1;
-            }
-            if (node3 <= sequence) {
-                return node3;
+bool isSubset(list[node] subsequence, list[node] supersequence) {
+    for (i <- [0..size(supersequence)]) {
+        if (subsequence == supersequence[i..i + size(subsequence)]) {
+            return true;
+        }
+    }
+    
+    list[loc] supersequenceLocs = [nodeLocation(n) | n <- supersequence];
+    list[loc] subsequenceLocs = [nodeLocation(n) | n <- subsequence];
+
+    for (supersequenceLoc <- supersequenceLocs) {
+        for (subsequenceLoc <- subsequenceLocs) {
+            if ((supersequenceLoc.path == subsequenceLoc.path) && (supersequenceLoc.begin.line < subsequenceLoc.begin.line) && (supersequenceLoc.end.line > subsequenceLoc.end.line)) {
+                return true;
             }
         }
     }
-    return [];
+    return false;
 }
 
 list[node] getSubtreeNodes(node subtree) {
@@ -62,6 +65,25 @@ int subtreeMass(node currentNode) {
         }
         return mass;
 }
+
+loc nodeLocation(node subTree) {
+	loc location = |unresolved:///|;
+	if (Declaration d := subTree) { 
+		if (d@src?) {
+			location = d@src;
+		}
+	} else if (Expression e := subTree) {
+		if (e@src?) {
+			location = e@src;
+		}
+	} else if (Statement s := subTree) {
+		if (s@src?) {
+			location = s@src;
+		}
+	}
+	return location;
+}
+
 /*
     arguments: node
     normalize identifiers removing names 
@@ -100,22 +122,4 @@ public node normalizeIdentifiers(node currentNode) {
 		// case \stringLiteral(_) => \stringLiteral("name")
 		// case \number(_) => \number("0")
 	}
-}
-
-// Get node location
-public loc nodeLocation(loc projectLocation, node subTree) {
-	if (Declaration d := subTree) { 
-		if (d@src?) {
-			projectLocation = d@src;
-		}
-	} else if (Expression e := subTree) {
-		if (e@src?) {
-			projectLocation = e@src;
-		}
-	} else if (Statement s := subTree) {
-		if (s@src?) {
-			projectLocation = s@src;
-		}
-	}
-	return projectLocation;
 }
