@@ -54,16 +54,16 @@ bool isSubset(list[node] subsequence, list[node] supersequence) {
     arguments: node
     returns all children of node in a list
 */
-list[node] getSubtreeNodes(node subtree, int massThreshold) {
-    list[node] subtreeNodes = [];
-    visit (unsetRec(subtree)) {
+set[node] getSubtreeNodes(node subtree, int massThreshold) {
+    set[node] subtreeNodes = {};
+    visit (subtree) {
 		case node n: {
-            if (subtreeMass(subtree) <= massThreshold) {
+            if (subtreeMass(subtree) >= massThreshold) {
                 subtreeNodes += n;
             }
         }
     }
-    return toList(toSet(subtreeNodes));
+    return subtreeNodes;
 }
 
 /*
@@ -73,12 +73,12 @@ list[node] getSubtreeNodes(node subtree, int massThreshold) {
     using our custom function that is commented out below, the buckets were too many
 */
 int subtreeMass(node currentNode) {
-    // int mass = 0;
-    // visit (unsetRec(currentNode)) {
-    //     case node _ : mass += 1;
-    // }
-    // return mass;
-    return arity(currentNode) + 1;
+    int mass = 0;
+    visit (unsetRec(currentNode)) {
+        case node _ : mass += 1;
+    }
+    return mass;
+    // return arity(currentNode) + 1;
 }
 
 /*

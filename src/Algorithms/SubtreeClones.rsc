@@ -16,6 +16,9 @@ import Set;
 import Type;
 import Boolean;
 
+public set[node] pair0Subtrees = {};
+public set[node] pair1Subtrees = {};
+
 /////////////////////////
 ///   Main function   ///
 /////////////////////////
@@ -54,7 +57,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     list[tuple[node, node]] clonePairs = [];
     real similarityThreshold = 1.0;
     if (cloneType == 1) {
-        clonePairs = findTypeIClonePairs(hashTable);
+        clonePairs = findTypeIClonePairs(hashTable, massThreshold);
     } else {
         if (cloneType == 3) {
             similarityThreshold = 0.8;
@@ -232,42 +235,27 @@ real compareTree(node node1, node node2, int massThreshold) {
     - and we do not have duplicates
 */
 list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j, int massThreshold) {
-    if (size(clones) == 0) {
-        return [<i, j>];
-    } else {
-        if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
+    if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
+        return clones;
+    }
+    
+    set[node] iSubtrees = getSubtreeNodes(i, massThreshold);
+    set[node] jSubtrees = getSubtreeNodes(j, massThreshold);
+
+    for (oldPair <- clones) {
+        // if it's a subclone of an existing one, dont add it
+        if ((i in pair0Subtrees && j in pair1Subtrees) || (i in pair1Subtrees && j in pair0Subtrees)) {
             return clones;
         }
-
-        set[node] iSubtrees = toSet(getSubtreeNodes(i, massThreshold));
-        set[node] jSubtrees = toSet(getSubtreeNodes(j, massThreshold));
-
-        set[node] pair0Subtrees = {};
-        set[node] pair1Subtrees = {};
-        for (oldPair <- clones) {
-            pair0Subtrees = toSet(getSubtreeNodes(oldPair[0], massThreshold));
-            pair1Subtrees = toSet(getSubtreeNodes(oldPair[1], massThreshold));
-        }
-
-        for (oldPair <- clones) {
-            if ((i in pair0Subtrees && j in pair1Subtrees) || (i in pair1Subtrees && j in pair0Subtrees)) {
-                return clones;
-            }
-
-            if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
-                clones -= oldPair;
-            }
-            // remove subclones
-            // if ((isSubset(oldPair[0], i) && (isSubset(oldPair[1], j))) || (isSubset(oldPair[0], j) && (isSubset(oldPair[1], i)))) {
-            //     clones -= oldPair;
-            //     continue;
-            // }
-            // check if subclone, otherwise add it
-            // if ((isSubset(i, oldPair[0]) && (isSubset(j, oldPair[1]))) || (isSubset(j, oldPair[0]) && (isSubset(i, oldPair[1])))) {
-            //     return clones;
-            // }
+        // remove subclones
+        if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
+            clones -= oldPair;
+            pair0Subtrees -= getSubtreeNodes(oldPair[0], massThreshold);
+            pair1Subtrees -= getSubtreeNodes(oldPair[1], massThreshold);
         }
     }
+    pair0Subtrees += getSubtreeNodes(i, massThreshold);
+    pair1Subtrees += getSubtreeNodes(j, massThreshold);
     clones += <i, j>;
     return clones;  
 }

@@ -5,19 +5,18 @@ import DateTime;
 import Algorithms::SubtreeClones;
 import Algorithms::SequenceClones;
 import Algorithms::GeneralizeClones;
-import Lib::Utilities;
 
 void main() {
     datetime begin = now();
     // println(printTime(now(), "HH:mm:ss"));
 
-    // loc projectLocation = |project://TestProject|;
-    loc projectLocation = |project://smallsql0.21_src|;
+    loc projectLocation = |project://TestProject|;
+    // loc projectLocation = |project://smallsql0.21_src|;
     // loc projectLocation = |project://hsqldb-2.3.1|;
     int cloneType = 1;
     
-    int massThreshold = 6; // uncomment this for smallsql
-    // int massThreshold = 4;
+    // int massThreshold = 6; // uncomment this for smallsql
+    int massThreshold = 4;
     findSubtreeClones(projectLocation, cloneType, massThreshold, false);
 
     // println("\n");
