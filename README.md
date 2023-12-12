@@ -23,18 +23,10 @@
 
 # TODO
 1) Check statistics, results
-2) Clones 2 3
+2) Clones 3
 3) Create a test project. Tests
 4) Export json
 5) Report
-
-
-# Questions
-1) Are three algorithms enough if they work for type 1,2,3?
-2) What to keep in normalizeIdentifiers?
-3) Are our statistics correct?
-4) Is the way we remove subclones correct?
-5) What to do with type 2 and 3?
 
 # Visualizations
 - number of clone pairs and number of clone classes of each algorithm

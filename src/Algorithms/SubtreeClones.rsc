@@ -16,8 +16,8 @@ import Set;
 import Type;
 import Boolean;
 
-public map[list[node], set[node]] pair0Subtrees = ();
-public map[list[node], set[node]] pair1Subtrees = ();
+public map[node, set[node]] pair0Subtrees = ();
+public map[node, set[node]] pair1Subtrees = ();
  
 /////////////////////////
 ///   Main function   ///
@@ -230,18 +230,18 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
 
     for (oldPair <- clones) {
         // if it's a subclone of an existing one, dont add it
-        if ((i in pair0Subtrees[[oldPair[0], oldPair[1]]] && j in pair1Subtrees[[oldPair[0], oldPair[1]]]) || (i in pair1Subtrees[[oldPair[0], oldPair[1]]] && j in pair0Subtrees[[oldPair[0], oldPair[1]]])) {
+        if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
             return clones;
         }
         // remove subclones
         if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
             clones -= oldPair;
-            delete(pair0Subtrees, [oldPair[0], oldPair[1]]);
-            delete(pair1Subtrees, [oldPair[0], oldPair[1]]);
+            // delete(pair0Subtrees, [oldPair[0]]);
+            // delete(pair1Subtrees, [oldPair[1]]);
         }
     }
-    pair0Subtrees[[i,j]] = getSubtreeNodes(i, massThreshold);
-    pair1Subtrees[[i,j]] = getSubtreeNodes(j, massThreshold);
+    pair0Subtrees[i] = getSubtreeNodes(i, massThreshold);
+    pair1Subtrees[j] = getSubtreeNodes(j, massThreshold);
     clones += <i, j>;
     return clones;  
 }
