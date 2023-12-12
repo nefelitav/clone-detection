@@ -132,7 +132,7 @@ set[Declaration] normalizeAST(set[Declaration] ast) {
         case \fieldAccess(x, y, _) => \fieldAccess(x, y, "fieldAccessName")
         case \fieldAccess(x, _) => \fieldAccess(x, "fieldAccessName")
         case \methodCall(x, _, y) => \methodCall(x, "methodCallName", y)
-        case \methodCall(x, z, _, y) => \methodCall(x, receiver, "methodCallName", y)
+        case \methodCall(x, z, _, y) => \methodCall(x, z, "methodCallName", y)
         case \number(_) => \number("0")
         case \booleanLiteral(_) => \booleanLiteral(true)
         case \stringLiteral(_) => \stringLiteral("x")

@@ -130,8 +130,10 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
 */
 list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int massThreshold) {
     list[tuple[node, node]] clones = [];
-
+    int c=0;
 	for (bucket <- hashTable) {	
+        println(c);
+        c+=1;
         list[node] nodes = hashTable[bucket];
         for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
             clones = addSubtreeClone(toList(toSet(clones)), nodes[i_index], nodes[j_index], massThreshold);
@@ -234,8 +236,8 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
         // remove subclones
         if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
             clones -= oldPair;
-            pair0Subtrees[[oldPair[0], oldPair[1]]] -= getSubtreeNodes(oldPair[0], massThreshold);
-            pair1Subtrees[[oldPair[0], oldPair[1]]] -= getSubtreeNodes(oldPair[1], massThreshold);
+            delete(pair0Subtrees, [oldPair[0], oldPair[1]]);
+            delete(pair1Subtrees, [oldPair[0], oldPair[1]]);
         }
     }
     pair0Subtrees[[i,j]] = getSubtreeNodes(i, massThreshold);
