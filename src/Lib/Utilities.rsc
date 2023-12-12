@@ -54,11 +54,13 @@ bool isSubset(list[node] subsequence, list[node] supersequence) {
     arguments: node
     returns all children of node in a list
 */
-list[node] getSubtreeNodes(node subtree) {
+list[node] getSubtreeNodes(node subtree, int massThreshold) {
     list[node] subtreeNodes = [];
     visit (unsetRec(subtree)) {
 		case node n: {
-            subtreeNodes += n;
+            if (subtreeMass(subtree) <= massThreshold) {
+                subtreeNodes += n;
+            }
         }
     }
     return toList(toSet(subtreeNodes));

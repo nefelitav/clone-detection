@@ -59,7 +59,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
         if (cloneType == 3) {
             similarityThreshold = 0.8;
         }
-        clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold);
+        clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, massThreshold);
     }
     println(size(clonePairs));
     end = now();
@@ -140,12 +140,15 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
         - for two subtrees to be in the same bucket, and since we are looking for clones of type 1, the subtrees must be equal
         - we get prepared to add the clone to our struct, checking first that we can add it
 */
-list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
+list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int massThreshold) {
     list[tuple[node, node]] clones = [];
+    int c = 0;
 	for (bucket <- hashTable) {	
+        println(c);
+        c += 1;
         list[node] nodes = hashTable[bucket];
         for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
-            clones = addSubtreeClone(toList(toSet(clones)), nodes[i_index], nodes[j_index]);
+            clones = addSubtreeClone(toList(toSet(clones)), nodes[i_index], nodes[j_index], massThreshold);
         }
     }
     return clones;
@@ -163,7 +166,7 @@ list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
             - and so we dont have to check also if the flipped one is in the struct
         - we get prepared to add the clone to our struct, checking first that we can add it
 */
-list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold) {
+list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int massThreshold) {
     list[tuple[node, node]] clones = [];
     map[list[str], real] similarities = ();
     real comparison = 0.0;
@@ -180,12 +183,12 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
             if (ij in similarities) {
                 comparison = similarities[ij];
             } else {
-                comparison = compareTree(i, j);
+                comparison = compareTree(i, j, massThreshold);
                 similarities[ij] = comparison;
             } 
 
             if (comparison >= similarityThreshold) {
-                clones = addSubtreeClone(clones, i, j);
+                clones = addSubtreeClone(clones, i, j, massThreshold);
             }
         }
     }
@@ -206,9 +209,9 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
         R = number of different nodes in sub-tree 2
     - if the two subtress are identical, it will return 1.0, otherwise a value between 0.0 and 1.0
 */
-real compareTree(node node1, node node2) {
-    list[node] subtree1Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node1)]));
-	list[node] subtree2Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node2)]));
+real compareTree(node node1, node node2, int massThreshold) {
+    list[node] subtree1Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node1, massThreshold)]));
+	list[node] subtree2Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node2, massThreshold)]));
 	real sharedNodes = toReal(size(subtree1Nodes & subtree2Nodes));
     real subtree1NodesNumber = toReal(size(subtree1Nodes - subtree2Nodes));
     real subtree2NodesNumber = toReal(size(subtree2Nodes - subtree1Nodes));
@@ -220,22 +223,6 @@ real compareTree(node node1, node node2) {
 ///////////////////////////////////////////////////
 /*
     arguments: clones, a pair of subtrees
-    for every pair in clones:
-    - visits the two subtrees 
-    - checks if their children exist in clones, as <i,j> or flipped as <j,i>
-    - if yes, it removes them, because their parents will be added, who are more powerful
-    - because we are looking for the biggest subtree that is cloned
-    then:
-    - visits the two subtrees of the pair
-    - checks if their children are the same as <i,j> or flipped as <j,i>
-    - if yes, it returns clones as is, because that means that the pair of clones we want to add
-    - are subclones of already existent clones of our clones struct
-    - so there is no need to add them, because we are looking for the biggest subtree that is cloned
-    - otherwise, we can add them
-*/
-
-/*
-    arguments: clones, a pair of subtrees
     - adds subtrees to the clones struct
     - if the flipped pair is not already in the struct
     - if the one subtree isnt a sunclone of the other one
@@ -244,23 +231,41 @@ real compareTree(node node1, node node2) {
     - all in all, we ensure that we only add the biggest subtrees in the clones struct
     - and we do not have duplicates
 */
-list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j) {
+list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j, int massThreshold) {
     if (size(clones) == 0) {
         return [<i, j>];
     } else {
         if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
             return clones;
         }
+
+        set[node] iSubtrees = toSet(getSubtreeNodes(i, massThreshold));
+        set[node] jSubtrees = toSet(getSubtreeNodes(j, massThreshold));
+
+        set[node] pair0Subtrees = {};
+        set[node] pair1Subtrees = {};
         for (oldPair <- clones) {
-            // remove subclones
-            if ((isSubset(oldPair[0], i) && (isSubset(oldPair[1], j))) || (isSubset(oldPair[0], j) && (isSubset(oldPair[1], i)))) {
-                clones -= oldPair;
-                continue;
-            }
-            // check if subclone, otherwise add it
-            if ((isSubset(i, oldPair[0]) && (isSubset(j, oldPair[1]))) || (isSubset(j, oldPair[0]) && (isSubset(i, oldPair[1])))) {
+            pair0Subtrees = toSet(getSubtreeNodes(oldPair[0], massThreshold));
+            pair1Subtrees = toSet(getSubtreeNodes(oldPair[1], massThreshold));
+        }
+
+        for (oldPair <- clones) {
+            if ((i in pair0Subtrees && j in pair1Subtrees) || (i in pair1Subtrees && j in pair0Subtrees)) {
                 return clones;
             }
+
+            if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
+                clones -= oldPair;
+            }
+            // remove subclones
+            // if ((isSubset(oldPair[0], i) && (isSubset(oldPair[1], j))) || (isSubset(oldPair[0], j) && (isSubset(oldPair[1], i)))) {
+            //     clones -= oldPair;
+            //     continue;
+            // }
+            // check if subclone, otherwise add it
+            // if ((isSubset(i, oldPair[0]) && (isSubset(j, oldPair[1]))) || (isSubset(j, oldPair[0]) && (isSubset(i, oldPair[1])))) {
+            //     return clones;
+            // }
         }
     }
     clones += <i, j>;
