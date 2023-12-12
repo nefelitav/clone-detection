@@ -22,11 +22,12 @@
 - Type IV: functionality is the same, code may be completely different.
 
 # TODO
-1) Check statistics, results
-2) Clones 3
-3) Create a test project. Tests
-4) Export json
-5) Report
+1) Make it faster
+2) Check statistics, results
+3) Clones 3
+4) Create a test project. Tests
+5) Export json, Clone classes are written to a file in text
+6) Report
 
 # Visualizations
 - number of clone pairs and number of clone classes of each algorithm

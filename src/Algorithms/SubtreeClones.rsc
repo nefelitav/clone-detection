@@ -18,6 +18,7 @@ import Boolean;
 
 public map[node, set[node]] pair0Subtrees = ();
 public map[node, set[node]] pair1Subtrees = ();
+public map[node, set[node]] subtrees = ();
  
 /////////////////////////
 ///   Main function   ///
@@ -198,8 +199,19 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
     - if the two subtress are identical, it will return 1.0, otherwise a value between 0.0 and 1.0
 */
 real compareTree(node node1, node node2, int massThreshold) {
-    list[node] subtree1Nodes = toList(toSet([unsetRec(n) | n <- getSubtreeNodes(node1, massThreshold)]));
-	list[node] subtree2Nodes = toList(toSet([unsetRec(n) | n <- getSubtreeNodes(node2, massThreshold)]));
+    list[node] subtree1Nodes = [];
+    list[node] subtree2Nodes = [];
+    subtrees[node1] = getSubtreeNodes(node1, massThreshold);
+    subtrees[node2] = getSubtreeNodes(node2, massThreshold);
+
+    for (n <- subtrees[node1]) {
+        subtree1Nodes += unsetRec(n);
+    }
+    for (n <- subtrees[node2]) {
+        subtree2Nodes += unsetRec(n);
+    }
+    subtree1Nodes = toList(toSet(subtree1Nodes));
+    subtree2Nodes = toList(toSet(subtree2Nodes));
 	real sharedNodes = toReal(size(subtree1Nodes & subtree2Nodes));
     real subtree1NodesNumber = toReal(size(subtree1Nodes - subtree2Nodes));
     real subtree2NodesNumber = toReal(size(subtree2Nodes - subtree1Nodes));
@@ -221,27 +233,42 @@ real compareTree(node node1, node node2, int massThreshold) {
     - also, we cache the subtree nodes in global variables, which saves us a lot of time
 */
 list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j, int massThreshold) {
-    if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
-        return clones;
-    }
+    // if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
+    //     return clones;
+    // }
     
-    set[node] iSubtrees = getSubtreeNodes(i, massThreshold);
-    set[node] jSubtrees = getSubtreeNodes(j, massThreshold);
+    set[node] iSubtrees = {};
+    set[node] jSubtrees = {};
+    if (i in subtrees) {
+        iSubtrees = subtrees[i];
+    } else {
+        subtrees[i] = getSubtreeNodes(i, massThreshold);
+        iSubtrees = subtrees[i];
+    }
+    if (j in subtrees) {
+        jSubtrees = subtrees[j];
+    } else {
+        subtrees[j] = getSubtreeNodes(j, massThreshold);
+        jSubtrees = subtrees[j];
+    }
 
     for (oldPair <- clones) {
         // if it's a subclone of an existing one, dont add it
-        if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
+        set[node] pair0subtrees =  pair0Subtrees[oldPair[0]];
+        set[node] pair1subtrees =  pair1Subtrees[oldPair[1]];
+
+        if ((i in pair0subtrees && j in pair1subtrees) || (i in pair1subtrees && j in pair0subtrees)) {
             return clones;
         }
         // remove subclones
         if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
             clones -= oldPair;
-            // delete(pair0Subtrees, [oldPair[0]]);
-            // delete(pair1Subtrees, [oldPair[1]]);
+            // delete(pair0Subtrees, oldPair[0]);
+            // delete(pair1Subtrees, oldPair[1]);
         }
     }
-    pair0Subtrees[i] = getSubtreeNodes(i, massThreshold);
-    pair1Subtrees[j] = getSubtreeNodes(j, massThreshold);
+    pair0Subtrees[i] = iSubtrees;
+    pair1Subtrees[j] = jSubtrees;
     clones += <i, j>;
     return clones;  
 }
