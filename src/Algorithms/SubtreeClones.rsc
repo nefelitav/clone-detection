@@ -16,8 +16,8 @@ import Set;
 import Type;
 import Boolean;
 
-public set[node] pair0Subtrees = {};
-public set[node] pair1Subtrees = {};
+public map[list[node], set[node]] pair0Subtrees = ();
+public map[list[node], set[node]] pair1Subtrees = ();
  
 /////////////////////////
 ///   Main function   ///
@@ -46,6 +46,9 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     map[node, list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, generalize);
     println("Number of buckets: <size(hashTable)>");
+    // for (p <- hashTable) {
+    //     println("<hashTable[p]>\n");
+    // }
     println("---\n");
 
     // Finding clone pairs
@@ -65,9 +68,9 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     // if (generalize) {
     //     clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     // }
-    for (p <- clonePairs) {
-        println("<p>\n");
-    }
+    // for (p <- clonePairs) {
+    //     println("<p>\n");
+    // }
     // Calculating statistics
     println("Calculating Statistics:");
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(toList(toSet(clonePairs)), projectLocation);
@@ -225,18 +228,18 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
 
     for (oldPair <- clones) {
         // if it's a subclone of an existing one, dont add it
-        if ((i in pair0Subtrees && j in pair1Subtrees) || (i in pair1Subtrees && j in pair0Subtrees)) {
+        if ((i in pair0Subtrees[[oldPair[0], oldPair[1]]] && j in pair1Subtrees[[oldPair[0], oldPair[1]]]) || (i in pair1Subtrees[[oldPair[0], oldPair[1]]] && j in pair0Subtrees[[oldPair[0], oldPair[1]]])) {
             return clones;
         }
         // remove subclones
         if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
             clones -= oldPair;
-            pair0Subtrees -= getSubtreeNodes(oldPair[0], massThreshold);
-            pair1Subtrees -= getSubtreeNodes(oldPair[1], massThreshold);
+            pair0Subtrees[[oldPair[0], oldPair[1]]] -= getSubtreeNodes(oldPair[0], massThreshold);
+            pair1Subtrees[[oldPair[0], oldPair[1]]] -= getSubtreeNodes(oldPair[1], massThreshold);
         }
     }
-    pair0Subtrees += getSubtreeNodes(i, massThreshold);
-    pair1Subtrees += getSubtreeNodes(j, massThreshold);
+    pair0Subtrees[[i,j]] = getSubtreeNodes(i, massThreshold);
+    pair1Subtrees[[i,j]] = getSubtreeNodes(j, massThreshold);
     clones += <i, j>;
     return clones;  
 }
