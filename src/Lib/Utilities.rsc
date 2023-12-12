@@ -11,7 +11,7 @@ list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
     list[Declaration] asts = [createAstFromFile(f, true)
     | f <- files(model.containment), isCompilationUnit(f)];
-    return asts;
+    return toList(toSet(asts));
 }
 
 /*
@@ -20,6 +20,10 @@ list[Declaration] getASTs(loc projectLocation) {
 
 */
 bool isSubset(node node1, node node2) {
+    // visit(node2) {
+    //     case node n: if (n == node1) {return true;}
+    // }
+    // return false;
     return contains(toString(node2), toString(node1));
 }
 
@@ -50,7 +54,7 @@ list[node] getSubtreeNodes(node subtree) {
             subtreeNodes += n;
         }
     }
-    return subtreeNodes;
+    return toList(toSet(subtreeNodes));
 }
 
 /*
@@ -59,6 +63,11 @@ list[node] getSubtreeNodes(node subtree) {
 
 */
 int subtreeMass(node currentNode) {
+    // int mass = 0;
+    // visit (unsetRec(currentNode)) {
+    //     case node _ : mass += 1;
+    // }
+    // return mass;
     return arity(currentNode) + 1;
 }
 
