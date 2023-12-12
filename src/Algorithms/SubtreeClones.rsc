@@ -26,7 +26,6 @@ import Boolean;
         - for type 2: we are looking still for exact matches, but ignoring identifiers, so 1.0
         - for type 3: we are not looking for exact matches, lines of code can be added or removed, so 0.8
     - gets ASTs of the project 
-    - performs some preprocessing on ASTs, depending on the type of clones
     - creates a hash table with the subtrees
     - finds clones comparing the subtrees of each bucket
     - prints statistics
@@ -91,7 +90,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
 ///    Create Hash Table   ///
 //////////////////////////////
 /*
-    arguments: asts, massThreshold, cloneType
+    arguments: ast, cloneType, massThreshold, generalize: bool (whether we should also run the 3rd algorithm)
     visits tree and for every node:
     - checks if nodeMass >= massThreshold, so that we ignore small subtrees
     - hashes the "clean" node with md5Hash. Nodes get "cleaned" with unsetRec, so that method locations are ignored
@@ -112,6 +111,7 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
                 if (cloneType != 1) {
                     normalizedNode = normalizeIdentifiers(n);
                 }
+                // an alternative way to hash nodes, by hashing all their children, concatenating their hashes and hashing once again
                 // list[node] tohash = [];
                 // for (node child <- normalizedNode) {
                 //     tohash += unsetRec(child);
@@ -133,18 +133,13 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
 ///    Find Clones    ///
 /////////////////////////
 /*
-    arguments: hashTable, similarityThreshold, cloneType
+    arguments: hashTable
     for every bucket:
-    - if size == 1, nothing to compare
     - get a pair of subtrees:
-        - ensure we are not comparing the same subtree with itself
-        - compare it using the compareTree function that checks for similarity between nodes, to see if they are clones
-        - if compareTree returned 1, then it is an exact match, 
-        - if not but we are looking for clones of type 2 or 3, we check if the comparison result is over the similarityThreshold 
-        or equal for the case of cloneType=2 && similarityThreshold==1.0
-        - in any of these two cases, we get prepared to add the clone to our struct, checking first that we can add it
+        - ensure we are not comparing the same subtree with itself and also the flipped ones, because that would be a waste of time
+        - for two subtrees to be in the same bucket, and since we are looking for clones of type 1, the subtrees must be equal
+        - we get prepared to add the clone to our struct, checking first that we can add it
 */
-
 list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
     list[tuple[node, node]] clones = [];
 	for (bucket <- hashTable) {	
@@ -156,6 +151,18 @@ list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable) {
     return clones;
 }
 
+/*
+    arguments: hashTable, similarityThreshold
+    for every bucket:
+    - get a pair of subtrees:
+        - ensure we are not comparing the same subtree with itself and also the flipped ones, because that would be a waste of time
+        - compare it using the compareTree function that checks for similarity between nodes, to see if they are clones
+        - we check if the comparison result is over the similarityThreshold 
+        - we cache the comparison result, so that we do not have to calculate it every time we meet the same pair or the flipped one
+            - we use a struct of map[list[str], real] type, and the reason for using list, is so that order doesn't matter
+            - and so we dont have to check also if the flipped one is in the struct
+        - we get prepared to add the clone to our struct, checking first that we can add it
+*/
 list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold) {
     list[tuple[node, node]] clones = [];
     map[list[str], real] similarities = ();
@@ -190,14 +197,14 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
     - visits the two subtrees and counts the number of nodes they have
     - finds shared nodes of the two subtrees, "cleaning" the nodes with unsetRec, 
     so that method locations and other useless informations are ignored
-    - also normalizes identifiers, since this function is used for near-misses
+    - also normalizes identifiers, since this function is only used for near-misses
     - calculates:
         Similarity = 2 x S / (2 x S + L + R)
         where:
         S = number of shared nodes
         L = number of different nodes in sub-tree 1
         R = number of different nodes in sub-tree 2
-    - if the two subtress are identical, it will return 1, otherwise a value between 0 and 1
+    - if the two subtress are identical, it will return 1.0, otherwise a value between 0.0 and 1.0
 */
 real compareTree(node node1, node node2) {
     list[node] subtree1Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node1)]));
@@ -231,6 +238,7 @@ real compareTree(node node1, node node2) {
     arguments: clones, a pair of subtrees
     - adds subtrees to the clones struct
     - if the flipped pair is not already in the struct
+    - if the one subtree isnt a sunclone of the other one
     - if they are not subclones of already existent clones
     - removes subclones of the pair that might exist in the clones struct
     - all in all, we ensure that we only add the biggest subtrees in the clones struct
@@ -318,7 +326,7 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
         - biggest clone class in members
         - number of clone classes
         - percentage of duplicated lines
-
+   - calculates everything at the same time to save time
 */
 tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
     println("-------------------------");
@@ -366,6 +374,7 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
         }
     }
     numberOfCloneClasses = size(cloneClasses);
+    // find biggest clone class in members
     for (class <- cloneClasses) {
         int classSize = size(cloneClasses[class]);
         loc location = nodeLocation(class);
