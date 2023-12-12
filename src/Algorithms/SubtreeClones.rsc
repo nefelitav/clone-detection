@@ -301,6 +301,19 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
         - percentage of duplicated lines
    - calculates everything at the same time to save time
 */
+/*
+    Getting clone classes:
+    - have a clone map
+    - for every pair of clones
+        - if the first element is in the clonemap but the second one isnt,
+        add it in the map, using the first element as key and the second as value
+        - if the first element isnt in the clonemap but the second one is,
+        add it in the map, using the second element as key and the first as value
+        - otherwise, if none of them exist in the map as keys, check if the first element is in the values of some key,
+        if yes, add the second one to the list also. if the second element is in the values of some key, add the first one to the list.
+        if they are both added already, return
+        if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
+*/
 tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
     println("-------------------------");
     println("Subtree Clones Statistics");

@@ -7,14 +7,12 @@ package com.example;
 
 public class App
 {
-    public void e()
-    {
+    public void e() {
         int a=1;
         int b=2;
         int c=3;
     }
-    public void f()
-    {
+    public void f() {
         int a=1;
         int b=2;
         int c=3;

@@ -37,13 +37,12 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     map[str, list[list[node]]] hashTable = ();
     map[list[node], list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType, generalize);
-    // println(size(hashTable));
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
-    // println(size(clonePairs));
-    // for(pair <- clonePairs) {
-    //     println("<pair>\n");
-    // }
-
+    clonePairs = toList(toSet(clonePairs));
+    println(size(clonePairs));
+    for(pair <- clonePairs) {
+        println("<pair>\n");
+    }
     // if (generalize) {
     //     clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     // }
@@ -55,13 +54,14 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
 ///    Create Hash Table   ///
 //////////////////////////////
 /*
-    arguments: asts, minimumSequenceLengthThreshold, cloneType
-    - visits tree and add every block that has size bigger than the minimum acceptable one to a list
+    arguments: asts, minimumSequenceLengthThreshold, cloneType, generalize:  bool (whether we should also run the 3rd algorithm)
+    - visits tree and adds every block that has size equal to or bigger than the minimum acceptable one to a list
     - for every sequence, get all subsequences with size bigger than the minimum acceptable one.
     - hash every "clean" subsequence with md5Hash. By clean I mean that it does not have locations etc.
     - these subsequence hashes are concatenated into a string, which is also hashed later on.
     - this sequence hash is the bucket key, and the value is the sequence or a normalized version of the sequence, if cloneType is 2 or 3.
     - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
+    - also, we cache the hashes to save time
 */
 tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType, bool generalize) {
     map[str, list[list[node]]] hashTable = ();
@@ -120,14 +120,15 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
 /*
     arguments: hashTable, similarityThreshold, cloneType
     for every bucket:
-    - if size == 1, nothing to compare
     - get a pair of subtrees:
-        - ensure we are not comparing the same subtree with itself
-        - compare it using the compareSequences function that checks for similarity between sequences, to see if they are clones
-        - if cloneType == 1, we are looking for an exact match, 
-        - if we are looking for clones of type 2 or 3, we check if the comparison result is over the similarityThreshold 
-        or equal for the case of cloneType=2 && similarityThreshold==1.0
+        - ensure we are not comparing the same subtree with itself, by removing i from j
+        - if we are looking for clones of type 2 or 3, compare it using the compareSequences function that checks for similarity between sequences, to see if they are clones
+        - and we check if the comparison result is over or equal the similarityThreshold 
+        - if we are lloking for clone type 1, no further check is needed
         - in any of these two cases, we get prepared to add the clone to our struct, checking first that we can add it
+        - we cache the comparison result, so that we do not have to calculate it every time we meet the same pair or the flipped one
+            - we use a struct of map[list[str], real] type, and the reason for using list, is so that order doesn't matter
+            - and so we dont have to check also if the flipped one is in the struct
 */
 list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[node]]] hashTable, real similarityThreshold, int cloneType) {
     list[tuple[list[node], list[node]]] clones = [];
@@ -201,22 +202,14 @@ real compareSequences(list[node] nodelist1, list[node] nodelist2) {
 ////////////////////////////////////////////////////
 /*
     arguments: clones, a pair of sequences
-    for every pair in clones:
-    - checks if they are sublists of the given pair, either as is <i,j> or flipped <j,i>, remove them
-    - dig deeper into the subtrees of the given pair as we did for subtree clones
-        - if their subtree nodes are the same as the clone pair(the lists of the pair should contain only one node in that case), remove the pair
-        - if the blocks in the subtrees contain the clone pair, remove it
-    because we are looking for the biggest sequence that is cloned
-    then:
-    - visits the two sequences of the pair, check three cases:
-        - if they have sublists that are the same as <i,j> or flipped as <j,i>. 
-        - otherwise, we dig deeper, looking into the subtrees of the clones, as we did for subtreeClones:
-            - if the sequences only have one node, and the clone pair also has only one node, and they are the same
-            - if they have blocks inside their subtrees that contain the pair as sublists
-        In any of these cases, it returns clones as is, because that means that the pair of clones we want to add
-        are subclones of already existent clones of our clones struct.
-        so there is no need to add them, because we are looking for the biggest sequence that is cloned.
-    - otherwise, we can add them
+    - adds sequences to the clones struct
+    - if the flipped pair is not already in the struct
+    - if they are not subclones of already existent clones
+    - removes subclones of the pair that might exist in the clones struct
+    - all in all, we ensure that we only add the biggest sequences in the clones struct
+    - and we do not have duplicates
+    - also, we cache the isSubset results
+
 */
 list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list[node]]] clones, list[node] i, list[node] j) {
     if (size(clones) == 0) {
@@ -263,80 +256,10 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
     return clones;  
 }
 
-/*
-    arguments: clones, a pair of sequences
-    - adds sequences to the clones struct
-    - if the flipped pair is not already in the struct
-    - if they are not subclones of already existent clones
-    - removes subclones of the pair that might exist in the clones struct
-    - all in all, we ensure that we only add the biggest sequences in the clones struct
-    - and we do not have duplicates
-*/
 
 ////////////////////////
 ///    Statistics    ///
 ////////////////////////
-/*
-    arguments: clones
-    - have a clone map
-    - for every pair of clones
-        - if the first element is in the clonemap but the second one isnt,
-        add it in the map, using the first element as key and the second as value
-        - if the first element isnt in the clonemap but the second one is,
-        add it in the map, using the second element as key and the first as value
-        - otherwise, if none of them exist in the map as keys, check if the first element is in the values of some key,
-        if yes, add the second one to the list also. if the second element is in the values of some key, add the first one to the list.
-        if they are both added already, return
-        if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
-*/
-map[list[node], set[list[node]]] getSequenceCloneClasses(list[tuple[list[node], list[node]]] clonePairs) {
-    map[list[node], set[list[node]]] cloneClasses = (); 
-
-    for(pair <- clonePairs) { 
-        if (pair[0] in cloneClasses) {
-            cloneClasses[pair[0]] += {pair[1]};
-        } else if (pair[1] in cloneClasses) {
-            cloneClasses[pair[1]] += {pair[0]};
-        } else {
-            bool added = false;
-            for (key <- cloneClasses) {
-                if (pair[0] in cloneClasses[key] || pair[1] in cloneClasses[key]) {
-                    cloneClasses[key] += {pair[1]};
-                    cloneClasses[key] += {pair[0]};
-                    added = true;
-                    break;
-                }
-            }
-            if (added == false) {
-                cloneClasses[pair[0]] = {pair[1]};
-            }
-        }
-    }
-    return cloneClasses;
-}
-
-/*
-    arguments: clones
-    for every pair of clones:
-    - calculates number of lines of code of the clone class, without comments and blank lines
-    - finds the clone class with the most lines of code
-    - returns both the node and the number of lines
-*/
-tuple[list[node], int] getBiggestSequenceCloneInLines(list[tuple[list[node], list[node]]] clonePairs) {
-    int maxLines = 0;
-    list[node] maxNodeList = clonePairs[0][0];
-    for(pair <- clonePairs) {
-        int numberOfLines = 0;
-        for(pairNode <- pair[0]) {
-            numberOfLines += UnitLOC(pairNode.src);
-        }
-        if (numberOfLines > maxLines) {
-            maxLines = numberOfLines;
-            maxNodeList = pair[0];
-        }
-    }
-    return <maxNodeList, maxLines>;
-}
 
 /*  
     arguments: clones
@@ -395,9 +318,21 @@ tuple[list[node], int] getBiggestSequenceCloneInLines(list[tuple[list[node], lis
         - biggest clone in lines
         - biggest clone class in members
         - number of clone classes
-        - number of duplicated lines
         - percentage of duplicated lines
-
+   - calculates everything at the same time to save time
+*/
+/*
+    Getting clone classes:
+    - have a clone map
+    - for every pair of clones
+        - if the first element is in the clonemap but the second one isnt,
+        add it in the map, using the first element as key and the second as value
+        - if the first element isnt in the clonemap but the second one is,
+        add it in the map, using the second element as key and the first as value
+        - otherwise, if none of them exist in the map as keys, check if the first element is in the values of some key,
+        if yes, add the second one to the list also. if the second element is in the values of some key, add the first one to the list.
+        if they are both added already, return
+        if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
 tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node]]] clonePairs, loc projectLocation) {
     println("-------------------------");
