@@ -7,6 +7,7 @@ import String;
 import List;
 import Set;
 
+
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
     list[Declaration] asts = [createAstFromFile(f, true)
@@ -17,7 +18,7 @@ list[Declaration] getASTs(loc projectLocation) {
 /*
     arguments: two nodes
     checks if first node is subset of the second one
-
+    it's faster if we compare the strings of the nodes
 */
 bool isSubset(node node1, node node2) {
     // visit(node2) {
@@ -27,16 +28,18 @@ bool isSubset(node node1, node node2) {
     return contains(toString(node2), toString(node1));
 }
 
+/*
+    arguments: two sequence
+    checks if first sequence is subset of the sequence one
+    first, checks directly if the one list is a sublit of the other
+    then, checks if the two sequences' locations are in the same file and if the lines of the one are a subset of the lines of the other
+*/
 bool isSubset(list[node] subsequence, list[node] supersequence) {
-    for (i <- [0..size(supersequence)]) {
-        if (subsequence == supersequence[i..i + size(subsequence)]) {
-            return true;
-        }
+    for (subsequence <= supersequence) {
+        return true;
     }
-    
-    list[loc] supersequenceLocs = [nodeLocation(n) | n <- supersequence];
-    list[loc] subsequenceLocs = [nodeLocation(n) | n <- subsequence];
-
+    list[loc] supersequenceLocs = [getLocation(n) | n <- supersequence];
+    list[loc] subsequenceLocs = [getLocation(n) | n <- subsequence];
     for (supersequenceLoc <- supersequenceLocs) {
         for (subsequenceLoc <- subsequenceLocs) {
             if ((supersequenceLoc.path == subsequenceLoc.path) && (supersequenceLoc.begin.line < subsequenceLoc.begin.line) && (supersequenceLoc.end.line > subsequenceLoc.end.line)) {
@@ -47,6 +50,10 @@ bool isSubset(list[node] subsequence, list[node] supersequence) {
     return false;
 }
 
+/*
+    arguments: node
+    returns all children of node in a list
+*/
 list[node] getSubtreeNodes(node subtree) {
     list[node] subtreeNodes = [];
     visit (unsetRec(subtree)) {
@@ -58,9 +65,10 @@ list[node] getSubtreeNodes(node subtree) {
 }
 
 /*
-    arguments: ASTs
-    counts number of nodes of subtree
-
+    arguments: node
+    counts number of children of subtree
+    using the arity built-in function the buckets were decreased a lot, so the program could finish in a reasonable time.
+    using our custom function that is commented out below, the buckets were too many
 */
 int subtreeMass(node currentNode) {
     // int mass = 0;
@@ -71,7 +79,11 @@ int subtreeMass(node currentNode) {
     return arity(currentNode) + 1;
 }
 
-loc nodeLocation(node subTree) {
+/*
+    arguments: node
+    returns location of node, otherwise |unresolved:///|
+*/
+loc getLocation(node subTree) {
 	loc location = |unresolved:///|;
 	if (Declaration d := subTree) { 
 		if (d@src?) {
