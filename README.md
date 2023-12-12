@@ -23,11 +23,10 @@
 
 # TODO
 1) Export json
-2) Make frontend
 3) Create a test project. Tests
 4) Report
-5) Ensure results are correct
-6) Improve time
+6) Comments
+7) Clones 2 3
 
 # Questions
 1) Are three algorithms enough if they work for type 1,2,3?

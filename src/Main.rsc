@@ -10,8 +10,8 @@ void main() {
     datetime begin = now();
     // println(printTime(now(), "HH:mm:ss"));
 
-    loc projectLocation = |project://TestProject|;
-    // loc projectLocation = |project://smallsql0.21_src|;
+    // loc projectLocation = |project://TestProject|;
+    loc projectLocation = |project://smallsql0.21_src|;
     // loc projectLocation = |project://hsqldb-2.3.1|;
     int cloneType = 1;
     
@@ -19,8 +19,8 @@ void main() {
     // int massThreshold = 4; // for TestProject
     // findSubtreeClones(projectLocation, cloneType, massThreshold, false);
 
-    // int minimumSequenceLengthThreshold = 6; // for smallsql
-    int minimumSequenceLengthThreshold = 3; // for TestProject
+    int minimumSequenceLengthThreshold = 6; // for smallsql
+    // int minimumSequenceLengthThreshold = 3; // for TestProject
     findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
 
     // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
