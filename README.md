@@ -22,11 +22,12 @@
 - Type IV: functionality is the same, code may be completely different.
 
 # TODO
-1) Export json
+1) Check statistics, results
+2) Clones 2 3
 3) Create a test project. Tests
-4) Report
-6) Comments
-7) Clones 2 3
+4) Export json
+5) Report
+
 
 # Questions
 1) Are three algorithms enough if they work for type 1,2,3?

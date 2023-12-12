@@ -29,6 +29,7 @@ public set[node] pair1Subtrees = {};
         - for type 2: we are looking still for exact matches, but ignoring identifiers, so 1.0
         - for type 3: we are not looking for exact matches, lines of code can be added or removed, so 0.8
     - gets ASTs of the project 
+    - normalize for clones of type 2 and 3 (Lib/Utilities.rsc/normalizeAST)
     - creates a hash table with the subtrees
     - finds clones comparing the subtrees of each bucket
     - prints statistics
@@ -36,12 +37,14 @@ public set[node] pair1Subtrees = {};
 */
 list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
-
+    if (cloneType != 1) {
+        ast = toList(normalizeAST(toSet(ast)));
+    }
     // Creating hash table
     println("Creating subTree HashTable:");
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
-    <hashTable, childrenOfParents> = createSubtreeHashTable(ast, cloneType, massThreshold, generalize);
+    <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, generalize);
     println("Number of buckets: <size(hashTable)>");
     println("---\n");
 
@@ -62,7 +65,9 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     // if (generalize) {
     //     clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     // }
-
+    for (p <- clonePairs) {
+        println("<p>\n");
+    }
     // Calculating statistics
     println("Calculating Statistics:");
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(toList(toSet(clonePairs)), projectLocation);
@@ -74,7 +79,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
 ///    Create Hash Table   ///
 //////////////////////////////
 /*
-    arguments: ast, cloneType, massThreshold, generalize: bool (whether we should also run the 3rd algorithm)
+    arguments: ast, massThreshold, generalize: bool (whether we should also run the 3rd algorithm)
     visits tree and for every node:
     - checks if nodeMass >= massThreshold, so that we ignore small subtrees
     - hashes the "clean" node with md5Hash. Nodes get "cleaned" with unsetRec, so that method locations are ignored
@@ -82,7 +87,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     - this way, clones end up in the same bucket and can easily and quickly be compared with each other
     - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
 */
-tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int cloneType, int massThreshold, bool generalize) {
+tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, bool generalize) {
     map[str, list[node]] hashTable = ();
     map[node, list[value]] childrenOfParents = ();
     visit (ast) {
@@ -91,17 +96,13 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
                 childrenOfParents[n] = getChildren(n);
             }
             if (subtreeMass(unsetRec(n)) >= massThreshold) {
-                node normalizedNode = n;
-                if (cloneType != 1) {
-                    normalizedNode = normalizeIdentifiers(n);
-                }
                 // an alternative way to hash nodes, by hashing all their children, concatenating their hashes and hashing once again
                 // list[node] tohash = [];
-                // for (node child <- normalizedNode) {
+                // for (node child <- n) {
                 //     tohash += unsetRec(child);
                 // }
                 // str hash = md5Hash(toString(tohash));
-                str hash = md5Hash(unsetRec(normalizedNode));
+                str hash = md5Hash(unsetRec(n));
                 if (hash in hashTable) {
                     hashTable[hash] += n;
                 } else {
@@ -182,7 +183,7 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
     - visits the two subtrees and counts the number of nodes they have
     - finds shared nodes of the two subtrees, "cleaning" the nodes with unsetRec, 
     so that method locations and other useless informations are ignored
-    - also normalizes identifiers, since this function is only used for near-misses
+    - also the identifiers are already normalized, since this function is only used for near-misses
     - calculates:
         Similarity = 2 x S / (2 x S + L + R)
         where:
@@ -192,8 +193,8 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
     - if the two subtress are identical, it will return 1.0, otherwise a value between 0.0 and 1.0
 */
 real compareTree(node node1, node node2, int massThreshold) {
-    list[node] subtree1Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node1, massThreshold)]));
-	list[node] subtree2Nodes = toList(toSet([normalizeIdentifiers(unsetRec(n)) | n <- getSubtreeNodes(node2, massThreshold)]));
+    list[node] subtree1Nodes = toList(toSet([unsetRec(n) | n <- getSubtreeNodes(node1, massThreshold)]));
+	list[node] subtree2Nodes = toList(toSet([unsetRec(n) | n <- getSubtreeNodes(node2, massThreshold)]));
 	real sharedNodes = toReal(size(subtree1Nodes & subtree2Nodes));
     real subtree1NodesNumber = toReal(size(subtree1Nodes - subtree2Nodes));
     real subtree2NodesNumber = toReal(size(subtree2Nodes - subtree1Nodes));

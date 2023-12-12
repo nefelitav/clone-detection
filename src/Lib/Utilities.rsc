@@ -6,7 +6,7 @@ import Node;
 import String;
 import List;
 import Set;
-
+import Type;
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -104,41 +104,64 @@ loc getLocation(node subTree) {
 }
 
 /*
-    arguments: node
+    arguments: ast
     normalize identifiers removing names 
     Type II: syntactical copy, changes allowed in variable, type, function identifiers
 */
-public node normalizeIdentifiers(node currentNode) {
-	return visit (currentNode) {
+set[Declaration] normalizeAST(set[Declaration] ast) {
+    return visit(ast) {
         case \enum(_, x, y, z) => \enum("enumName", x, y, z)
         case \enumConstant(_, y) => \enumConstant("enumConsName", y) 
 		case \enumConstant(_, y, z) => \enumConstant("enumConsName", y, z)
 		case \class(_, x, y, z) => \class("className", x, y, z)
 		case \interface(_, x, y, z) => \interface("interfaceName", x, y, z)
-        // case \method(_, _, list[Declaration] y, list[Expression] z, Statement w) => \method(short(), "methodName", y, z, w)
-        // case \method(_, _, list[Declaration] y, list[Expression] z) => \method(short(), "methodName", y, z)
+        case \method(x, _, y, z, w) => \method(x, "methodName", y, z, w)
+        // case \method(x, _, y, z) => \method(x, "methodName", y, z)
 		case \constructor(_, x, y, z) => \constructor("constructorName", x, y, z)
 		case \import(_) => \import("importName")
         case \package(_) => \package("packageName")
-        case \package(x, "name") => \package(x, "packageName")
+        case \package(x, _) => \package(x, "packageName")
         case \typeParameter(_, x) => \typeParameter("typeName", x)
-		case \annotationTypeMember(x, _) => \annotationTypeMember(x, "annotName")
-		case \annotationTypeMember(x, _, y) => \annotationTypeMember(x, "annotName", y)
+        case \annotationType(_, body) => \annotationType("annotName", body)
+		case \annotationTypeMember(x, _) => \annotationTypeMember(x, "annotNameMember")
+		case \annotationTypeMember(x, _, y) => \annotationTypeMember(x, "annotNameMember", y)
 		case \parameter(x, _, y) => \parameter(x, "paramName", y)
 		case \vararg(x, _) => \vararg(x, "varName") 
-        case \fieldAccess(x, y, _) => \fieldAccess(x, y, "fieldName")
-        case \fieldAccess(x, _) => \fieldAccess(x, "fieldName")
-        case \variable(_,y) => \variable("varName", y) 
-		case \variable(_,y,z) => \variable("varName", y, z) 
+        case \assignment(lhs, _, rhs) => \assignment(lhs, "=", rhs)
+        case \characterLiteral(_) => \characterLiteral("x")
+        case \fieldAccess(x, y, _) => \fieldAccess(x, y, "fieldAccessName")
+        case \fieldAccess(x, _) => \fieldAccess(x, "fieldAccessName")
+        case \methodCall(x, _, y) => \methodCall(x, "methodCallName", y)
+        case \methodCall(x, z, _, y) => \methodCall(x, receiver, "methodCallName", y)
+        case \number(_) => \number("0")
+        case \booleanLiteral(_) => \booleanLiteral(true)
+        case \stringLiteral(_) => \stringLiteral("x")
+        case \variable(_, x) => \variable("varName", x)
+        case \variable(_, x, y) => \variable("varName", x, y)
+        case \infix(lhs, _, rhs) => \infix(lhs, "+", rhs)
+        case \postfix(x, _) => \postfix(x, "+")
+        case \prefix(_, x) => \prefix("+", x)
         case \simpleName(_) => \simpleName("simpleName")
-		case \methodCall(x, _, z) => \methodCall(x, "methodCallName", z)
-		case \methodCall(x, y, _, z) => \methodCall(x, y, "methodCallName", z) 
-		case Modifier _ => \public()
-        
-        // i dont think we need these, because then they are not clones
-    	// case \characterLiteral(_) => \characterLiteral("a")
-		// case \booleanLiteral(_) => \booleanLiteral(true)
-		// case \stringLiteral(_) => \stringLiteral("name")
-		// case \number(_) => \number("0")
-	}
+        case \markerAnnotation(_) => \markerAnnotation("markerAnnotationName")
+        case \normalAnnotation(_, x) => \normalAnnotation("markerAnnotationName", x)
+        case \memberValuePair(name, x) => \memberValuePair("memberValuePairName", x)
+        case \singleMemberAnnotation(_, x) => \singleMemberAnnotation("singleMemberAnnotationName", x)
+        case \break(_) => \break("breakName")
+        case \label(_, x) => \label("labelName", x)
+        case \continue(_) => \continue("continueName")
+        case \int() => Type::\short()
+        case short() => Type::\short()
+        case long() => Type::\short()
+        case float() => Type::\short()
+        case double() => Type::\short()
+        case char() => Type::\short()
+        case string() => Type::\short()
+        case byte() => Type::\short()
+        case \void() => Type::\short()
+        case \boolean() => Type::\short()
+        case \private() => \public()
+        case \public() => \public()
+        case \protected() => \public()
+        case \friendly() => \public()
+    }
 }

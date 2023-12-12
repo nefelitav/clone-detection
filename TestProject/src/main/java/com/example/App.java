@@ -11,11 +11,13 @@ public class App
         int a=1;
         int b=2;
         int c=3;
+        int x=5;
     }
     public void f() {
         int a=1;
         int b=2;
         int c=3;
+        int y=5;
     }
     // public void g()
     // {

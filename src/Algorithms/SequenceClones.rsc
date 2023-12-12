@@ -33,13 +33,16 @@ public map[tuple[list[node], list[node]], str] pair1IsSubset = ();
 */
 list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
+    if (cloneType != 1) {
+        ast = toList(normalizeAST(toSet(ast)));
+    }
     real similarityThreshold = 1.0;
     if (cloneType == 3) {
         real similarityThreshold = 0.8;
     }
     map[str, list[list[node]]] hashTable = ();
     map[list[node], list[value]] childrenOfParents = ();
-    <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, cloneType, generalize);
+    <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, generalize);
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
     clonePairs = toList(toSet(clonePairs));
     // println(size(clonePairs));
@@ -57,7 +60,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
 ///    Create Hash Table   ///
 //////////////////////////////
 /*
-    arguments: asts, minimumSequenceLengthThreshold, cloneType, generalize:  bool (whether we should also run the 3rd algorithm)
+    arguments: asts, minimumSequenceLengthThreshold, generalize:  bool (whether we should also run the 3rd algorithm)
     - visits tree and adds every block that has size equal to or bigger than the minimum acceptable one to a list
     - for every sequence, get all subsequences with size bigger than the minimum acceptable one.
     - hash every "clean" subsequence with md5Hash. By clean I mean that it does not have locations etc.
@@ -66,7 +69,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
     - also, we cache the hashes to save time
 */
-tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, int cloneType, bool generalize) {
+tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, bool generalize) {
     map[str, list[list[node]]] hashTable = ();
     set[list[node]] sequences = {};
     map[list[node], list[value]] childrenOfParents = ();
@@ -93,9 +96,6 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
                 list[node] subsequence = sequence[i..j];
                 str subsequenceHash = "";
                 for (n <- subsequence) {
-                    if (cloneType == 2) {
-                        n = normalizeIdentifiers(unsetRec(n));
-                    }
                     if (n in hashes) {
                         subsequenceHash += hashes[n];
                     } else {
