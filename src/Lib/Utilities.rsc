@@ -51,7 +51,7 @@ bool isSubset(list[node] subsequence, list[node] supersequence) {
 }
 
 /*
-    arguments: node
+    arguments: node, massThreshold
     returns all children of node in a list
 */
 set[node] getSubtreeNodes(node subtree, int massThreshold) {
