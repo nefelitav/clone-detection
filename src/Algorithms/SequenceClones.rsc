@@ -49,9 +49,9 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     // for(pair <- clonePairs) {
     //     println("<pair>\n");
     // }
-    // if (generalize) {
-    //     clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
-    // }
+    if (generalize) {
+        clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
+    }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
     return clonePairs;
 }
@@ -219,48 +219,51 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
     }
 
     for (pair <- clones) {
+        // CORRECT VERSION - NOT BASED ON PAPER
         // check if subclone, otherwise add it
-        bool isPair0Subset = false;
-        bool isPair1Subset = false;
-        if (<pair[0], i> in pair0IsSubset) {
-            isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
-        } else {
-            isPair0Subset = isSubset(i, pair[0]);
-            pair0IsSubset[<pair[0],i>] = toString(isPair0Subset);
-        }
-        if (isPair0Subset) {
-            if (<pair[1], j> in pair1IsSubset) {
-                isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
-            } else {
-                isPair1Subset = isSubset(j, pair[1]);
-                pair1IsSubset[<pair[1],j>] = toString(isPair1Subset);
-            }
-            if (isPair1Subset) {
-                return clones;
-            }    
-        }
+        // bool isPair0Subset = false;
+        // bool isPair1Subset = false;
+        // if (<pair[0], i> in pair0IsSubset) {
+        //     isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
+        // } else {
+        //     isPair0Subset = isSubset(i, pair[0]);
+        //     pair0IsSubset[<pair[0],i>] = toString(isPair0Subset);
+        // }
+        // if (isPair0Subset) {
+        //     if (<pair[1], j> in pair1IsSubset) {
+        //         isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
+        //     } else {
+        //         isPair1Subset = isSubset(j, pair[1]);
+        //         pair1IsSubset[<pair[1],j>] = toString(isPair1Subset);
+        //     }
+        //     if (isPair1Subset) {
+        //         return clones;
+        //     }    
+        // }
 
-        isPair0Subset = false;
-        isPair1Subset = false;
-        if (<pair[0], j> in pair0IsSubset) {
-            isPair0Subset = fromString(pair0IsSubset[<pair[0], j>]);
-        } else {
-            isPair0Subset = isSubset(j, pair[0]);
-            pair0IsSubset[<pair[0], j>] = toString(isPair0Subset);
-        }
-        if (isPair0Subset) {
-            if (<pair[1], i> in pair1IsSubset) {
-                isPair1Subset = fromString(pair1IsSubset[<pair[1], i>]);
-            } else {
-                isPair1Subset = isSubset(i, pair[1]);
-                pair1IsSubset[<pair[1], i>] = toString(isPair1Subset);
-            }
-            if (isPair1Subset) {
-                return clones;
-            }    
-        }
-
-        if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
+        // isPair0Subset = false;
+        // isPair1Subset = false;
+        // if (<pair[0], j> in pair0IsSubset) {
+        //     isPair0Subset = fromString(pair0IsSubset[<pair[0], j>]);
+        // } else {
+        //     isPair0Subset = isSubset(j, pair[0]);
+        //     pair0IsSubset[<pair[0], j>] = toString(isPair0Subset);
+        // }
+        // if (isPair0Subset) {
+        //     if (<pair[1], i> in pair1IsSubset) {
+        //         isPair1Subset = fromString(pair1IsSubset[<pair[1], i>]);
+        //     } else {
+        //         isPair1Subset = isSubset(i, pair[1]);
+        //         pair1IsSubset[<pair[1], i>] = toString(isPair1Subset);
+        //     }
+        //     if (isPair1Subset) {
+        //         return clones;
+        //     }    
+        // }
+        // if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
+        //     clones -= pair;
+        // }
+        if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
             clones -= pair;
         }
     }

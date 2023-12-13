@@ -7,6 +7,7 @@ import lang::java::m3::AST;
 import IO;
 import Node;
 import List;
+import Set;
 import util::Math;
 import DateTime;
 import Algorithms::SubtreeClones;
@@ -18,8 +19,8 @@ import Algorithms::SequenceClones;
     if the parents are similar they are added to the clones and their children are removed
     this function is for the subtree clones
 */
-list[tuple[node, node]] generalizeClones(list[tuple[node, node]] clonePairs, map[node, list[value]] childrenOfParents, real similarityThreshold) {
-    list[tuple[node, node]] clonesToGeneralize = clonePairs;
+set[tuple[node, node]] generalizeClones(set[tuple[node, node]] clonePairs, map[node, list[value]] childrenOfParents, real similarityThreshold, int massThreshold) {
+    set[tuple[node, node]] clonesToGeneralize = clonePairs;
     while (size(clonesToGeneralize) != 0) {
         for (pair <- clonesToGeneralize) {
             clonesToGeneralize -= pair;
@@ -27,10 +28,10 @@ list[tuple[node, node]] generalizeClones(list[tuple[node, node]] clonePairs, map
             if (parentOf0 != "null"(0)) {
                 node parentOf1 = parentOf(pair[1], childrenOfParents);
                 if (parentOf1 != "null"(0)) {
-                    if (compareTree(parentOf0, parentOf1) >= similarityThreshold) {
+                    if (compareTree(parentOf0, parentOf1, massThreshold) >= similarityThreshold) {
                         clonePairs -= pair;
-                        addSubtreeClone(clonePairs, parentOf0, parentOf1);
-                        addSubtreeClone(clonesToGeneralize, parentOf0, parentOf1);
+                        addSubtreeClone(clonePairs, parentOf0, parentOf1, massThreshold);
+                        addSubtreeClone(clonesToGeneralize, parentOf0, parentOf1, massThreshold);
                     }
                 }
             }
