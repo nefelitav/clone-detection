@@ -70,9 +70,9 @@ set[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold, massThreshold);
     }
-    for (p <- clonePairs) {
-        println("<p>\n");
-    }
+    // for (p <- clonePairs) {
+    //     println("<p>\n");
+    // }
     // Calculating statistics
     println("Calculating Statistics:");
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(clonePairs, projectLocation);
@@ -221,9 +221,9 @@ real compareTree(node node1, node node2, int massThreshold) {
     - also, we cache the subtree nodes in global variables, which saves us a lot of time
 */
 set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, node j, int massThreshold) {
-    // if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
-    //     return clones;
-    // }
+    if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
+        return clones;
+    }
     if (i notin subtrees) {
         subtrees[i] = getSubtreeNodes(i, massThreshold);
     }
@@ -231,31 +231,26 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
     set[tuple[node, node]] toRemove = {};
-    set[node] ST = subtrees[i] + subtrees[j];
+    set[node] ijSubtrees = subtrees[i] + subtrees[j];
     for (pair <- clones) {
-        if (pair[0] in ST || pair[1] in ST) {
+        if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
             toRemove += pair;
         }
     }
     // for (oldPair <- clones) {
     //     // CORRECT VERSION - NOT BASED ON PAPER
     //     // if it's a subclone of an existing one, dont add it
-    //     // if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
-    //     //     return clones;
-    //     // }
-    //     // if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
-    //     //     toRemove += oldPair;
-    //     // }
+    //     if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
+    //         return clones;
+    //     }
     //     // remove subclones
-    //     if (oldPair[0] in subtrees[i] || oldPair[1] in subtrees[j] || oldPair[0] in subtrees[j] || oldPair[1] in subtrees[i]) {
+    //     if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
     //         toRemove += oldPair;
     //     }
     // }
-    clones  -= toRemove;
     // pair0Subtrees[i] = subtrees[i];
     // pair1Subtrees[j] = subtrees[j];
-    iNodes += i;
-    jNodes += j;
+    clones -= toRemove;
     clones += <i, j>;
     return clones;  
 }
