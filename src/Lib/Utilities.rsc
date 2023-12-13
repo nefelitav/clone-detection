@@ -66,6 +66,18 @@ set[node] getSubtreeNodes(node subtree, int massThreshold) {
     return subtreeNodes;
 }
 
+set[node] getSubtreeNodesUnsetRec(node subtree, int massThreshold) {
+    set[node] subtreeNodes = {};
+    visit (subtree) {
+		case node n: {
+            if (subtreeMass(subtree) >= massThreshold) {
+                subtreeNodes += unsetRec(n);
+            }
+        }
+    }
+    return subtreeNodes;
+}
+
 /*
     arguments: node
     counts number of children of subtree

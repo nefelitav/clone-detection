@@ -36,7 +36,7 @@ public map[node, set[node]] subtrees = ();
     - prints statistics
 
 */
-list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
+set[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     if (cloneType != 1) {
         ast = toList(normalizeAST(toSet(ast)));
@@ -54,7 +54,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
 
     // Finding clone pairs
     println("Finding clonePairs:");
-    list[tuple[node, node]] clonePairs = [];
+    set[tuple[node, node]] clonePairs = {};
     real similarityThreshold = 1.0;
     if (cloneType == 1) {
         clonePairs = findTypeIClonePairs(hashTable, massThreshold);
@@ -74,7 +74,7 @@ list[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, in
     // }
     // Calculating statistics
     println("Calculating Statistics:");
-    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(toList(toSet(clonePairs)), projectLocation);
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(clonePairs, projectLocation);
 
     return clonePairs;
 }
@@ -129,15 +129,15 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
         - for two subtrees to be in the same bucket, and since we are looking for clones of type 1, the subtrees must be equal
         - we get prepared to add the clone to our struct, checking first that we can add it
 */
-list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int massThreshold) {
-    list[tuple[node, node]] clones = [];
-    int c=0;
+set[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int massThreshold) {
+    set[tuple[node, node]] clones = {};
+    // int c=0;
 	for (bucket <- hashTable) {	
-        println(c);
-        c+=1;
+        // c+=1;
         list[node] nodes = hashTable[bucket];
-        for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
-            clones = addSubtreeClone(toList(toSet(clones)), nodes[i_index], nodes[j_index], massThreshold);
+        for (i <- [0 .. size(nodes) - 1], j <- [i+1 .. size(nodes)]) {
+            // println("<c> of <size(hashTable)>, size: <size(nodes)>, <i> of <j>");
+            clones = addSubtreeClone(clones, nodes[i], nodes[j], massThreshold);
         }
     }
     return clones;
@@ -155,29 +155,39 @@ list[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int 
             - and so we dont have to check also if the flipped one is in the struct
         - we get prepared to add the clone to our struct, checking first that we can add it
 */
-list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int massThreshold) {
-    list[tuple[node, node]] clones = [];
-    map[list[str], real] similarities = ();
+set[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int massThreshold) {
+    set[tuple[node, node]] clones = {};
+    map[str, real] similarities = ();
     real comparison = 0.0;
+    int c=0;
 	for (bucket <- hashTable) {	
-        list[node] nodes = toList(toSet(hashTable[bucket]));
-        for (i_index <- [0 .. size(nodes) - 1], j_index <- [i_index+1 .. size(nodes)]) {
-            node i = nodes[i_index];
-            node j = nodes[j_index];
+        c+=1;
+        list[node] nodes = hashTable[bucket];
+        for (i <- [0 .. size(hashTable[bucket]) - 1], j <- [i+1 .. size(hashTable[bucket])]) {
+            println("<c> of <size(hashTable)>, size: <size(nodes)>, <i> of <j>");
+            // node i = nodes[i_index];
+            // node j = nodes[j_index];
 
-            str i_str = toString(i);
-            str j_str = toString(j);
-            list[str] ij = [i_str, j_str];
+            // str i_str = toString(i);
+            // str j_str = toString(j);
+            // list[str] ij = [i_str, j_str];
 
-            if (ij in similarities) {
-                comparison = similarities[ij];
-            } else {
-                comparison = compareTree(i, j, massThreshold);
+            // if (ij in similarities) {
+            //     comparison = similarities[ij];
+            // } else {
+            //     comparison = compareTree(i, j, massThreshold);
+            //     similarities[ij] = comparison;
+            // } 
+
+            str ij = toString(i) + toString(j);
+            str ji = toString(j) + toString(i);
+            if (ij notin similarities || ji notin similarities){
+                comparison = compareTree(nodes[i], nodes[j], massThreshold);
                 similarities[ij] = comparison;
-            } 
-
-            if (comparison >= similarityThreshold) {
-                clones = addSubtreeClone(clones, i, j, massThreshold);
+                similarities[ji] = comparison;
+            }
+            if (similarities[ij] >= similarityThreshold) {
+                clones = addSubtreeClone(clones, nodes[i], nodes[j], massThreshold);
             }
         }
     }
@@ -199,19 +209,8 @@ list[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable
     - if the two subtress are identical, it will return 1.0, otherwise a value between 0.0 and 1.0
 */
 real compareTree(node node1, node node2, int massThreshold) {
-    list[node] subtree1Nodes = [];
-    list[node] subtree2Nodes = [];
-    subtrees[node1] = getSubtreeNodes(node1, massThreshold);
-    subtrees[node2] = getSubtreeNodes(node2, massThreshold);
-
-    for (n <- subtrees[node1]) {
-        subtree1Nodes += unsetRec(n);
-    }
-    for (n <- subtrees[node2]) {
-        subtree2Nodes += unsetRec(n);
-    }
-    subtree1Nodes = toList(toSet(subtree1Nodes));
-    subtree2Nodes = toList(toSet(subtree2Nodes));
+    subtree1Nodes = getSubtreeNodesUnsetRec(node1, massThreshold);
+    subtree2Nodes = getSubtreeNodesUnsetRec(node2, massThreshold);
 	real sharedNodes = toReal(size(subtree1Nodes & subtree2Nodes));
     real subtree1NodesNumber = toReal(size(subtree1Nodes - subtree2Nodes));
     real subtree2NodesNumber = toReal(size(subtree2Nodes - subtree1Nodes));
@@ -232,43 +231,30 @@ real compareTree(node node1, node node2, int massThreshold) {
     - and we do not have duplicates
     - also, we cache the subtree nodes in global variables, which saves us a lot of time
 */
-list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, node j, int massThreshold) {
+set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, node j, int massThreshold) {
     // if (<j,i> in clones || isSubset(i, j) || isSubset(j, i)) {
     //     return clones;
     // }
-    
-    set[node] iSubtrees = {};
-    set[node] jSubtrees = {};
-    if (i in subtrees) {
-        iSubtrees = subtrees[i];
-    } else {
+    if (i notin subtrees) {
         subtrees[i] = getSubtreeNodes(i, massThreshold);
-        iSubtrees = subtrees[i];
     }
-    if (j in subtrees) {
-        jSubtrees = subtrees[j];
-    } else {
+    if (j notin subtrees) {
         subtrees[j] = getSubtreeNodes(j, massThreshold);
-        jSubtrees = subtrees[j];
     }
-
+    set[tuple[node, node]] toRemove = {};
     for (oldPair <- clones) {
         // if it's a subclone of an existing one, dont add it
-        set[node] pair0subtrees =  pair0Subtrees[oldPair[0]];
-        set[node] pair1subtrees =  pair1Subtrees[oldPair[1]];
-
-        if ((i in pair0subtrees && j in pair1subtrees) || (i in pair1subtrees && j in pair0subtrees)) {
+        if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
             return clones;
         }
         // remove subclones
-        if ((oldPair[0] in iSubtrees && oldPair[1] in jSubtrees) || (oldPair[0] in jSubtrees && oldPair[1] in iSubtrees)) {
-            clones -= oldPair;
-            // delete(pair0Subtrees, oldPair[0]);
-            // delete(pair1Subtrees, oldPair[1]);
+        if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
+            toRemove += oldPair;
         }
     }
-    pair0Subtrees[i] = iSubtrees;
-    pair1Subtrees[j] = jSubtrees;
+    clones  -= toRemove;
+    pair0Subtrees[i] = subtrees[i];
+    pair1Subtrees[j] = subtrees[j];
     clones += <i, j>;
     return clones;  
 }
@@ -347,7 +333,7 @@ list[tuple[node, node]] addSubtreeClone(list[tuple[node, node]] clones, node i, 
         if they are both added already, return
         if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
-tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePairs, loc projectLocation) {
+tuple[int, int, int, int] getSubtreeStatistics(set[tuple[node, node]] clonePairs, loc projectLocation) {
     println("-------------------------");
     println("Subtree Clones Statistics");
     println("-------------------------");
@@ -409,7 +395,7 @@ tuple[int, int, int, int] getSubtreeStatistics(list[tuple[node, node]] clonePair
     projectLines = LOC(projectLocation);
     percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
     
-    println("example of clone pair: <clonePairs[0]>\n");
+    println("example of clone pair: <getOneFrom(clonePairs)>\n");
     println("number of clone pairs: <numberOfClones>");
     println("number of clone classes: <numberOfCloneClasses>");
     println("biggest clone class in members: <biggestCloneClassMembers>");

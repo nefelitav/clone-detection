@@ -13,7 +13,7 @@ void main() {
     // loc projectLocation = |project://TestProject|;
     loc projectLocation = |project://smallsql0.21_src|;
     // loc projectLocation = |project://hsqldb-2.3.1|;
-    int cloneType = 1;
+    int cloneType = 2;
     
     int massThreshold = 6; // for smallsql
     // int massThreshold = 4; // for TestProject
