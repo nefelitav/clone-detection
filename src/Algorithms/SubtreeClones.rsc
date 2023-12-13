@@ -157,7 +157,7 @@ set[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int m
 */
 set[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable, real similarityThreshold, int massThreshold) {
     set[tuple[node, node]] clones = {};
-    map[str, real] similarities = ();
+    map[list[str], real] similarities = ();
     real comparison = 0.0;
     int c=0;
 	for (bucket <- hashTable) {	
@@ -165,28 +165,16 @@ set[tuple[node, node]] findTypeII_III_ClonePairs(map[str, list[node]] hashTable,
         list[node] nodes = hashTable[bucket];
         for (i <- [0 .. size(hashTable[bucket]) - 1], j <- [i+1 .. size(hashTable[bucket])]) {
             println("<c> of <size(hashTable)>, size: <size(nodes)>, <i> of <j>");
-            // node i = nodes[i_index];
-            // node j = nodes[j_index];
+            list[str] ij = [toString(i), toString(j)];
 
-            // str i_str = toString(i);
-            // str j_str = toString(j);
-            // list[str] ij = [i_str, j_str];
-
-            // if (ij in similarities) {
-            //     comparison = similarities[ij];
-            // } else {
-            //     comparison = compareTree(i, j, massThreshold);
-            //     similarities[ij] = comparison;
-            // } 
-
-            str ij = toString(i) + toString(j);
-            str ji = toString(j) + toString(i);
-            if (ij notin similarities || ji notin similarities){
+            if (ij in similarities) {
+                comparison = similarities[ij];
+            } else {
                 comparison = compareTree(nodes[i], nodes[j], massThreshold);
                 similarities[ij] = comparison;
-                similarities[ji] = comparison;
-            }
-            if (similarities[ij] >= similarityThreshold) {
+            } 
+
+            if (comparison >= similarityThreshold) {
                 clones = addSubtreeClone(clones, nodes[i], nodes[j], massThreshold);
             }
         }
