@@ -15,10 +15,10 @@ import Visualization::ExportJson;
 import Set;
 import Type;
 import Boolean;
+import String;
 
-
-// public map[node, set[node]] pair0Subtrees = ();
-// public map[node, set[node]] pair1Subtrees = ();
+public map[node, set[node]] pair0Subtrees = ();
+public map[node, set[node]] pair1Subtrees = ();
 public map[node, set[node]] subtrees = ();
  
 /////////////////////////
@@ -66,13 +66,16 @@ set[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int
         clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, massThreshold);
     }
     println("---\n");
-    // println(childrenOfParents);
+    // for (p <- clonePairs) {
+    //     println("<p>\n");
+    // }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold, massThreshold);
     }
     // for (p <- clonePairs) {
     //     println("<p>\n");
     // }
+    // println(childrenOfParents);
     // Calculating statistics
     println("Calculating Statistics:");
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(clonePairs, projectLocation);
@@ -90,7 +93,8 @@ set[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int
     - hashes the "clean" node with md5Hash. Nodes get "cleaned" with unsetRec, so that method locations are ignored
     - the hash is the key for each bucket and the value is the node or a normalized version of the node, if cloneType is 2 or 3
     - this way, clones end up in the same bucket and can easily and quickly be compared with each other
-    - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
+    - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm). we get the children of every node in a map 
+    - for that we take extra care, because sometimes the getChildren function returns a list inside a list, so we need to take the nested one
 */
 tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[Declaration] ast, int massThreshold, bool generalize) {
     map[str, list[node]] hashTable = ();
@@ -98,7 +102,13 @@ tuple[map[str, list[node]], map[node, list[value]]] createSubtreeHashTable(list[
     visit (ast) {
         case node n: {
             if (generalize) {
-                childrenOfParents[n] = getChildren(n);
+                list[value] children = getChildren(n);
+                str childrenString = toString(children);
+                if (startsWith(childrenString, "[[")) {
+                    childrenOfParents[n] = children[0];
+                } else {
+                    childrenOfParents[n] = getChildren(n);
+                }
             }
             if (subtreeMass(unsetRec(n)) >= massThreshold) {
                 // an alternative way to hash nodes, by hashing all their children, concatenating their hashes and hashing once again

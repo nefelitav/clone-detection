@@ -22,9 +22,11 @@
 - Type IV: functionality is the same, code may be completely different.
 
 # TODO
-1) Make it faster
-2) Check statistics, results
-3) Clones 3
+
+1) Clones type 3
+1) Fix comments
+2) Optimizations in generalization and in general
+3) Check statistics, results
 4) Create a test project. Tests
 5) Export json, Clone classes are written to a file in text
 6) Report

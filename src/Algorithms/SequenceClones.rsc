@@ -14,6 +14,7 @@ import Algorithms::GeneralizeClones;
 import Visualization::ExportJson;
 import Type;
 import Boolean;
+import String;
 
 
 public map[tuple[list[node], list[node]], str] pair0IsSubset = ();
@@ -66,7 +67,8 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     - hash every "clean" subsequence with md5Hash. By clean I mean that it does not have locations etc.
     - these subsequence hashes are concatenated into a string, which is also hashed later on.
     - this sequence hash is the bucket key, and the value is the sequence or a normalized version of the sequence, if cloneType is 2 or 3.
-    - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm)
+    - finally, returns hashTable and childrenOfParents struct(useful for the third algorithm). we get the children of every node of a sequence in a map
+    - for that we take extra care, because sometimes the getChildren function returns a list inside a list, so we need to take the nested one
     - also, we cache the hashes to save time
 */
 tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, bool generalize) {
@@ -83,7 +85,13 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
             if (generalize) {
                 childrenOfParents[sequence] = [];
                 for (n <- sequence) {
-                    childrenOfParents[sequence] += getChildren(n);
+                    list[value] children = getChildren(n);
+                    str childrenString = toString(children);
+                    if (startsWith(childrenString, "[[")) {
+                        childrenOfParents[sequence] += children[0];
+                    } else {
+                        childrenOfParents[sequence] += children;
+                    }
                 }
             }
         }

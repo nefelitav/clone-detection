@@ -24,14 +24,15 @@ set[tuple[node, node]] generalizeClones(set[tuple[node, node]] clonePairs, map[n
     while (size(clonesToGeneralize) != 0) {
         for (pair <- clonesToGeneralize) {
             clonesToGeneralize -= pair;
-            node parentOf0 = parentOf(pair[0], childrenOfParents);
-            if (parentOf0 != "null"(0)) {
-                node parentOf1 = parentOf(pair[1], childrenOfParents);
-                if (parentOf1 != "null"(0)) {
-                    if (compareTree(parentOf0, parentOf1, massThreshold) >= similarityThreshold) {
+            list[node] parents0 = parentsOf(pair[0], childrenOfParents);
+            list[node] parents1 = parentsOf(pair[1], childrenOfParents);
+
+            for (i <- parents0, j <- parents1) {
+                if (i != j) {
+                    if (compareTree(i, j, massThreshold) >= similarityThreshold) {
                         clonePairs -= pair;
-                        addSubtreeClone(clonePairs, parentOf0, parentOf1, massThreshold);
-                        addSubtreeClone(clonesToGeneralize, parentOf0, parentOf1, massThreshold);
+                        addSubtreeClone(clonePairs, i, j, massThreshold);
+                        addSubtreeClone(clonesToGeneralize, i, j, massThreshold);
                     }
                 }
             }
@@ -51,17 +52,17 @@ list[tuple[list[node], list[node]]] generalizeClones(list[tuple[list[node], list
     while (size(clonesToGeneralize) != 0) {
         for (pair <- clonesToGeneralize) {
             clonesToGeneralize -= pair;
-            list[node] parentOf0 = parentOf(pair[0], childrenOfParents);
-            if (parentOf0 != []) {
-                list[node] parentOf1 = parentOf(pair[1], childrenOfParents);
-                if (parentOf1 != []) {
-                    if (compareSequences(parentOf0, parentOf1) >= similarityThreshold) {
+            list[list[node]] parents0 = parentsOf(pair[0], childrenOfParents);
+            list[list[node]] parents1 = parentsOf(pair[1], childrenOfParents);
+            for (i <- parents0, j <- parents1) {
+                if (i != j) {
+                    if (compareSequences(i, j) >= similarityThreshold) {
                         clonePairs -= pair;
-                        addSequenceClone(clonePairs, parentOf0, parentOf1);
-                        addSequenceClone(clonesToGeneralize, parentOf0, parentOf1);
+                        addSequenceClone(clonePairs, i, j);
+                        addSequenceClone(clonesToGeneralize, i, j);
                     }
                 }
-            }
+           }
         }
     }
     return clonePairs;
@@ -72,13 +73,14 @@ list[tuple[list[node], list[node]]] generalizeClones(list[tuple[list[node], list
     searches for the parent of the child
     if it is not found, returns something random, like "null"(0)
 */
-node parentOf(node child, map[node, list[value]] childrenOfParents) {
+list[node] parentsOf(node child, map[node, list[value]] childrenOfParents) {
+    list[node] parents = [];
     for (parent <- childrenOfParents) {
         if (child in childrenOfParents[parent]) {
-            return parent;
+            parents += parent;
         }
     }
-    return "null"(0);
+    return parents;
 }
 
 /*
@@ -86,11 +88,12 @@ node parentOf(node child, map[node, list[value]] childrenOfParents) {
     searches for the parent of the sequence
     if it is not found, returns empty list
 */
-list[node] parentOf(list[node] child, map[list[node], list[value]] childrenOfParents) {
+list[list[node]] parentsOf(list[node] child, map[list[node], list[value]] childrenOfParents) {
+    list[list[node]] parents = [];
     for (parent <- childrenOfParents) {
         if (child <= childrenOfParents[parent]) {
-            return parent;
+            parents += parent;
         }
     }
-    return [];
+    return parents;
 }
