@@ -16,8 +16,9 @@ import Set;
 import Type;
 import Boolean;
 
-public map[node, set[node]] pair0Subtrees = ();
-public map[node, set[node]] pair1Subtrees = ();
+
+// public map[node, set[node]] pair0Subtrees = ();
+// public map[node, set[node]] pair1Subtrees = ();
 public map[node, set[node]] subtrees = ();
  
 /////////////////////////
@@ -136,7 +137,7 @@ set[tuple[node, node]] findTypeIClonePairs(map[str, list[node]] hashTable, int m
         c+=1;
         list[node] nodes = hashTable[bucket];
         for (i <- [0 .. size(nodes) - 1], j <- [i+1 .. size(nodes)]) {
-            // println("<c> of <size(hashTable)>, size: <size(nodes)>, <i> of <j>");
+            println("<c> of <size(hashTable)>, size: <size(nodes)>, <i> of <j>");
             clones = addSubtreeClone(clones, nodes[i], nodes[j], massThreshold);
         }
     }
@@ -230,23 +231,31 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
     set[tuple[node, node]] toRemove = {};
-    for (oldPair <- clones) {
-        // CORRECT VERSION - NOT BASED ON PAPER
-        // if it's a subclone of an existing one, dont add it
-        // if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
-        //     return clones;
-        // }
-        // if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
-        //     toRemove += oldPair;
-        // }
-        // remove subclones
-        if (oldPair[0] in subtrees[i] || oldPair[1] in subtrees[j] || oldPair[0] in subtrees[j] || oldPair[1] in subtrees[i]) {
-            toRemove += oldPair;
+    set[node] ST = subtrees[i] + subtrees[j];
+    for (pair <- clones) {
+        if (pair[0] in ST || pair[1] in ST) {
+            toRemove += pair;
         }
     }
+    // for (oldPair <- clones) {
+    //     // CORRECT VERSION - NOT BASED ON PAPER
+    //     // if it's a subclone of an existing one, dont add it
+    //     // if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
+    //     //     return clones;
+    //     // }
+    //     // if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
+    //     //     toRemove += oldPair;
+    //     // }
+    //     // remove subclones
+    //     if (oldPair[0] in subtrees[i] || oldPair[1] in subtrees[j] || oldPair[0] in subtrees[j] || oldPair[1] in subtrees[i]) {
+    //         toRemove += oldPair;
+    //     }
+    // }
     clones  -= toRemove;
-    pair0Subtrees[i] = subtrees[i];
-    pair1Subtrees[j] = subtrees[j];
+    // pair0Subtrees[i] = subtrees[i];
+    // pair1Subtrees[j] = subtrees[j];
+    iNodes += i;
+    jNodes += j;
     clones += <i, j>;
     return clones;  
 }
