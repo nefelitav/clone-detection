@@ -8,28 +8,14 @@ package com.example;
 public class App
 {
     public void f() {
-        if (true) {
-            int a=1;
-            int b=2;
-            int c=3;
-            int x=5;            
-        }
         int a=1;
         int b=2;
         int c=3;
-        int x=5;
     }
     public void g() {
-        if (true) {
-            int a=1;
-            int b=2;
-            int c=3;
-            int y=4;            
-        }
         int a=1;
         int b=2;
         int c=3;
-        int y=4;
     }
     // public void g()
     // {

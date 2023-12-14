@@ -1,0 +1,474 @@
+[
+ {
+  "classes": [
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "b",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "2",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(150,1,<13,18>,<13,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(148,3,<13,16>,<13,19>)",
+        "decl": "java+variable:///com/example/App/f()/scope(0)/b",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(144,8,<13,12>,<13,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "b",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "2",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(248,1,<18,14>,<18,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(246,3,<18,12>,<18,15>)",
+         "decl": "java+variable:///com/example/App/f()/b",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(242,8,<18,8>,<18,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "b",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "2",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(372,1,<25,18>,<25,19>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(370,3,<25,16>,<25,19>)",
+         "decl": "java+variable:///com/example/App/g()/scope(0)/b",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(366,8,<25,12>,<25,20>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "b",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "2",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(470,1,<30,14>,<30,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(468,3,<30,12>,<30,15>)",
+         "decl": "java+variable:///com/example/App/g()/b",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(464,8,<30,8>,<30,16>)"
+     }
+    ]
+   ],
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "a",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "1",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(129,1,<12,18>,<12,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(127,3,<12,16>,<12,19>)",
+        "decl": "java+variable:///com/example/App/f()/scope(0)/a",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(123,8,<12,12>,<12,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "a",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "1",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(453,1,<29,14>,<29,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(451,3,<29,12>,<29,15>)",
+         "decl": "java+variable:///com/example/App/g()/a",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(447,8,<29,8>,<29,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "a",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "1",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(231,1,<17,14>,<17,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(229,3,<17,12>,<17,15>)",
+         "decl": "java+variable:///com/example/App/f()/a",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(225,8,<17,8>,<17,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "a",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "1",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(351,1,<24,18>,<24,19>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(349,3,<24,16>,<24,19>)",
+         "decl": "java+variable:///com/example/App/g()/scope(0)/a",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(345,8,<24,12>,<24,20>)"
+     }
+    ]
+   ],
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "c",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "3",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(171,1,<14,18>,<14,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(169,3,<14,16>,<14,19>)",
+        "decl": "java+variable:///com/example/App/f()/scope(0)/c",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(165,8,<14,12>,<14,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "c",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "3",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(265,1,<19,14>,<19,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(263,3,<19,12>,<19,15>)",
+         "decl": "java+variable:///com/example/App/f()/c",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(259,8,<19,8>,<19,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "c",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "3",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(487,1,<31,14>,<31,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(485,3,<31,12>,<31,15>)",
+         "decl": "java+variable:///com/example/App/g()/c",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(481,8,<31,8>,<31,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "c",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "3",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(393,1,<26,18>,<26,19>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(391,3,<26,16>,<26,19>)",
+         "decl": "java+variable:///com/example/App/g()/scope(0)/c",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(387,8,<26,12>,<26,20>)"
+     }
+    ]
+   ],
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "y",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "4",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(414,1,<27,18>,<27,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(412,3,<27,16>,<27,19>)",
+        "decl": "java+variable:///com/example/App/g()/scope(0)/y",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(408,8,<27,12>,<27,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "y",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "4",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(504,1,<32,14>,<32,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(502,3,<32,12>,<32,15>)",
+         "decl": "java+variable:///com/example/App/g()/y",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(498,8,<32,8>,<32,16>)"
+     }
+    ]
+   ],
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "b",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "2",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(372,1,<25,18>,<25,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(370,3,<25,16>,<25,19>)",
+        "decl": "java+variable:///com/example/App/g()/scope(0)/b",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(366,8,<25,12>,<25,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "b",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "2",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(248,1,<18,14>,<18,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(246,3,<18,12>,<18,15>)",
+         "decl": "java+variable:///com/example/App/f()/b",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(242,8,<18,8>,<18,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "b",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "2",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(470,1,<30,14>,<30,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(468,3,<30,12>,<30,15>)",
+         "decl": "java+variable:///com/example/App/g()/b",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(464,8,<30,8>,<30,16>)"
+     }
+    ]
+   ],
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "c",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "3",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(393,1,<26,18>,<26,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(391,3,<26,16>,<26,19>)",
+        "decl": "java+variable:///com/example/App/g()/scope(0)/c",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(387,8,<26,12>,<26,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "c",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "3",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(265,1,<19,14>,<19,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(263,3,<19,12>,<19,15>)",
+         "decl": "java+variable:///com/example/App/f()/c",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(259,8,<19,8>,<19,16>)"
+     },
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "c",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "3",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(487,1,<31,14>,<31,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(485,3,<31,12>,<31,15>)",
+         "decl": "java+variable:///com/example/App/g()/c",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(481,8,<31,8>,<31,16>)"
+     }
+    ]
+   ],
+   [
+    {
+     "declaration": {
+      "type": "int",
+      "fragments": [
+       {
+        "name": "x",
+        "extraDimensions": 0,
+        "initializer": {
+         "numberValue": "5",
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(192,1,<15,18>,<15,19>)",
+         "typ": "int"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(190,3,<15,16>,<15,19>)",
+        "decl": "java+variable:///com/example/App/f()/scope(0)/x",
+        "typ": "int"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(186,8,<15,12>,<15,20>)"
+    },
+    [
+     {
+      "declaration": {
+       "type": "int",
+       "fragments": [
+        {
+         "name": "x",
+         "extraDimensions": 0,
+         "initializer": {
+          "numberValue": "5",
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(282,1,<20,14>,<20,15>)",
+          "typ": "int"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(280,3,<20,12>,<20,15>)",
+         "decl": "java+variable:///com/example/App/f()/x",
+         "typ": "int"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(276,8,<20,8>,<20,16>)"
+     }
+    ]
+   ]
+  ]
+ }
+]

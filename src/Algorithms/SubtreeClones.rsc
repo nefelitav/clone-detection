@@ -37,7 +37,7 @@ public map[node, set[node]] subtrees = ();
     - prints statistics
 
 */
-set[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
+tuple[int, int, int, int, map[node, set[node]]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     if (cloneType != 1) {
         ast = toList(normalizeAST(toSet(ast)));
@@ -79,9 +79,10 @@ set[tuple[node, node]] findSubtreeClones(loc projectLocation, int cloneType, int
     // println(childrenOfParents);
     // Calculating statistics
     println("Calculating Statistics:");
-    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSubtreeStatistics(clonePairs, projectLocation);
+    map[node, set[node]] classes = ();
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines,  classes> = getSubtreeStatistics(clonePairs, projectLocation);
 
-    return clonePairs;
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes>;
 }
 
 //////////////////////////////
@@ -251,9 +252,9 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
     for (oldPair <- clones) {
         // CORRECT VERSION - NOT BASED ON PAPER
         // if it's a subclone of an existing one, dont add it
-        // if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
-        //     return clones;
-        // }
+        if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
+            return clones;
+        }
         // remove subclones
         if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
             toRemove += oldPair;
@@ -340,7 +341,7 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
         if they are both added already, return
         if they are not added anywhere directly or indirectly, add them, using the first element as key and the second as value.
 */
-tuple[int, int, int, int] getSubtreeStatistics(set[tuple[node, node]] clonePairs, loc projectLocation) {
+tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[node, node]] clonePairs, loc projectLocation) {
     println("-------------------------");
     println("Subtree Clones Statistics");
     println("-------------------------");
@@ -409,5 +410,5 @@ tuple[int, int, int, int] getSubtreeStatistics(set[tuple[node, node]] clonePairs
     println("biggest clone in lines: <biggestCloneLines>");
     println("percentage of duplicated lines: <percentageOfDuplicatedLines>%");
 
-    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines>;
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, cloneClasses>;
 }

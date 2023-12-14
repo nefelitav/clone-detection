@@ -5,6 +5,8 @@ import DateTime;
 import Algorithms::SubtreeClones;
 import Algorithms::SequenceClones;
 import Algorithms::GeneralizeClones;
+import util::Math;
+import lang::json::IO;
 
 void main() {
     datetime begin = now();
@@ -17,11 +19,22 @@ void main() {
     
     // int massThreshold = 6; // for smallsql
     int massThreshold = 4; // for TestProject
-    findSubtreeClones(projectLocation, cloneType, massThreshold, true);
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes> = findSubtreeClones(projectLocation, cloneType, massThreshold, false);
+
+    // list[map[str, value]] cloneData = [("classes": classes)];  
+    // writeJSON(|cwd:///results/Subtree_Type1_Smallsql.json|, cloneData, indent=1);
+
+            // writeJSON(|cwd:///results/Subtree_Type1_Smallsql.json|, classes, indent=1);
+            // writeJSON(|cwd:///results/Subtree_Type2_Smallsql.json|, cloneData, indent=1);
+            // writeJSON(|cwd:///results/Subtree_Type1_TestProject.json|, cloneData, indent=1);
+            // writeJSON(|cwd:///results/Subtree_Type2_TestProject.json|, cloneData, indent=1);
+
 
     // int minimumSequenceLengthThreshold = 6; // for smallsql
     // int minimumSequenceLengthThreshold = 4; // for TestProject
-    // findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, true);
+    // findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
+            // writeJSON(|cwd:///results/Sequence_Type1_Smallsql.json|, cloneData, indent=1);
+            // writeJSON(|cwd:///results/Sequence_Type1_TestProject.json|, cloneData, indent=1);
 
     // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
     // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
@@ -32,7 +45,6 @@ void main() {
     // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
     // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
     // exportData(numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, biggestClassesMembers, biggestClonesLines, "subtreeClones");   
-
     datetime end = now();
     interval runTime = createInterval(begin, end);
     print("Total Duration: \<years, months, days, hours, minutes, seconds, milliseconds\>: ");
