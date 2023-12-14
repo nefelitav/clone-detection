@@ -401,7 +401,8 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
     }
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
-    percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
+    println("Project Lines: <projectLines>");
+    percentageOfDuplicatedLines = round(toReal(duplicatedLines) * 100.0 / toReal(projectLines)); 
     
     println("example of clone pair: <getOneFrom(clonePairs)>\n");
     println("number of clone pairs: <numberOfClones>");

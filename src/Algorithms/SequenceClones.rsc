@@ -411,7 +411,7 @@ tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node
     }
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
-    percentageOfDuplicatedLines = round(duplicatedLines * 100.0 / toReal(projectLines)); 
+    percentageOfDuplicatedLines = round(toReal(duplicatedLines) * 100.0 / toReal(projectLines)); 
 
     println("example of clone pair: <clonePairs[0]>\n");
     println("number of clone pairs: <numberOfClones>");
