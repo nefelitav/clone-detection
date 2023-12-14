@@ -42,17 +42,21 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
         real similarityThreshold = 0.8;
     }
     map[str, list[list[node]]] hashTable = ();
-    map[list[node], list[value]] childrenOfParents = ();
+    map[list[node], list[list[node]]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, generalize);
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
     clonePairs = toList(toSet(clonePairs));
     // println(size(clonePairs));
     // for(pair <- clonePairs) {
-    //     println("<pair>\n");
+    //     println("<pair[0]>     <pair[1]>\n");
     // }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     }
+    // println("After\n");
+    // for(pair <- clonePairs) {
+    //     println("<pair[0]>     <pair[1]>\n");
+    // }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
     return clonePairs;
 }
@@ -71,10 +75,10 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
     - for that we take extra care, because sometimes the getChildren function returns a list inside a list, so we need to take the nested one
     - also, we cache the hashes to save time
 */
-tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, bool generalize) {
+tuple[map[str, list[list[node]]], map[list[node], list[list[node]]]] createSequenceHashTable(list[Declaration] ast, int minimumSequenceLengthThreshold, bool generalize) {
     map[str, list[list[node]]] hashTable = ();
     set[list[node]] sequences = {};
-    map[list[node], list[value]] childrenOfParents = ();
+    map[list[node], list[list[node]]] childrenOfParents = ();
     visit (ast) {
         case \block(statements): {
             list[node] sequence = statements;
@@ -82,26 +86,18 @@ tuple[map[str, list[list[node]]], map[list[node], list[value]]] createSequenceHa
                 sequence = [unsetRec(n, {"decl", "messages", "typ"}) | n <- sequence];
                 sequences += {sequence};
             }
-            if (generalize) {
-                childrenOfParents[sequence] = [];
-                for (n <- sequence) {
-                    list[value] children = getChildren(n);
-                    str childrenString = toString(children);
-                    if (startsWith(childrenString, "[[")) {
-                        childrenOfParents[sequence] += children[0];
-                    } else {
-                        childrenOfParents[sequence] += children;
-                    }
-                }
-            }
         }
     }
     map[node, str] hashes = ();
     for (sequence <- sequences) {
+        childrenOfParents[sequence] = [];
         int sequenceSize = size(sequence);
         for (i <- [0..(sequenceSize - minimumSequenceLengthThreshold + 1)], j <- [i + minimumSequenceLengthThreshold..(sequenceSize + 1)]) {
             if ((j >= i + minimumSequenceLengthThreshold)) {
                 list[node] subsequence = sequence[i..j];
+                if (generalize) {
+                    childrenOfParents[sequence] += [subsequence];
+                }
                 str subsequenceHash = "";
                 for (n <- subsequence) {
                     if (n in hashes) {
@@ -227,8 +223,8 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
     }
 
     for (pair <- clones) {
-        // CORRECT VERSION - NOT BASED ON PAPER
-        // check if subclone, otherwise add it
+        // // CORRECT VERSION - NOT BASED ON PAPER
+        // // check if subclone, otherwise add it
         // bool isPair0Subset = false;
         // bool isPair1Subset = false;
         // if (<pair[0], i> in pair0IsSubset) {
@@ -268,12 +264,12 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         //         return clones;
         //     }    
         // }
-        // if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
-        //     clones -= pair;
-        // }
-        if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
+        if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
             clones -= pair;
         }
+        // if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
+        //     clones -= pair;
+        // }
     }
     clones += <i, j>;
     return clones;  

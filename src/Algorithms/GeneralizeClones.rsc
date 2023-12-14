@@ -12,6 +12,7 @@ import util::Math;
 import DateTime;
 import Algorithms::SubtreeClones;
 import Algorithms::SequenceClones;
+import String;
 
 /*
     arguments: clonePairs, childrenOfParents struct, similarityThreshold
@@ -47,22 +48,23 @@ set[tuple[node, node]] generalizeClones(set[tuple[node, node]] clonePairs, map[n
     if the parents are similar they are added to the clones and their children are removed
     this function is for the sequence clones
 */
-list[tuple[list[node], list[node]]] generalizeClones(list[tuple[list[node], list[node]]] clonePairs, map[list[node], list[value]] childrenOfParents, real similarityThreshold) {
+list[tuple[list[node], list[node]]] generalizeClones(list[tuple[list[node], list[node]]] clonePairs, map[list[node], list[list[node]]] childrenOfParents, real similarityThreshold) {
     list[tuple[list[node], list[node]]] clonesToGeneralize = clonePairs;
     while (size(clonesToGeneralize) != 0) {
         for (pair <- clonesToGeneralize) {
             clonesToGeneralize -= pair;
-            list[list[node]] parents0 = parentsOf(pair[0], childrenOfParents);
-            list[list[node]] parents1 = parentsOf(pair[1], childrenOfParents);
+            set[list[node]] parents0 = parentsOf(pair[0], childrenOfParents);
+            set[list[node]] parents1 = parentsOf(pair[1], childrenOfParents);
+
             for (i <- parents0, j <- parents1) {
-                if (i != j) {
+                if (i != j && pair[0] != i && pair[1] != j) {
                     if (compareSequences(i, j) >= similarityThreshold) {
                         clonePairs -= pair;
                         addSequenceClone(clonePairs, i, j);
                         addSequenceClone(clonesToGeneralize, i, j);
                     }
                 }
-           }
+            }
         }
     }
     return clonePairs;
@@ -88,11 +90,16 @@ list[node] parentsOf(node child, map[node, list[value]] childrenOfParents) {
     searches for the parent of the sequence
     if it is not found, returns empty list
 */
-list[list[node]] parentsOf(list[node] child, map[list[node], list[value]] childrenOfParents) {
-    list[list[node]] parents = [];
+set[list[node]] parentsOf(list[node] child, map[list[node], list[list[node]]] childrenOfParents) {
+    set[list[node]] parents = {};
     for (parent <- childrenOfParents) {
-        if (child <= childrenOfParents[parent]) {
-            parents += parent;
+        for (subsequence <- childrenOfParents[parent]) {
+            if ((contains(toString(subsequence), toString(child))) && parent != subsequence) {
+                parents += {parent};
+            }
+            if ((contains(toString(subsequence), toString(child))) && child != subsequence) {
+                parents += {subsequence};
+            }
         }
     }
     return parents;

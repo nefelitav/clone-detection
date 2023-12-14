@@ -13,15 +13,15 @@ void main() {
     loc projectLocation = |project://TestProject|;
     // loc projectLocation = |project://smallsql0.21_src|;
     // loc projectLocation = |project://hsqldb-2.3.1|;
-    int cloneType = 3;
+    int cloneType = 1;
     
     // int massThreshold = 6; // for smallsql
     int massThreshold = 4; // for TestProject
-    findSubtreeClones(projectLocation, cloneType, massThreshold, false);
+    findSubtreeClones(projectLocation, cloneType, massThreshold, true);
 
     // int minimumSequenceLengthThreshold = 6; // for smallsql
-    // int minimumSequenceLengthThreshold = 3; // for TestProject
-    // findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
+    // int minimumSequenceLengthThreshold = 4; // for TestProject
+    // findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, true);
 
     // list[tuple[node, int]] biggestClassesMembers = get5BiggestSubtreeCloneClassesInMembers(clonePairs);
     // list[tuple[node, int]] biggestClonesLines = get5BiggestSubtreeClonesInLines(clonePairs);
