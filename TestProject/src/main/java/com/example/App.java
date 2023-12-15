@@ -6,7 +6,6 @@ Hello world!**/
 
 public class App
 {
-
     public void f() {
         if (true) {
             int a=1;
@@ -27,27 +26,4 @@ public class App
         int b=2;
         int c=3;
     }
-
-    // public void h() {
-    //     while(1) {
-    //         System.out.println("hello");
-    //     }
-    // }
 }
-
-// Subtrees Algorithm
-// Clone type 1
-
-// We expect 7 clone pairs:
-// 1) body of f - body of g
-// 2) line 13 - line 17
-// 3) line 14 - line 18
-// 4) line 15 - line 19
-// 5) line 23 - line 27
-// 6) line 24 - line 28
-// 7) line 25 - line 29
-
-//
-
-// 3) - 
-// - are not pairs because they are subclones of the first clone pair

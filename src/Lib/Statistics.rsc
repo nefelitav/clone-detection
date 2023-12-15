@@ -37,8 +37,16 @@ int linesOfCodeProject(loc projectLoc) {
 // number of blank lines of a file
 int blankLinesFile(loc fileLoc) {
     int blankLines = 0;
+    bool insideBlockComment = false;
     for (line <- readFileLines(fileLoc)) {
-        if (trim(line) == "") {
+        if (startsWith(trim(line), "/*") || (insideBlockComment == true)) {
+            // inside the block comment
+            insideBlockComment = true;
+            if (endsWith(trim(line), "*/")) {
+                // outside the block comment
+                insideBlockComment = false; 
+            }
+        } else if (trim(line) == "") {
             blankLines += 1;   
         }
     }
