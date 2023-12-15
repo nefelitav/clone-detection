@@ -47,13 +47,36 @@ public class App
     // Clone type 2
         // We expect 31 clone pairs:
         // 1) body of f - body of g
-        // 2) line 13 - line 17
-        // 3) line 14 - line 18
-        // 4) line 15 - line 19
-        // 5) line 23 - line 27
-        // 6) line 24 - line 28
-        // 7) line 25 - line 29
-
+        // 2) line 11 - line 12
+        // 3) line 11 - line 13
+        // 4) line 11 - line 15
+        // 5) line 11 - line 16
+        // 6) line 11 - line 17
+        // 7) line 12 - line 13
+        // 8) line 12 - line 14
+        // 9) line 12 - line 15
+        // 10) line 12 - line 16
+        // 11) line 12 - line 17
+        // 12) line 13 - line 15
+        // 13) line 13 - line 16
+        // 14) line 13 - line 17
+        // 15) line 15 - line 16
+        // 16) line 15 - line 17
+        // 17) line 16 - line 17
+        // 18) line 21 - line 22
+        // 19) line 21 - line 23
+        // 20) line 21 - line 25
+        // 21) line 21 - line 26
+        // 22) line 21 - line 27
+        // 23) line 22 - line 23
+        // 24) line 22 - line 25
+        // 25) line 22 - line 26
+        // 26) line 22 - line 27
+        // 27) line 23 - line 25
+        // 28) line 23 - line 26
+        // 29) line 23 - line 27
+        // 30) line 25 - line 26
+        // 31) line 25 - line 27
         // number of clone pairs: 31
         // number of clone classes: 3
         // biggest clone class in members: 6
