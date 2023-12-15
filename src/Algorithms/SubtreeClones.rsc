@@ -396,21 +396,21 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
         if (location != |unresolved:///|) {
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
-            }   
-        }
+            }
+            for(i <- [location.begin.line..location.end.line + 1]){
+                if (location.path in uniqueDuplication){ uniqueDuplication[location.path] += i; }
+                else {uniqueDuplication[location.path] = {i};}
 
-        for(i <- [location.begin.line..location.end.line + 1]){
-            if (location.path in uniqueDuplication){ uniqueDuplication[location.path] += i; }
-            else {uniqueDuplication[location.path] = {i};}
+            }
+             for(c <- cloneClasses[class]){
+                loc location1 = getLocation(c);
+                if (location1 != |unresolved:///|) {
+                    for(i <- [location1.begin.line..location1.end.line + 1]){
+                    if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
+                    else {uniqueDuplication[location1.path] = {i};}
 
-        }
-        for(c <- cloneClasses[class])
-        {
-            loc location1 = getLocation(c);
-            for(i <- [location1.begin.line..location1.end.line + 1]){
-                if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
-                else {uniqueDuplication[location1.path] = {i};}
-
+                    }
+                }
             }
         }
     }
