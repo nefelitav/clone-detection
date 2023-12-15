@@ -66,9 +66,9 @@ tuple[int, int, int, int, map[node, set[node]]] findSubtreeClones(loc projectLoc
         clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, massThreshold);
     }
     // println("---\n");
-    // for (p <- clonePairs) {
-    //     println("<p>\n");
-    // }
+    for (p <- clonePairs) {
+        println("<p>\n");
+    }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold, massThreshold);
     }
@@ -394,11 +394,9 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
         int classSize = size(cloneClasses[class]);
         loc location = getLocation(class);
         if (location != |unresolved:///|) {
-            // int numberOfLines = UnitLOC(location);
-            // duplicatedLines += (classSize + 1) * numberOfLines;
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
-            }
+            }   
         }
 
         for(i <- [location.begin.line..location.end.line + 1]){

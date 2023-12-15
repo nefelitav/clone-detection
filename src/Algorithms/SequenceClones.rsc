@@ -155,9 +155,7 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
             } else if (cloneType != 1) {
                 comparison = compareSequences(i, j);
                 similarities[ij] = comparison;
-            } else if (cloneType == 1) {
-                similarities[ij] = 1.0;
-            }
+            } 
 
             if ((cloneType == 1) || (cloneType != 1 && comparison >= similarityThreshold)) {
                 clones = addSequenceClone(toList(toSet(clones)), i, j);
@@ -228,26 +226,29 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
     for (pair <- clones) {
         // CORRECT VERSION - NOT BASED ON PAPER
         // check if subclone, otherwise add it
+
+        // if i subset of pair[0] and j subset of pair[1] -> we shouldnt add it
         bool isPair0Subset = false;
         bool isPair1Subset = false;
         if (<pair[0], i> in pair0IsSubset) {
             isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
         } else {
             isPair0Subset = isSubset(i, pair[0]);
-            pair0IsSubset[<pair[0],i>] = toString(isPair0Subset);
+            pair0IsSubset[<pair[0], i>] = toString(isPair0Subset);
         }
         if (isPair0Subset) {
             if (<pair[1], j> in pair1IsSubset) {
                 isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
             } else {
                 isPair1Subset = isSubset(j, pair[1]);
-                pair1IsSubset[<pair[1],j>] = toString(isPair1Subset);
+                pair1IsSubset[<pair[1], j>] = toString(isPair1Subset);
             }
             if (isPair1Subset) {
                 return clones;
             }    
         }
 
+        // if i subset of pair[1] and j subset of pair[0] -> we shouldnt add it
         isPair0Subset = false;
         isPair1Subset = false;
         if (<pair[0], j> in pair0IsSubset) {
@@ -270,6 +271,7 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
             clones -= pair;
         }
+        // BASED ON PAPER - NOT CORRECT
         // if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
         //     clones -= pair;
         // }
