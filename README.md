@@ -23,6 +23,7 @@
 
 # TODO
 
+issue with location?
 1) Create a test project. Tests
 2) Export json, Clone classes are written to a file in text
 3) Report
