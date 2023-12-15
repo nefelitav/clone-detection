@@ -12,27 +12,22 @@ void main() {
     datetime begin = now();
     // println(printTime(now(), "HH:mm:ss"));
 
-    loc projectLocation = |project://TestProject|;
-    // loc projectLocation = |project://smallsql0.21_src|;
+//     loc projectLocation = |project://TestProject|;
+    loc projectLocation = |project://smallsql0.21_src|;
     // loc projectLocation = |project://hsqldb-2.3.1|;
     int cloneType = 1;
     
-    // int massThreshold = 6; // for smallsql
-    int massThreshold = 4; // for TestProject
+    int massThreshold = 6; // for smallsql
+//     int massThreshold = 4; // for TestProject
+
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes> = findSubtreeClones(projectLocation, cloneType, massThreshold, false);
+//     println(classes);
+//     list[map[str, value]] cloneData = [("classes": classes)];  
+//     writeJSON(|cwd:///results/Subtree_Type1_Smallsql.json|, cloneData, indent=1);
 
-    // list[map[str, value]] cloneData = [("classes": classes)];  
-    // writeJSON(|cwd:///results/Subtree_Type1_Smallsql.json|, cloneData, indent=1);
-
-            // writeJSON(|cwd:///results/Subtree_Type1_Smallsql.json|, classes, indent=1);
-            // writeJSON(|cwd:///results/Subtree_Type2_Smallsql.json|, cloneData, indent=1);
-            // writeJSON(|cwd:///results/Subtree_Type1_TestProject.json|, cloneData, indent=1);
-            // writeJSON(|cwd:///results/Subtree_Type2_TestProject.json|, cloneData, indent=1);
-
-
-    // int minimumSequenceLengthThreshold = 6; // for smallsql
+//     int minimumSequenceLengthThreshold = 6; // for smallsql
     // int minimumSequenceLengthThreshold = 4; // for TestProject
-    // findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
+//     findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
             // writeJSON(|cwd:///results/Sequence_Type1_Smallsql.json|, cloneData, indent=1);
             // writeJSON(|cwd:///results/Sequence_Type1_TestProject.json|, cloneData, indent=1);
 

@@ -23,13 +23,9 @@
 
 # TODO
 
-1) Clones type 3
-1) Fix comments
-2) Optimizations in generalization and in general
-3) Check statistics, results
-4) Create a test project. Tests
-5) Export json, Clone classes are written to a file in text
-6) Report
+1) Create a test project. Tests
+2) Export json, Clone classes are written to a file in text
+3) Report
 
 # Visualizations
 - number of clone pairs and number of clone classes of each algorithm
