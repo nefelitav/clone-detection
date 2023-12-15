@@ -77,6 +77,7 @@ public class App
         // 30) line 25 - line 26
         // 30) line 25 - line 27
         // 31) line 26 - line 27
+
         // number of clone pairs: 31
         // number of clone classes: 3
         // biggest clone class in members: 6
@@ -87,12 +88,13 @@ public class App
     // Clone type 1
         // We expect 3 clone pairs:
         // 1) body of f - body of g
-        // 2) line 13 - line 17
-        // 3) line 14 - line 18
-        // 4) line 15 - line 19
-        // 5) line 23 - line 27
-        // 6) line 24 - line 28
-        // 7) line 25 - line 29
+        // 2) 11-13 - 15-17
+        // 3) 21-23 - 25-27
+        // It would be a mistake if we considered as duplicates lines e.g. 11-13 with 21-23, since they are subclones of the 1) clone
+        // We expect 3 clone classes, since nothing is duplicated more than 1 time.
+        // We expect biggest clone class in members to be 2, for the same reason as above.
+        // We expect the biggest clone in lines to be 8, that's the whole body of f.
+        // Duplicated lines are 20.
 
         // number of clone pairs: 3
         // number of clone classes: 3
