@@ -149,12 +149,14 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
 
             if (ij in similarities) {
                 comparison = similarities[ij];
-            } else {
+            } else if (cloneType != 1) {
                 comparison = compareSequences(i, j);
                 similarities[ij] = comparison;
-            } 
+            } else if (cloneType == 1) {
+                similarities[ij] = 1.0;
+            }
 
-            if (comparison >= similarityThreshold) {
+            if ((cloneType == 1) || (cloneType != 1 && comparison >= similarityThreshold)) {
                 clones = addSequenceClone(toList(toSet(clones)), i, j);
             }
         }	
