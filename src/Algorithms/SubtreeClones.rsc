@@ -66,9 +66,9 @@ tuple[int, int, int, int, map[node, set[node]]] findSubtreeClones(loc projectLoc
         clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, massThreshold);
     }
     // println("---\n");
-    // for (p <- clonePairs) {
-    //     println("<p>\n");
-    // }
+    for (p <- clonePairs) {
+        println("<p>\n");
+    }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold, massThreshold);
     }
@@ -243,7 +243,7 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
     set[tuple[node, node]] toRemove = {};
-    set[node] ijSubtrees = subtrees[i] + subtrees[j];
+    // set[node] ijSubtrees = subtrees[i] + subtrees[j];
     // for (pair <- clones) {
     //     if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
     //         toRemove += pair;
@@ -386,22 +386,42 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
             }
         }
     }
+    set[loc] classesLocations = {};
+    bool alreadySeen = false;
     numberOfCloneClasses = size(cloneClasses);
     // find biggest clone class in members
     for (class <- cloneClasses) {
         int classSize = size(cloneClasses[class]);
         loc location = getLocation(class);
         if (location != |unresolved:///|) {
-            int numberOfLines = UnitLOC(location);
-            duplicatedLines += (classSize + 1) * numberOfLines;
+            for (alreadySeenLocation <- classesLocations) {
+                if ((alreadySeenLocation.path == location.path) && (alreadySeenLocation.begin.line < location.begin.line) && (alreadySeenLocation.end.line > location.end.line)) {
+                    classesLocations += location;
+                    for (classMember <- cloneClasses[class]) {
+                        loc locationMember = getLocation(classMember);
+                        classesLocations += locationMember;
+                    }
+                    alreadySeen = true;
+                    break;
+                }             
+            }
+            if (alreadySeen == false) {
+                for (classMember <- cloneClasses[class]) {
+                    loc locationMember = getLocation(classMember);
+                    classesLocations += locationMember;
+                }
+                int numberOfLines = UnitLOC(location);
+                duplicatedLines += (classSize + 1) * numberOfLines;
+            }
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
-            }
+            }   
         }
     }
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
     println("Project Lines: <projectLines>");
+    println("Duplicated Lines: <duplicatedLines>");
     percentageOfDuplicatedLines = round(toReal(duplicatedLines) * 100.0 / toReal(projectLines)); 
     
     println("example of clone pair: <getOneFrom(clonePairs)>\n");
