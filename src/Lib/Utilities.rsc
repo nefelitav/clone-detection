@@ -7,6 +7,7 @@ import String;
 import List;
 import Set;
 import Type;
+import IO;
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -38,13 +39,12 @@ bool isSubset(list[node] subsequence, list[node] supersequence) {
     for (subsequence <= supersequence) {
         return true;
     }
+    // not sure if this is needed. Useful if they are not in the same block i guess
     list[loc] supersequenceLocs = [getLocation(n) | n <- supersequence];
     list[loc] subsequenceLocs = [getLocation(n) | n <- subsequence];
-    for (supersequenceLoc <- supersequenceLocs) {
-        for (subsequenceLoc <- subsequenceLocs) {
-            if ((supersequenceLoc.path == subsequenceLoc.path) && (supersequenceLoc.begin.line < subsequenceLoc.begin.line) && (supersequenceLoc.end.line > subsequenceLoc.end.line)) {
-                return true;
-            }
+    for (supersequenceLoc <- supersequenceLocs, subsequenceLoc <- subsequenceLocs) {
+        if ((supersequenceLoc.path == subsequenceLoc.path) && (supersequenceLoc.begin.line < subsequenceLoc.begin.line) && (supersequenceLoc.end.line > subsequenceLoc.end.line)) {
+            return true;
         }
     }
     return false;
@@ -66,6 +66,10 @@ set[node] getSubtreeNodes(node subtree, int massThreshold) {
     return subtreeNodes;
 }
 
+/*
+    arguments: node, massThreshold
+    returns all children of node in a list, without locations
+*/
 set[node] getSubtreeNodesUnsetRec(node subtree, int massThreshold) {
     set[node] subtreeNodes = {};
     visit (subtree) {
@@ -156,7 +160,7 @@ set[Declaration] normalizeAST(set[Declaration] ast) {
         case \simpleName(_) => \simpleName("simpleName")
         case \markerAnnotation(_) => \markerAnnotation("markerAnnotationName")
         case \normalAnnotation(_, x) => \normalAnnotation("markerAnnotationName", x)
-        case \memberValuePair(name, x) => \memberValuePair("memberValuePairName", x)
+        case \memberValuePair(_, x) => \memberValuePair("memberValuePairName", x)
         case \singleMemberAnnotation(_, x) => \singleMemberAnnotation("singleMemberAnnotationName", x)
         case \break(_) => \break("breakName")
         case \label(_, x) => \label("labelName", x)
