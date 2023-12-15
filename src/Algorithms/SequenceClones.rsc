@@ -54,9 +54,9 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
     }
     // println("After\n");
-    // for(pair <- clonePairs) {
-    //     println("<pair[0]>     <pair[1]>\n");
-    // }
+    for(pair <- clonePairs) {
+        println("<pair[0]>     <pair[1]>\n");
+    }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
     return clonePairs;
 }

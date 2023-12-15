@@ -66,9 +66,9 @@ tuple[int, int, int, int, map[node, set[node]]] findSubtreeClones(loc projectLoc
         clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, massThreshold);
     }
     // println("---\n");
-    // for (p <- clonePairs) {
-    //     println("<p>\n");
-    // }
+    for (p <- clonePairs) {
+        println("<p>\n");
+    }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold, massThreshold);
     }

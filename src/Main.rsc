@@ -26,8 +26,8 @@ void main() {
 //     writeJSON(|cwd:///results/Subtree_Type1_Smallsql.json|, cloneData, indent=1);
 
 //     int minimumSequenceLengthThreshold = 6; // for smallsql
-    // int minimumSequenceLengthThreshold = 4; // for TestProject
-//     findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
+    // int minimumSequenceLengthThreshold = 3; // for TestProject
+    // findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, false);
             // writeJSON(|cwd:///results/Sequence_Type1_Smallsql.json|, cloneData, indent=1);
             // writeJSON(|cwd:///results/Sequence_Type1_TestProject.json|, cloneData, indent=1);
 
