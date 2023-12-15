@@ -243,7 +243,7 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
     set[tuple[node, node]] toRemove = {};
-    set[node] ijSubtrees = subtrees[i] + subtrees[j];
+    // set[node] ijSubtrees = subtrees[i] + subtrees[j];
     // for (pair <- clones) {
     //     if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
     //         toRemove += pair;
@@ -355,6 +355,7 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
     node biggestClone = "null"(0);
     int duplicatedLines = 0;
     map[node, set[node]] cloneClasses = ();
+    map[str, set[int]] uniqueDuplication = ();
 
     for(pair <- clonePairs) { 
         // find clone classes
@@ -386,22 +387,43 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
             }
         }
     }
+
     numberOfCloneClasses = size(cloneClasses);
     // find biggest clone class in members
     for (class <- cloneClasses) {
         int classSize = size(cloneClasses[class]);
         loc location = getLocation(class);
         if (location != |unresolved:///|) {
-            int numberOfLines = UnitLOC(location);
-            duplicatedLines += (classSize + 1) * numberOfLines;
+            // int numberOfLines = UnitLOC(location);
+            // duplicatedLines += (classSize + 1) * numberOfLines;
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
             }
         }
+
+        for(i <- [location.begin.line..location.end.line + 1]){
+            if (location.path in uniqueDuplication){ uniqueDuplication[location.path] += i; }
+            else {uniqueDuplication[location.path] = {i};}
+
+        }
+        for(c <- cloneClasses[class])
+        {
+            loc location1 = getLocation(c);
+            for(i <- [location1.begin.line..location1.end.line + 1]){
+                if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
+                else {uniqueDuplication[location1.path] = {i};}
+
+            }
+        }
     }
+    for (l <- uniqueDuplication){
+        duplicatedLines += size(uniqueDuplication[l]);
+    }
+
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
     println("Project Lines: <projectLines>");
+    println("Duplicated Lines: <duplicatedLines>");
     percentageOfDuplicatedLines = round(toReal(duplicatedLines) * 100.0 / toReal(projectLines)); 
     
     println("example of clone pair: <getOneFrom(clonePairs)>\n");

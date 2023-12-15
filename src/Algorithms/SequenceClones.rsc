@@ -141,7 +141,10 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
     list[tuple[list[node], list[node]]] clones = [];
     map[list[str], real] similarities = ();
     real comparison = 0.0;
+    int c = 0;
     for (bucket <- hashTable) {	
+        c += 1;
+        println("c: <c> - size: <size(hashTable[bucket])>");
         for (i <- hashTable[bucket], j <- hashTable[bucket] - [i]) {
             str i_str = toString(i);
             str j_str = toString(j);
@@ -367,6 +370,7 @@ tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node
     list[node] biggestClone = [];
     int duplicatedLines = 0;
     map[list[node], set[list[node]]] cloneClasses = ();
+    map[str, set[int]] uniqueDuplication = ();
 
     for(pair <- clonePairs) { 
         if (pair[0] in cloneClasses) {
@@ -400,14 +404,41 @@ tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node
     numberOfCloneClasses = size(cloneClasses);
     for (class <- cloneClasses) {
         int classSize = size(cloneClasses[class]);
-        int classDuplicatedLines = 0;
-        for(classNode <- class) {
-            classDuplicatedLines += UnitLOC(classNode.src);
-        }
-        duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
+        // int classDuplicatedLines = 0;
+        // for(classNode <- class) {
+        //     classDuplicatedLines += UnitLOC(classNode.src);
+        // }
+        // duplicatedLines += (size(cloneClasses[class]) + 1) * classDuplicatedLines;
         if (classSize > biggestCloneClassMembers) {
             biggestCloneClassMembers = classSize;
         }
+
+        // loc location = getLocation(class);
+        // for(i <- [location.begin.line..location.end.line + 1]){
+        //     if (location.path in uniqueDuplication){ uniqueDuplication[location.path] += i; }
+        //     else {uniqueDuplication[location.path] = {i};}
+        // }
+        for(c <- class)
+        {
+            loc location1 = getLocation(c);
+            for(i <- [location1.begin.line..location1.end.line + 1]){
+                if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
+                else {uniqueDuplication[location1.path] = {i};}
+            }
+            for (c1 <- cloneClasses[class]){
+                for(c2 <- c1){
+                    location1 = getLocation(c2);
+                    for(i <- [location1.begin.line..location1.end.line + 1]){
+                        if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
+                        else {uniqueDuplication[location1.path] = {i};}
+                    }
+                }
+            }
+        }
+    }
+    // println("Anandan - <uniqueDuplication>");
+    for (l <- uniqueDuplication){
+        duplicatedLines += size(uniqueDuplication[l]);
     }
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
