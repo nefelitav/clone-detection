@@ -53,17 +53,16 @@ public class App
         // 5) line 11 - line 16
         // 6) line 11 - line 17
         // 7) line 12 - line 13
-        // 8) line 12 - line 14
-        // 9) line 12 - line 15
-        // 10) line 12 - line 16
-        // 11) line 12 - line 17
-        // 12) line 13 - line 15
-        // 13) line 13 - line 16
-        // 14) line 13 - line 17
-        // 15) line 15 - line 16
-        // 16) line 15 - line 17
-        // 17) line 16 - line 17
-        // 18) line 21 - line 22
+        // 8) line 12 - line 15
+        // 9) line 12 - line 16
+        // 10) line 12 - line 17
+        // 11) line 13 - line 15
+        // 12) line 13 - line 16
+        // 13) line 13 - line 17
+        // 14) line 15 - line 16
+        // 15) line 15 - line 17
+        // 16) line 16 - line 17
+        // 17) line 21 - line 22
         // 19) line 21 - line 23
         // 20) line 21 - line 25
         // 21) line 21 - line 26
@@ -76,7 +75,8 @@ public class App
         // 28) line 23 - line 26
         // 29) line 23 - line 27
         // 30) line 25 - line 26
-        // 31) line 25 - line 27
+        // 30) line 25 - line 27
+        // 31) line 26 - line 27
         // number of clone pairs: 31
         // number of clone classes: 3
         // biggest clone class in members: 6
