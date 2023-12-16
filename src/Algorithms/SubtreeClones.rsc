@@ -20,6 +20,8 @@ import String;
 public map[node, set[node]] pair0Subtrees = ();
 public map[node, set[node]] pair1Subtrees = ();
 public map[node, set[node]] subtrees = ();
+public map[loc, set[loc]] cloneVisualLocation = ();
+public map[loc, int] cloneVisualLines = ();
  
 /////////////////////////
 ///   Main function   ///
@@ -37,7 +39,7 @@ public map[node, set[node]] subtrees = ();
     - prints statistics
 
 */
-tuple[int, int, int, int, map[node, set[node]]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
+tuple[int, int, int, int, map[node, set[node]], map[loc, set[loc]], map[loc, int]] findSubtreeClones(loc projectLocation, int cloneType, int massThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     if (cloneType != 1) {
         ast = toList(normalizeAST(toSet(ast)));
@@ -82,7 +84,7 @@ tuple[int, int, int, int, map[node, set[node]]] findSubtreeClones(loc projectLoc
     map[node, set[node]] classes = ();
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines,  classes> = getSubtreeStatistics(clonePairs, projectLocation);
 
-    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes>;
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes, cloneVisualLocation, cloneVisualLines>;
 }
 
 //////////////////////////////
@@ -397,18 +399,23 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
             if (classSize > biggestCloneClassMembers) {
                 biggestCloneClassMembers = classSize;
             }
+            cloneVisualLines[location] = location.end.line + 1 - location.begin.line;
             for(i <- [location.begin.line..location.end.line + 1]){
                 if (location.path in uniqueDuplication){ uniqueDuplication[location.path] += i; }
                 else {uniqueDuplication[location.path] = {i};}
 
             }
-             for(c <- cloneClasses[class]){
+            for(c <- cloneClasses[class]){
                 loc location1 = getLocation(c);
+                if (location notin cloneVisualLocation){
+                    cloneVisualLocation[location] = {location1};
+                } else{
+                    cloneVisualLocation[location] += location1;
+                }
                 if (location1 != |unresolved:///|) {
                     for(i <- [location1.begin.line..location1.end.line + 1]){
                     if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
                     else {uniqueDuplication[location1.path] = {i};}
-
                     }
                 }
             }
@@ -417,7 +424,8 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
     for (l <- uniqueDuplication){
         duplicatedLines += size(uniqueDuplication[l]);
     }
-
+    println("Anandan - <cloneVisualLines>");
+    println("Anandan - <cloneVisualLocation>");
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
     println("Project Lines: <projectLines>");
