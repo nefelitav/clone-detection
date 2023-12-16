@@ -1,47 +1,39 @@
-[
- {
-  "biggestLines": {
-   "classes": [
-    [
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(84,151,<9,20>,<18,5>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)"
-    ]
-   ],
-   "numbers": [
-    [
-     10,
-     1,
-     1,
-     1,
-     1
-    ]
-   ]
-  },
-  "pairs": 7,
-  "biggestMembers": {
-   "classes": [
-    [
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)",
-     "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)"
-    ]
-   ],
-   "numbers": [
-    [
-     1,
-     1,
-     1,
-     1,
-     1
-    ]
-   ]
-  },
-  "classes": 7,
-  "duplicatedLines": 20
+{
+ "projectLines": 100,
+ "pairs": [7, 8, 9, 10],
+ "classes": [7, 8, 9, 10],
+ "duplicatedLines": [7, 8, 9, 10],
+ "biggestLines": {
+  "classes": [
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(84,151,<9,20>,<18,5>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)"
+  ],
+  "numbers": [
+    10,
+    1,
+    1,
+    1,
+    1
+  ]
+ },
+ "biggestMembers": {
+  "classes": [
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)",
+    "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)"
+    
+  ],
+  "numbers": [
+    10,
+    5,
+    2,
+    1,
+    1
+  ]
  }
-]
+}

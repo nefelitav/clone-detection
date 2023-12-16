@@ -430,7 +430,7 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
         duplicatedLines += size(uniqueDuplication[l]);
     }
 
-    // exportData(numberOfClones, numberOfCloneClasses, duplicatedLines, cloneClasses);
+    exportData(numberOfClones, numberOfCloneClasses, duplicatedLines, cloneClasses);
 
     // println("Anandan - <cloneVisualLines>");
     // println("Anandan - <cloneVisualLocation>");
