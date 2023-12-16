@@ -19,6 +19,8 @@ import String;
 
 public map[tuple[list[node], list[node]], str] pair0IsSubset = ();
 public map[tuple[list[node], list[node]], str] pair1IsSubset = ();
+public map[loc, set[loc]] cloneVisualLocation = ();
+public map[loc, int] cloneVisualLines = ();
 /////////////////////////
 ///   Main function   ///
 /////////////////////////
@@ -32,7 +34,7 @@ public map[tuple[list[node], list[node]], str] pair1IsSubset = ();
     prints statistics
 
 */
-list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold, bool generalize) {
+tuple[list[tuple[list[node], list[node]]], map[loc, set[loc]], map[loc, int]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     if (cloneType != 1) {
         ast = toList(normalizeAST(toSet(ast)));
@@ -58,7 +60,7 @@ list[tuple[list[node], list[node]]] findSequenceClones(loc projectLocation, int 
         println("<pair[0]>     <pair[1]>\n");
     }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
-    return clonePairs;
+    return <clonePairs, cloneVisualLocation, cloneVisualLines>;
 }
 
 //////////////////////////////
@@ -423,16 +425,22 @@ tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node
         for(c <- class)
         {
             loc location1 = getLocation(c);
+            cloneVisualLines[location1] = location1.end.line + 1 - location1.begin.line;
             for(i <- [location1.begin.line..location1.end.line + 1]){
                 if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
                 else {uniqueDuplication[location1.path] = {i};}
             }
             for (c1 <- cloneClasses[class]){
                 for(c2 <- c1){
-                    location1 = getLocation(c2);
-                    for(i <- [location1.begin.line..location1.end.line + 1]){
-                        if (location1.path in uniqueDuplication){ uniqueDuplication[location1.path] += i; }
-                        else {uniqueDuplication[location1.path] = {i};}
+                    loc location2 = getLocation(c2);
+                    if (location1 notin cloneVisualLocation){
+                        cloneVisualLocation[location1] = {location2};
+                    } else{
+                        cloneVisualLocation[location1] += location2;
+                    }
+                    for(i <- [location2.begin.line..location2.end.line + 1]){
+                        if (location2.path in uniqueDuplication){ uniqueDuplication[location2.path] += i; }
+                        else {uniqueDuplication[location2.path] = {i};}
                     }
                 }
             }
