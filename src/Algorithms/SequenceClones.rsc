@@ -146,7 +146,7 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
     int c = 0;
     for (bucket <- hashTable) {	
         c += 1;
-        println("c: <c> - size: <size(hashTable[bucket])>");
+        println("<c> of <size(hashTable)> - size: <size(hashTable[bucket])>");
         for (i <- hashTable[bucket], j <- hashTable[bucket] - [i]) {
             str i_str = toString(i);
             str j_str = toString(j);
@@ -230,53 +230,53 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         // check if subclone, otherwise add it
 
         // if i subset of pair[0] and j subset of pair[1] -> we shouldnt add it
-        bool isPair0Subset = false;
-        bool isPair1Subset = false;
-        if (<pair[0], i> in pair0IsSubset) {
-            isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
-        } else {
-            isPair0Subset = isSubset(i, pair[0]);
-            pair0IsSubset[<pair[0], i>] = toString(isPair0Subset);
-        }
-        if (isPair0Subset) {
-            if (<pair[1], j> in pair1IsSubset) {
-                isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
-            } else {
-                isPair1Subset = isSubset(j, pair[1]);
-                pair1IsSubset[<pair[1], j>] = toString(isPair1Subset);
-            }
-            if (isPair1Subset) {
-                return clones;
-            }    
-        }
+        // bool isPair0Subset = false;
+        // bool isPair1Subset = false;
+        // if (<pair[0], i> in pair0IsSubset) {
+        //     isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
+        // } else {
+        //     isPair0Subset = isSubset(i, pair[0]);
+        //     pair0IsSubset[<pair[0], i>] = toString(isPair0Subset);
+        // }
+        // if (isPair0Subset) {
+        //     if (<pair[1], j> in pair1IsSubset) {
+        //         isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
+        //     } else {
+        //         isPair1Subset = isSubset(j, pair[1]);
+        //         pair1IsSubset[<pair[1], j>] = toString(isPair1Subset);
+        //     }
+        //     if (isPair1Subset) {
+        //         return clones;
+        //     }    
+        // }
 
-        // if i subset of pair[1] and j subset of pair[0] -> we shouldnt add it
-        isPair0Subset = false;
-        isPair1Subset = false;
-        if (<pair[0], j> in pair0IsSubset) {
-            isPair0Subset = fromString(pair0IsSubset[<pair[0], j>]);
-        } else {
-            isPair0Subset = isSubset(j, pair[0]);
-            pair0IsSubset[<pair[0], j>] = toString(isPair0Subset);
-        }
-        if (isPair0Subset) {
-            if (<pair[1], i> in pair1IsSubset) {
-                isPair1Subset = fromString(pair1IsSubset[<pair[1], i>]);
-            } else {
-                isPair1Subset = isSubset(i, pair[1]);
-                pair1IsSubset[<pair[1], i>] = toString(isPair1Subset);
-            }
-            if (isPair1Subset) {
-                return clones;
-            }    
-        }
-        if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
-            clones -= pair;
-        }
-        // BASED ON PAPER - NOT CORRECT
-        // if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
+        // // if i subset of pair[1] and j subset of pair[0] -> we shouldnt add it
+        // isPair0Subset = false;
+        // isPair1Subset = false;
+        // if (<pair[0], j> in pair0IsSubset) {
+        //     isPair0Subset = fromString(pair0IsSubset[<pair[0], j>]);
+        // } else {
+        //     isPair0Subset = isSubset(j, pair[0]);
+        //     pair0IsSubset[<pair[0], j>] = toString(isPair0Subset);
+        // }
+        // if (isPair0Subset) {
+        //     if (<pair[1], i> in pair1IsSubset) {
+        //         isPair1Subset = fromString(pair1IsSubset[<pair[1], i>]);
+        //     } else {
+        //         isPair1Subset = isSubset(i, pair[1]);
+        //         pair1IsSubset[<pair[1], i>] = toString(isPair1Subset);
+        //     }
+        //     if (isPair1Subset) {
+        //         return clones;
+        //     }    
+        // }
+        // if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
         //     clones -= pair;
         // }
+        // BASED ON PAPER - NOT CORRECT
+        if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
+            clones -= pair;
+        }
     }
     clones += <i, j>;
     return clones;  
