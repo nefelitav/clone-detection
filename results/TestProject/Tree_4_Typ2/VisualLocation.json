@@ -1,0 +1,8 @@
+{
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(604,28,<43,8>,<43,36>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(641,34,<44,8>,<44,42>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(455,28,<33,4>,<33,32>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(515,28,<37,4>,<37,32>)"
+ ]
+}

@@ -1,0 +1,40 @@
+{
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(139,8,<12,12>,<12,20>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(204,8,<16,8>,<16,16>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(376,8,<26,8>,<26,16>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(376,8,<26,8>,<26,16>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(393,8,<27,8>,<27,16>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(359,8,<25,8>,<25,16>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(187,8,<15,8>,<15,16>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(139,8,<12,12>,<12,20>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(204,8,<16,8>,<16,16>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(221,8,<17,8>,<17,16>)",
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(604,28,<43,8>,<43,36>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(641,34,<44,8>,<44,42>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(393,8,<27,8>,<27,16>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(455,28,<33,4>,<33,32>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(515,28,<37,4>,<37,32>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(359,8,<25,8>,<25,16>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(221,8,<17,8>,<17,16>)"
+ ],
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(84,151,<9,20>,<18,5>)": [
+  "|java+compilationUnit:///src/main/java/com/example/App.java|(256,151,<19,20>,<28,5>)"
+ ]
+}
