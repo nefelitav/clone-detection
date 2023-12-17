@@ -48,16 +48,8 @@ tuple[int, int, int, list[tuple[list[node], list[node]]], map[loc, set[loc]], ma
     <hashTable, childrenOfParents> = createSequenceHashTable(ast, minimumSequenceLengthThreshold, generalize);
     list[tuple[list[node], list[node]]] clonePairs = findSequenceClonePairs(hashTable, similarityThreshold, cloneType);
     clonePairs = toList(toSet(clonePairs));
-    // println(size(clonePairs));
-    // for(pair <- clonePairs) {
-    //     println("<pair[0]>     <pair[1]>\n");
-    // }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold);
-    }
-    // println("After\n");
-    for(pair <- clonePairs) {
-        println("<pair[0]>     <pair[1]>\n");
     }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
     return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, clonePairs, cloneVisualLocation, cloneVisualLines>;
@@ -273,7 +265,7 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
             clones -= pair;
         }
-        // BASED ON PAPER - NOT CORRECT
+        // BASED ON PAPER 
         // if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
         //     clones -= pair;
         // }

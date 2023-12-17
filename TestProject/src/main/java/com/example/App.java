@@ -28,24 +28,6 @@ public class App
     }
 }
 
-// // type 2 clones
-// interface Appendable {
-//     void append(string content);
-// }
-
-// interface Appendable2 {
-//     void append(string content);
-// }
-
-// public class AnotherFile
-// {
-//     public void h() {
-//         System.out.println("hello");
-//         System.out.println("hello world");
-//     }
-//     // type 2 clones
-// }
-
 // Subtrees Algorithm
     // Clone type 1
         // We expect 7 clone pairs:

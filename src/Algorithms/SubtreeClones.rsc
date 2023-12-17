@@ -50,9 +50,6 @@ tuple[int, int, int, int, map[node, set[node]], map[loc, set[loc]], map[loc, int
     map[node, list[value]] childrenOfParents = ();
     <hashTable, childrenOfParents> = createSubtreeHashTable(ast, massThreshold, generalize);
     println("Number of buckets: <size(hashTable)>");
-    // for (p <- hashTable) {
-    //     println("<hashTable[p]>\n");
-    // }
     println("---\n");
 
     // Finding clone pairs
@@ -67,18 +64,9 @@ tuple[int, int, int, int, map[node, set[node]], map[loc, set[loc]], map[loc, int
         }
         clonePairs = findTypeII_III_ClonePairs(hashTable, similarityThreshold, massThreshold);
     }
-    // println("---\n");
-    // for (p <- clonePairs) {
-    //     println("<p>\n");
-    // }
     if (generalize) {
         clonePairs = generalizeClones(clonePairs, childrenOfParents, similarityThreshold, massThreshold);
     }
-    // println("After\n");
-    // for (p <- clonePairs) {
-    //     println("<p>\n");
-    // }
-    // println(childrenOfParents);
     // Calculating statistics
     println("Calculating Statistics:");
     map[node, set[node]] classes = ();
@@ -245,6 +233,7 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
     set[tuple[node, node]] toRemove = {};
+    // BASED ON PAPER 
     // set[node] ijSubtrees = subtrees[i] + subtrees[j];
     // for (pair <- clones) {
     //     if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
