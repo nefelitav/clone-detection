@@ -274,9 +274,9 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
             clones -= pair;
         }
         // BASED ON PAPER - NOT CORRECT
-        if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
-            clones -= pair;
-        }
+        // if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
+        //     clones -= pair;
+        // }
     }
     clones += <i, j>;
     return clones;  
