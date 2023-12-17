@@ -244,24 +244,24 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
     if (j notin subtrees) {
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
-    set[tuple[node, node]] toRemove = {};
-    set[node] ijSubtrees = subtrees[i] + subtrees[j];
-    for (pair <- clones) {
-        if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
-            toRemove += pair;
-        }
-    }
-    // for (oldPair <- clones) {
-    //     // CORRECT VERSION - NOT BASED ON PAPER
-    //     // if it's a subclone of an existing one, dont add it
-    //     if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
-    //         return clones;
-    //     }
-    //     // remove subclones
-    //     if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
-    //         toRemove += oldPair;
+    // set[tuple[node, node]] toRemove = {};
+    // set[node] ijSubtrees = subtrees[i] + subtrees[j];
+    // for (pair <- clones) {
+    //     if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
+    //         toRemove += pair;
     //     }
     // }
+    for (oldPair <- clones) {
+        // CORRECT VERSION - NOT BASED ON PAPER
+        // if it's a subclone of an existing one, dont add it
+        if ((i in pair0Subtrees[oldPair[0]] && j in pair1Subtrees[oldPair[1]]) || (i in pair1Subtrees[oldPair[1]] && j in pair0Subtrees[oldPair[0]])) {
+            return clones;
+        }
+        // remove subclones
+        if ((oldPair[0] in subtrees[i] && oldPair[1] in subtrees[j]) || (oldPair[0] in subtrees[j] && oldPair[1] in subtrees[i])) {
+            toRemove += oldPair;
+        }
+    }
     pair0Subtrees[i] = subtrees[i];
     pair1Subtrees[j] = subtrees[j];
     clones -= toRemove;
