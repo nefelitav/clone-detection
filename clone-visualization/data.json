@@ -1,39 +1,38 @@
 {
- "projectLines": 100,
- "pairs": [7, 8, 9, 10],
- "classes": [7, 8, 9, 10],
- "duplicatedLines": [7, 8, 9, 10],
  "biggestLines": {
   "classes": [
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(84,151,<9,20>,<18,5>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)"
+   "|java+compilationUnit:///src/smallsql/database/ExpressionFunctionTruncate.java|(1768,188,<50,2>,<60,3>)",
+   "|java+compilationUnit:///src/smallsql/database/IndexScrollStatus.java|(3062,385,<89,5>,<99,6>)",
+   "|java+compilationUnit:///src/smallsql/junit/TestMoneyRounding.java|(1787,301,<53,4>,<62,5>)",
+   "|java+compilationUnit:///src/smallsql/database/SSCallableStatement.java|(4378,244,<117,51>,<125,5>)",
+   "|java+compilationUnit:///src/smallsql/database/IndexDescription.java|(6136,299,<186,9>,<194,9>)"
   ],
   "numbers": [
-    10,
-    1,
-    1,
-    1,
-    1
+   11,
+   11,
+   9,
+   9,
+   9
   ]
  },
  "biggestMembers": {
   "classes": [
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)",
-    "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)"
-    
+   "|java+compilationUnit:///src/smallsql/junit/TestDBMetaData.java|(5152,165,<110,8>,<110,173>)",
+   "|java+compilationUnit:///src/smallsql/database/LongTreeList.java|(12485,47,<431,2>,<432,25>)",
+   "|java+compilationUnit:///src/smallsql/database/CommandSelect.java|(13347,70,<421,7>,<421,77>)",
+   "|java+compilationUnit:///src/smallsql/database/TableResult.java|(7508,40,<250,65>,<253,4>)",
+   "|java+compilationUnit:///src/smallsql/junit/TestOperatoren.java|(5773,90,<113,12>,<113,102>)"
   ],
   "numbers": [
-    10,
-    5,
-    2,
-    1,
-    1
+   2,
+   2,
+   2,
+   2,
+   2
   ]
- }
+ },
+ "projectLines": 24050,
+ "pairs": [815, 22254, 59, 59],
+ "classes": [815, 816, 30, 22],
+ "duplicatedLines": [2405, 4088, 481, 481]
 }

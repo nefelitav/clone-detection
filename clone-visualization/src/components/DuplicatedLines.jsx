@@ -9,31 +9,24 @@ export default function DuplicatedLines({data}) {
   
   var projectLines = data?.projectLines;
   var subtreeClonesType1DuplicatedLines = data?.duplicatedLines[0];
-  var subtreeClonesType2DuplicatedLines = data?.duplicatedLines[1];
-  // var subtreeClonesType3DuplicatedLines = data?.subtreeClones?.type3?.duplicatedLines;
-  // var sequenceClonesType1DuplicatedLines = data?.sequenceClones?.type1?.duplicatedLines;
-  // var sequenceClonesType2DuplicatedLines = data?.sequenceClones?.type2?.duplicatedLines;
-  // var sequenceClonesType3DuplicatedLines = data?.sequenceClones?.type3?.duplicatedLines;
-  // var generalizedSubtreeClonesType1DuplicatedLines = data?.generalizedClones?.subtreeClones?.type1?.duplicatedLines;
-  // var generalizedSubtreeClonesType2DuplicatedLines = data?.generalizedClones?.subtreeClones?.type2?.duplicatedLines;
-  // var generalizedSubtreeClonesType3DuplicatedLines = data?.generalizedClones?.subtreeClones?.type3?.duplicatedLines;
-  // var generalizedSequenceClonesType1DuplicatedLines = data?.generalizedClones?.sequenceClones?.type1?.duplicatedLines;
-  // var generalizedSequenceClonesType2DuplicatedLines = data?.generalizedClones?.sequenceClones?.type2?.duplicatedLines;
-  // var generalizedSequenceClonesType3DuplicatedLines = data?.generalizedClones?.sequenceClones?.type3?.duplicatedLines;   
-
+  var subtreeClonesType1DuplicatedLinesImproved = data?.duplicatedLines[1];
+  var sequenceClonesType1DuplicatedLines = data?.duplicatedLines[2];
+  var sequenceClonesType1DuplicatedLinesImproved = data?.duplicatedLines[3];
   return (
         <Doughnut 
             const data = {{
               labels: ['subtreeType1', 
-                      'subtreeType2', 
-                      // 'subtreeType3', 
+                      'subtreeType1Improved', 
+                      'sequenceType1', 
+                      'sequenceType1Improved',
                       'projectLines'
                     ],
               datasets: [{
-                label: 'Subtree Clones: Duplicated Lines',
+                label: 'Duplicated Lines',
                 data: [subtreeClonesType1DuplicatedLines, 
-                      subtreeClonesType2DuplicatedLines, 
-                      // subtreeClonesType3DuplicatedLines, 
+                      subtreeClonesType1DuplicatedLinesImproved,
+                      sequenceClonesType1DuplicatedLines,
+                      sequenceClonesType1DuplicatedLinesImproved,
                       projectLines
                     ],
                 backgroundColor: [

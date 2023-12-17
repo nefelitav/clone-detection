@@ -7,20 +7,19 @@ import Algorithms::SequenceClones;
 import Algorithms::GeneralizeClones;
 import util::Math;
 import lang::json::IO;
-
+import Lib::Statistics;
 void main() {
     datetime begin = now();
     // println(printTime(now(), "HH:mm:ss"));
 
-    loc projectLocation = |project://TestProject|;
-    // loc projectLocation = |project://smallsql0.21_src|;
+    // loc projectLocation = |project://TestProject|;
+    loc projectLocation = |project://smallsql0.21_src|;
     // loc projectLocation = |project://hsqldb-2.3.1|;
     int cloneType = 1;
     
-    // int massThreshold = 6; // for smallsql
-    int massThreshold = 4; // for TestProject
-
-    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes, cloneVisualLocation, cloneVisualLines> = findSubtreeClones(projectLocation, cloneType, massThreshold, false);
+    int massThreshold = 6; // for smallsql
+    // int massThreshold = 4; // for TestProject
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes, cloneVisualLocation, cloneVisualLines> = findSubtreeClones(projectLocation, cloneType, massThreshold, true);
 // //     println(classes);
     // list[map[str, value]] cloneData = [("classes": classes)];  
     // writeJSON(|cwd:///results/Tree_6_Typ2/Tree_6_Typ2.json|, cloneData, indent=1);
