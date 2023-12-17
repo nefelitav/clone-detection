@@ -293,6 +293,7 @@ list[tuple[loc, int]] get5BiggestSubtreeClonesInLines(map[node, set[node]] clone
                 }
             }
         }
+        // loc biggestCloneLocation = getLocation(biggestClone);
         maxNodesAndLines += <biggestClone.src, biggestCloneLines>;
         cloneClasses = delete(cloneClasses, biggestClone);
     }
@@ -319,6 +320,7 @@ list[tuple[loc, int]] get5BiggestSubtreeCloneClassesInMembers(map[node, set[node
                 }
             }
         }
+        // loc biggestCloneLocation = getLocation(biggestClone);
         maxNodesAndMembers += <biggestClone.src, biggestCloneMembers + 1>;
         cloneClasses = delete(cloneClasses, biggestClone);
     }
@@ -430,7 +432,7 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
         duplicatedLines += size(uniqueDuplication[l]);
     }
 
-    exportData(numberOfClones, numberOfCloneClasses, duplicatedLines, cloneClasses);
+    // exportData(numberOfClones, numberOfCloneClasses, duplicatedLines, cloneClasses);
 
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
