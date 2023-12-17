@@ -244,7 +244,7 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
     if (j notin subtrees) {
         subtrees[j] = getSubtreeNodes(j, massThreshold);
     }
-    // set[tuple[node, node]] toRemove = {};
+    set[tuple[node, node]] toRemove = {};
     // set[node] ijSubtrees = subtrees[i] + subtrees[j];
     // for (pair <- clones) {
     //     if (pair[0] in ijSubtrees || pair[1] in ijSubtrees) {
