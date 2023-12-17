@@ -1,10 +1,10 @@
 import json
 import pandas as pd
 
-with open('//Users//anand//clone-detection//results//VisualLocation.json', 'r') as file:
+with open('results//VisualLocation.json', 'r') as file:
     clonesLocations = json.load(file)
 
-with open('//Users//anand//clone-detection//results//VisualLines.json', 'r') as file:
+with open('results//VisualLines.json', 'r') as file:
     clonesLines = json.load(file)
 
 # Prepare data for DataFrame

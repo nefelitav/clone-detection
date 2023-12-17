@@ -1,0 +1,428 @@
+[
+ {
+  "classes": [
+   [
+    {
+     "name": "interfaceName",
+     "extends": [],
+     "implements": [],
+     "body": [
+      {
+       "return": "short",
+       "name": "append",
+       "parameters": [
+        {
+         "type": {
+          "typeName": {
+           "name": "simpleName"
+          }
+         },
+         "name": "paramName",
+         "extraDimensions": 0
+        }
+       ],
+       "exceptions": [],
+       "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(455,28,<33,4>,<33,32>)",
+       "decl": "java+method:///com/example/Appendable/append(com.example.string)",
+       "typ": {
+        "decl": "java+method:///com/example/Appendable/append(com.example.string)",
+        "typeParameters": [],
+        "returnType": "void",
+        "parameters": [
+         {
+          "decl": "java+class:///com/example/string",
+          "typeParameters": []
+         }
+        ]
+       }
+      }
+     ]
+    },
+    [
+     {
+      "name": "interfaceName",
+      "extends": [],
+      "implements": [],
+      "body": [
+       {
+        "return": "short",
+        "name": "append",
+        "parameters": [
+         {
+          "type": {
+           "typeName": {
+            "name": "simpleName"
+           }
+          },
+          "name": "paramName",
+          "extraDimensions": 0
+         }
+        ],
+        "exceptions": [],
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(515,28,<37,4>,<37,32>)",
+        "decl": "java+method:///com/example/Appendable2/append(com.example.string)",
+        "typ": {
+         "decl": "java+method:///com/example/Appendable2/append(com.example.string)",
+         "typeParameters": [],
+         "returnType": "void",
+         "parameters": [
+          {
+           "decl": "java+class:///com/example/string",
+           "typeParameters": []
+          }
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   ],
+   [
+    {
+     "stmt": {
+      "isSuper": false,
+      "receiver": {
+       "qualifier": {
+        "name": "simpleName"
+       },
+       "expression": {
+        "name": "simpleName"
+       },
+       "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(604,10,<43,8>,<43,18>)",
+       "decl": "java+field:///java/lang/System/out",
+       "typ": {
+        "decl": "java+class:///java/io/PrintStream",
+        "typeParameters": []
+       }
+      },
+      "name": "methodCallName",
+      "arguments": [
+       {
+        "stringValue": "x"
+       }
+      ]
+     },
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(604,28,<43,8>,<43,36>)"
+    },
+    [
+     {
+      "stmt": {
+       "isSuper": false,
+       "receiver": {
+        "qualifier": {
+         "name": "simpleName"
+        },
+        "expression": {
+         "name": "simpleName"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(641,10,<44,8>,<44,18>)",
+        "decl": "java+field:///java/lang/System/out",
+        "typ": {
+         "decl": "java+class:///java/io/PrintStream",
+         "typeParameters": []
+        }
+       },
+       "name": "methodCallName",
+       "arguments": [
+        {
+         "stringValue": "x"
+        }
+       ]
+      },
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(641,34,<44,8>,<44,42>)"
+     }
+    ]
+   ],
+   [
+    {
+     "return": "short",
+     "name": "append",
+     "parameters": [
+      {
+       "type": {
+        "typeName": {
+         "name": "simpleName"
+        }
+       },
+       "name": "paramName",
+       "extraDimensions": 0
+      }
+     ],
+     "exceptions": [],
+     "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(455,28,<33,4>,<33,32>)",
+     "decl": "java+method:///com/example/Appendable/append(com.example.string)",
+     "typ": {
+      "decl": "java+method:///com/example/Appendable/append(com.example.string)",
+      "typeParameters": [],
+      "returnType": "void",
+      "parameters": [
+       {
+        "decl": "java+class:///com/example/string",
+        "typeParameters": []
+       }
+      ]
+     }
+    },
+    [
+     {
+      "return": "short",
+      "name": "append",
+      "parameters": [
+       {
+        "type": {
+         "typeName": {
+          "name": "simpleName"
+         }
+        },
+        "name": "paramName",
+        "extraDimensions": 0
+       }
+      ],
+      "exceptions": [],
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(515,28,<37,4>,<37,32>)",
+      "decl": "java+method:///com/example/Appendable2/append(com.example.string)",
+      "typ": {
+       "decl": "java+method:///com/example/Appendable2/append(com.example.string)",
+       "typeParameters": [],
+       "returnType": "void",
+       "parameters": [
+        {
+         "decl": "java+class:///com/example/string",
+         "typeParameters": []
+        }
+       ]
+      }
+     }
+    ]
+   ],
+   [
+    {
+     "return": "short",
+     "name": "methodName",
+     "parameters": [],
+     "exceptions": [],
+     "impl": {
+      "statements": [
+       {
+        "condition": {
+         "boolValue": true
+        },
+        "thenBranch": {
+         "statements": [
+          {
+           "declaration": {
+            "type": "short",
+            "fragments": [
+             {
+              "name": "varName",
+              "extraDimensions": 0,
+              "initializer": {
+               "numberValue": "0"
+              }
+             }
+            ]
+           },
+           "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(118,8,<11,12>,<11,20>)"
+          },
+          {
+           "declaration": {
+            "type": "short",
+            "fragments": [
+             {
+              "name": "varName",
+              "extraDimensions": 0,
+              "initializer": {
+               "numberValue": "0"
+              }
+             }
+            ]
+           },
+           "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(139,8,<12,12>,<12,20>)"
+          },
+          {
+           "declaration": {
+            "type": "short",
+            "fragments": [
+             {
+              "name": "varName",
+              "extraDimensions": 0,
+              "initializer": {
+               "numberValue": "0"
+              }
+             }
+            ]
+           },
+           "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(160,8,<13,12>,<13,20>)"
+          }
+         ],
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(104,74,<10,18>,<14,9>)"
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(94,84,<10,8>,<14,9>)"
+       },
+       {
+        "declaration": {
+         "type": "short",
+         "fragments": [
+          {
+           "name": "varName",
+           "extraDimensions": 0,
+           "initializer": {
+            "numberValue": "0"
+           }
+          }
+         ]
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(187,8,<15,8>,<15,16>)"
+       },
+       {
+        "declaration": {
+         "type": "short",
+         "fragments": [
+          {
+           "name": "varName",
+           "extraDimensions": 0,
+           "initializer": {
+            "numberValue": "0"
+           }
+          }
+         ]
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(204,8,<16,8>,<16,16>)"
+       },
+       {
+        "declaration": {
+         "type": "short",
+         "fragments": [
+          {
+           "name": "varName",
+           "extraDimensions": 0,
+           "initializer": {
+            "numberValue": "0"
+           }
+          }
+         ]
+        },
+        "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(221,8,<17,8>,<17,16>)"
+       }
+      ],
+      "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(84,151,<9,20>,<18,5>)"
+     }
+    },
+    [
+     {
+      "return": "short",
+      "name": "methodName",
+      "parameters": [],
+      "exceptions": [],
+      "impl": {
+       "statements": [
+        {
+         "condition": {
+          "boolValue": true
+         },
+         "thenBranch": {
+          "statements": [
+           {
+            "declaration": {
+             "type": "short",
+             "fragments": [
+              {
+               "name": "varName",
+               "extraDimensions": 0,
+               "initializer": {
+                "numberValue": "0"
+               }
+              }
+             ]
+            },
+            "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)"
+           },
+           {
+            "declaration": {
+             "type": "short",
+             "fragments": [
+              {
+               "name": "varName",
+               "extraDimensions": 0,
+               "initializer": {
+                "numberValue": "0"
+               }
+              }
+             ]
+            },
+            "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)"
+           },
+           {
+            "declaration": {
+             "type": "short",
+             "fragments": [
+              {
+               "name": "varName",
+               "extraDimensions": 0,
+               "initializer": {
+                "numberValue": "0"
+               }
+              }
+             ]
+            },
+            "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)"
+           }
+          ],
+          "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(276,74,<20,18>,<24,9>)"
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(266,84,<20,8>,<24,9>)"
+        },
+        {
+         "declaration": {
+          "type": "short",
+          "fragments": [
+           {
+            "name": "varName",
+            "extraDimensions": 0,
+            "initializer": {
+             "numberValue": "0"
+            }
+           }
+          ]
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(359,8,<25,8>,<25,16>)"
+        },
+        {
+         "declaration": {
+          "type": "short",
+          "fragments": [
+           {
+            "name": "varName",
+            "extraDimensions": 0,
+            "initializer": {
+             "numberValue": "0"
+            }
+           }
+          ]
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(376,8,<26,8>,<26,16>)"
+        },
+        {
+         "declaration": {
+          "type": "short",
+          "fragments": [
+           {
+            "name": "varName",
+            "extraDimensions": 0,
+            "initializer": {
+             "numberValue": "0"
+            }
+           }
+          ]
+         },
+         "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(393,8,<27,8>,<27,16>)"
+        }
+       ],
+       "src": "|java+compilationUnit:///src/main/java/com/example/App.java|(256,151,<19,20>,<28,5>)"
+      }
+     }
+    ]
+   ]
+  ]
+ }
+]

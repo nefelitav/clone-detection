@@ -1,0 +1,12 @@
+{
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(311,8,<22,12>,<22,20>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(376,8,<26,8>,<26,16>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(187,8,<15,8>,<15,16>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(393,8,<27,8>,<27,16>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(332,8,<23,12>,<23,20>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(266,84,<20,8>,<24,9>)": 5,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(204,8,<16,8>,<16,16>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(359,8,<25,8>,<25,16>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(290,8,<21,12>,<21,20>)": 1,
+ "|java+compilationUnit:///src/main/java/com/example/App.java|(221,8,<17,8>,<17,16>)": 1
+}
