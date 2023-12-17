@@ -230,49 +230,49 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
         // check if subclone, otherwise add it
 
         // if i subset of pair[0] and j subset of pair[1] -> we shouldnt add it
-        // bool isPair0Subset = false;
-        // bool isPair1Subset = false;
-        // if (<pair[0], i> in pair0IsSubset) {
-        //     isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
-        // } else {
-        //     isPair0Subset = isSubset(i, pair[0]);
-        //     pair0IsSubset[<pair[0], i>] = toString(isPair0Subset);
-        // }
-        // if (isPair0Subset) {
-        //     if (<pair[1], j> in pair1IsSubset) {
-        //         isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
-        //     } else {
-        //         isPair1Subset = isSubset(j, pair[1]);
-        //         pair1IsSubset[<pair[1], j>] = toString(isPair1Subset);
-        //     }
-        //     if (isPair1Subset) {
-        //         return clones;
-        //     }    
-        // }
+        bool isPair0Subset = false;
+        bool isPair1Subset = false;
+        if (<pair[0], i> in pair0IsSubset) {
+            isPair0Subset = fromString(pair0IsSubset[<pair[0], i>]);
+        } else {
+            isPair0Subset = isSubset(i, pair[0]);
+            pair0IsSubset[<pair[0], i>] = toString(isPair0Subset);
+        }
+        if (isPair0Subset) {
+            if (<pair[1], j> in pair1IsSubset) {
+                isPair1Subset = fromString(pair1IsSubset[<pair[1], j>]);
+            } else {
+                isPair1Subset = isSubset(j, pair[1]);
+                pair1IsSubset[<pair[1], j>] = toString(isPair1Subset);
+            }
+            if (isPair1Subset) {
+                return clones;
+            }    
+        }
 
-        // // if i subset of pair[1] and j subset of pair[0] -> we shouldnt add it
-        // isPair0Subset = false;
-        // isPair1Subset = false;
-        // if (<pair[0], j> in pair0IsSubset) {
-        //     isPair0Subset = fromString(pair0IsSubset[<pair[0], j>]);
-        // } else {
-        //     isPair0Subset = isSubset(j, pair[0]);
-        //     pair0IsSubset[<pair[0], j>] = toString(isPair0Subset);
-        // }
-        // if (isPair0Subset) {
-        //     if (<pair[1], i> in pair1IsSubset) {
-        //         isPair1Subset = fromString(pair1IsSubset[<pair[1], i>]);
-        //     } else {
-        //         isPair1Subset = isSubset(i, pair[1]);
-        //         pair1IsSubset[<pair[1], i>] = toString(isPair1Subset);
-        //     }
-        //     if (isPair1Subset) {
-        //         return clones;
-        //     }    
-        // }
-        // if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
-        //     clones -= pair;
-        // }
+        // if i subset of pair[1] and j subset of pair[0] -> we shouldnt add it
+        isPair0Subset = false;
+        isPair1Subset = false;
+        if (<pair[0], j> in pair0IsSubset) {
+            isPair0Subset = fromString(pair0IsSubset[<pair[0], j>]);
+        } else {
+            isPair0Subset = isSubset(j, pair[0]);
+            pair0IsSubset[<pair[0], j>] = toString(isPair0Subset);
+        }
+        if (isPair0Subset) {
+            if (<pair[1], i> in pair1IsSubset) {
+                isPair1Subset = fromString(pair1IsSubset[<pair[1], i>]);
+            } else {
+                isPair1Subset = isSubset(i, pair[1]);
+                pair1IsSubset[<pair[1], i>] = toString(isPair1Subset);
+            }
+            if (isPair1Subset) {
+                return clones;
+            }    
+        }
+        if ((isSubset(pair[0], i) && (isSubset(pair[1], j))) || (isSubset(pair[0], j) && (isSubset(pair[1], i)))) {
+            clones -= pair;
+        }
         // BASED ON PAPER - NOT CORRECT
         if (isSubset(pair[0], i) || isSubset(pair[1], j) || isSubset(pair[0], j) || isSubset(pair[1], i)) {
             clones -= pair;
@@ -286,56 +286,6 @@ list[tuple[list[node], list[node]]] addSequenceClone(list[tuple[list[node], list
 ////////////////////////
 ///    Statistics    ///
 ////////////////////////
-
-/*  
-    arguments: clones
-    gets 5 biggest sequence clones in lines
-    returns both the clones and the number of lines that corresponds to them
-*/
-// list[tuple[list[node], int]] get5BiggestSequenceClonesInLines(list[tuple[list[node], list[node]]] clonePairs) {
-//     list[tuple[list[node], int]] maxSequencesAndLines = [];
-//     while(size(maxSequencesAndLines) != 5) {
-//         int maxLines = 0;
-//         tuple[list[node],list[node]] maxPair = clonePairs[0];
-//         for(pair <- clonePairs) {
-//           int numberOfLines = 0;
-//           for(pairNode <- pair[0]) {
-//              numberOfLines += UnitLOC(pairNode.src);
-//           }
-//           if (numberOfLines > maxLines) {
-//              maxLines = numberOfLines;
-//              maxPair = pair;
-//           }
-//.        }
-//         clonePairs -= pair;
-//         maxSequencesAndLines += <maxPair[0], maxLines>;
-//     }
-//     return maxSequencesAndLines;
-// }
-
-/*  
-    arguments: clones
-    gets 5 biggest sequence clone classes in members
-    returns both the clone classes and the number of members that corresponds to them
-*/
-// list[tuple[list[node], int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[list[node], list[node]]] clonePairs) {
-//     list[tuple[list[node], int]] maxSequencesAndLines = [];
-//     list[node] biggestCloneClass = "null"(0);
-//     map[list[node], list[list[node]]] cloneClasses =  getSequenceCloneClasses(clonePairs);
-//     while(size(maxNodesAndMembers) != 5) {
-//         int biggestCloneClassMembers = 0;
-//         for (class <- cloneClasses) {
-//             int classSize = size(cloneClasses[class]);
-//             if (classSize > biggestCloneClassMembers && <class, classSize> notin maxSequencesAndLines) {
-//                 biggestCloneClassMembers = classSize;
-//                 biggestCloneClass = class;
-//             }
-//         }
-//         biggestCloneClassMembers += 1;
-//         maxSequencesAndLines += <biggestCloneClass, biggestCloneClassMembers>;
-//     }
-//     return maxSequencesAndLines;
-// }
 
 /*
     arguments: clones, projectLocation

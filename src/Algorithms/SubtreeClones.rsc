@@ -273,52 +273,57 @@ set[tuple[node, node]] addSubtreeClone(set[tuple[node, node]] clones, node i, no
 ///    Statistics    ///
 ////////////////////////
 
-// /*
-//     arguments: clones
-//     get 5 biggest subtree clones in lines
-//     return both the subtrees and the number of lines that corresponds to them
-// */
-// list[tuple[node, int]] get5BiggestSubtreeClonesInLines(list[tuple[node, node]] clonePairs) {
-//     list[tuple[node, int]] maxNodesAndLines = [];
-//     while(size(maxNodesAndLines) != 5) {
-//         int maxLines = UnitLOC((clonePairs[0][0]).src);
-//         tuple[node, node] maxNode = clonePairs[0];
-//         for(pair <- clonePairs) {
-//             int numberOfLines = UnitLOC((pair[0]).src);
-//             if (numberOfLines > maxLines) {
-//                 maxLines = numberOfLines;
-//                 maxNode = pair;
-//             }
-//         }
-//         clonePairs -= maxNode;
-//         maxNodesAndLines += <maxNode[0], maxLines>;
-//     }
-//     return maxNodesAndLines;
-// }
+/*
+    arguments: clone classes
+    get 5 biggest subtree clones in lines
+    return both the subtrees and the number of lines that corresponds to them
+*/
+list[tuple[loc, int]] get5BiggestSubtreeClonesInLines(map[node, set[node]] cloneClasses) {
+    list[tuple[loc, int]] maxNodesAndLines = [];
+    while (size(maxNodesAndLines) != 5 && size(cloneClasses) != 0) {
+        node biggestClone = "null"(0);
+        int biggestCloneLines = 0;
+        for (class <- cloneClasses) {
+            loc location = getLocation(class);
+            if (location != |unresolved:///|) {
+                int numberOfLines = UnitLOC(location);
+                if (numberOfLines > biggestCloneLines) {
+                    biggestCloneLines = numberOfLines;
+                    biggestClone = class;
+                }
+            }
+        }
+        maxNodesAndLines += <biggestClone.src, biggestCloneLines>;
+        cloneClasses = delete(cloneClasses, biggestClone);
+    }
+    return maxNodesAndLines;
+}
 
-// /*
-//     arguments: clones
-//     get 5 biggest subtree clone classes in members
-//     return both the subtrees and the number of members that corresponds to them
-// */
-// list[tuple[node, int]] get5BiggestSubtreeCloneClassesInMembers(list[tuple[node, node]] clonePairs) {
-//     list[tuple[node, int]] maxNodesAndMembers = [];
-//     node biggestCloneClass = "null"(0);
-//     map[node, list[node]] cloneClasses =  getSubtreeCloneClasses(clonePairs);
-//     while(size(maxNodesAndMembers) != 5) {
-//         int biggestCloneClassMembers = 0;
-//         for (class <- cloneClasses) {
-//             int classSize = size(cloneClasses[class]);
-//             if (classSize > biggestCloneClassMembers && <class, classSize> notin maxNodesAndMembers) {
-//                 biggestCloneClassMembers = classSize;
-//                 biggestCloneClass = class;
-//             }
-//         }
-//         biggestCloneClassMembers += 1;
-//         maxNodesAndMembers += <biggestCloneClass, biggestCloneClassMembers>;
-//     }
-//     return maxNodesAndMembers;
-// }
+/*
+    arguments: clone classes
+    get 5 biggest subtree clone classes in members
+    returns both the subtrees and the number of members that corresponds to them
+*/
+list[tuple[loc, int]] get5BiggestSubtreeCloneClassesInMembers(map[node, set[node]] cloneClasses) {
+    list[tuple[loc, int]] maxNodesAndMembers = [];
+    while (size(maxNodesAndMembers) != 5 && size(cloneClasses) != 0) {
+        node biggestClone = "null"(0);
+        int biggestCloneMembers = 0;
+        for (class <- cloneClasses) {
+            loc location = getLocation(class);
+            if (location != |unresolved:///|) {
+                int classSize = size(cloneClasses[class]);
+                if (classSize > biggestCloneMembers) {
+                    biggestCloneMembers = classSize;
+                    biggestClone = class;
+                }
+            }
+        }
+        maxNodesAndMembers += <biggestClone.src, biggestCloneMembers>;
+        cloneClasses = delete(cloneClasses, biggestClone);
+    }
+    return maxNodesAndMembers;
+}
 
 /*
     arguments: clones, projectLocation
@@ -424,8 +429,11 @@ tuple[int, int, int, int, map[node, set[node]]] getSubtreeStatistics(set[tuple[n
     for (l <- uniqueDuplication){
         duplicatedLines += size(uniqueDuplication[l]);
     }
-    println("Anandan - <cloneVisualLines>");
-    println("Anandan - <cloneVisualLocation>");
+
+    exportData(numberOfClones, numberOfCloneClasses, duplicatedLines, cloneClasses);
+
+    // println("Anandan - <cloneVisualLines>");
+    // println("Anandan - <cloneVisualLocation>");
     biggestCloneClassMembers += 1;
     projectLines = LOC(projectLocation);
     println("Project Lines: <projectLines>");
