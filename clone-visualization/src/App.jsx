@@ -29,9 +29,9 @@ function App() {
               <ClonePairs data={data}/>} />
           <Route path="/classes" element={
               <CloneClasses data={data}/>} />
-          <Route path="/biggest/lines" element={
+          <Route path="/lines" element={
               <BiggestLines data={data}/>} />
-          <Route path="/biggest/members" element={
+          <Route path="/members" element={
               <BiggestMembers data={data}/>} />
           <Route path="/duplicatedlines" element={
               <DuplicatedLines data={data}/>} />
