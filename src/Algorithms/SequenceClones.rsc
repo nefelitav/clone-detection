@@ -138,7 +138,6 @@ list[tuple[list[node], list[node]]] findSequenceClonePairs(map[str, list[list[no
     int c = 0;
     for (bucket <- hashTable) {	
         c += 1;
-        println("<c> of <size(hashTable)> - size: <size(hashTable[bucket])>");
         for (i <- hashTable[bucket], j <- hashTable[bucket] - [i]) {
             str i_str = toString(i);
             str j_str = toString(j);
@@ -388,7 +387,6 @@ tuple[int, int, int, int] getSequenceStatistics(list[tuple[list[node], list[node
             }
         }
     }
-    // println("Anandan - <uniqueDuplication>");
     for (l <- uniqueDuplication){
         duplicatedLines += size(uniqueDuplication[l]);
     }
