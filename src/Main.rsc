@@ -24,7 +24,7 @@ void main() {
     writeJSON(|cwd:///results//Tree/VisualLocation.json|, cloneVisualLocation, indent=1);
     writeJSON(|cwd:///results//Tree/VisualLines.json|, cloneVisualLines, indent=1);
 
-    // int minimumSequenceLengthThreshold = 6; // for smallsql
+    // // int minimumSequenceLengthThreshold = 6; // for smallsql
     int minimumSequenceLengthThreshold = 3; // for TestProject
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, clonePairs, cloneVisualLocation, cloneVisualLines> = findSequenceClones(projectLocation, cloneType, minimumSequenceLengthThreshold, true);
     writeJSON(|cwd:///results//Seq/VisualLocation.json|, cloneVisualLocation, indent=1);
