@@ -1,23 +1,24 @@
 module Tests::SubtreeClonesTests
 
 import IO;
-import Node;
 import List;
-import Map;
-import util::Math;
-import DateTime;
-import Set;
-import Type;
-import Boolean;
-import String;
+import Algorithms::SubtreeClones;
+import Algorithms::GeneralizeClones;
 
 // Tests on TestProject
 test bool testFindSubtreeClonesType1() {
-    return findSubtreeClones(|project://TestProject|, 1, 4, false) == <7, 7, _, _, _>;
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes, cloneVisualLocation, cloneVisualLines> = findSubtreeClones(|project://TestProject|, 1, 4, false);
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines> == <8, 8, 59>;
 }
 
 test bool testFindSubtreeClonesType2() {
-    return findSubtreeClones(|project://TestProject|, 1, 4, false) == <31, 3, _, _, _>;
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes, cloneVisualLocation, cloneVisualLines> = findSubtreeClones(|project://TestProject|, 2, 4, false);
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines> == <33, 5, 38>;
+}
+
+test bool testFindSubtreeClonesType3() {
+    <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines, classes, cloneVisualLocation, cloneVisualLines> = findSubtreeClones(|project://TestProject|, 3, 4, false);
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines> == <33, 5, 38>;
 }
 
 test bool md5hashTest() {

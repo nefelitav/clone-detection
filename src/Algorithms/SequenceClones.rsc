@@ -34,7 +34,7 @@ public map[loc, int] cloneVisualLines = ();
     prints statistics
 
 */
-tuple[list[tuple[list[node], list[node]]], map[loc, set[loc]], map[loc, int]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold, bool generalize) {
+tuple[int, int, int, list[tuple[list[node], list[node]]], map[loc, set[loc]], map[loc, int]] findSequenceClones(loc projectLocation, int cloneType, int minimumSequenceLengthThreshold, bool generalize) {
     list[Declaration] ast = getASTs(projectLocation);
     if (cloneType != 1) {
         ast = toList(normalizeAST(toSet(ast)));
@@ -60,7 +60,7 @@ tuple[list[tuple[list[node], list[node]]], map[loc, set[loc]], map[loc, int]] fi
         println("<pair[0]>     <pair[1]>\n");
     }
     <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, projectLines> = getSequenceStatistics(clonePairs, projectLocation); 
-    return <clonePairs, cloneVisualLocation, cloneVisualLines>;
+    return <numberOfClones, numberOfCloneClasses, percentageOfDuplicatedLines, clonePairs, cloneVisualLocation, cloneVisualLines>;
 }
 
 //////////////////////////////
